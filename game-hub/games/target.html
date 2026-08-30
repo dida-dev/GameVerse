@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#070912">
+
+    <title>Target Rush — GAMEVERSE</title>
+
+    <link rel="stylesheet" href="target.css">
+</head>
+
+<body>
+
+    <div class="background">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="grid"></div>
+    </div>
+
+
+    <!-- TOP BAR -->
+
+    <header>
+
+        <a href="../index.html" class="backButton">
+            ← HUB
+        </a>
+
+        <div class="gameTitle">
+            🎯 TARGET RUSH
+        </div>
+
+        <div class="best">
+            BEST
+            <strong id="bestScore">0</strong>
+        </div>
+
+    </header>
+
+
+    <!-- HUD -->
+
+    <div class="hud">
+
+        <div class="hudBox">
+            <span>SCORE</span>
+            <strong id="score">0</strong>
+        </div>
+
+        <div class="hudBox comboBox">
+            <span>COMBO</span>
+            <strong id="combo">x1</strong>
+        </div>
+
+        <div class="hudBox">
+            <span>TIME</span>
+            <strong id="timer">30</strong>
+        </div>
+
+    </div>
+
+
+    <!-- GAME -->
+
+    <main>
+
+        <div id="gameArea">
+
+            <div id="startScreen" class="overlay">
+
+                <div class="panel">
+
+                    <div class="bigIcon">
+                        🎯
+                    </div>
+
+                    <h1>
+                        TARGET RUSH
+                    </h1>
+
+                    <p>
+                        Hit the targets before they disappear.
+                        Build combos for bigger scores.
+                    </p>
+
+                    <button id="startBtn">
+                        START GAME
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="message"></div>
+
+            <div id="targetContainer"></div>
+
+
+            <div id="resultScreen" class="overlay hidden">
+
+                <div class="panel">
+
+                    <div id="resultIcon" class="bigIcon">
+                        🏆
+                    </div>
+
+                    <h1 id="resultTitle">
+                        ROUND COMPLETE
+                    </h1>
+
+                    <div class="finalScore">
+                        <span>SCORE</span>
+                        <strong id="finalScore">0</strong>
+                    </div>
+
+                    <div class="results">
+
+                        <div>
+                            <span>BEST</span>
+                            <strong id="finalBest">0</strong>
+                        </div>
+
+                        <div>
+                            <span>HITS</span>
+                            <strong id="finalHits">0</strong>
+                        </div>
+
+                        <div>
+                            <span>ACCURACY</span>
+                            <strong id="finalAccuracy">0%</strong>
+                        </div>
+
+                    </div>
+
+                    <button id="againBtn">
+                        PLAY AGAIN
+                        <span>↻</span>
+                    </button>
+
+                    <a
+                        href="../index.html"
+                        class="hubButton"
+                    >
+                        ← BACK TO HUB
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- MOBILE INFO -->
+
+    <div class="mobileHint">
+        TAP THE TARGETS 🎯
+    </div>
+
+
+    <script src="target.js"></script>
+
+</body>
+</html>

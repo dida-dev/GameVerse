@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#080b16">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GameVault">
+
+    <title>GameVault — Game Hub</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#09090f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GameVault">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+
+    <style>
+        /* =================================================
+           INSTALL APP BUTTON
+        ================================================= */
+
+        .installAppButton {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid rgba(124, 92, 255, 0.45);
+            background: linear-gradient(
+                135deg,
+                rgba(124, 92, 255, 0.18),
+                rgba(0, 210, 255, 0.12)
+            );
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .installAppButton:hover {
+            transform: translateY(-2px);
+            border-color: rgba(124, 92, 255, 0.8);
+            box-shadow: 0 8px 30px rgba(124, 92, 255, 0.22);
+        }
+
+        .installAppButton i {
+            width: 17px;
+            height: 17px;
+        }
+
+        .appInstallCard {
+            margin: 40px auto 0;
+            max-width: 1100px;
+            padding: 24px;
+            border: 1px solid rgba(124, 92, 255, 0.25);
+            border-radius: 20px;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(124, 92, 255, 0.10),
+                    rgba(0, 210, 255, 0.05)
+                );
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .appInstallInfo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .appInstallIcon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            font-size: 27px;
+            background: linear-gradient(
+                135deg,
+                #7c5cff,
+                #00d4ff
+            );
+            box-shadow: 0 10px 35px rgba(124, 92, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .appInstallInfo h3 {
+            margin: 0 0 5px;
+            color: #fff;
+        }
+
+        .appInstallInfo p {
+            margin: 0;
+            color: rgba(255,255,255,0.62);
+            font-size: 14px;
+        }
+
+        .installMainButton {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, #7c5cff, #00cfff);
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .installMainButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 207, 255, 0.25);
+        }
+
+        @media (max-width: 700px) {
+            .appInstallCard {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .installMainButton {
+                width: 100%;
+            }
+
+            .installAppButton {
+                padding: 9px 11px;
+            }
+
+            .installAppButton span {
+                display: none;
+            }
+        }
+    </style>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("sw.js")
+                    .then(() => console.log("GameVault app ready"))
+                    .catch(error => console.error("Service Worker error:", error));
+            });
+        }
+    </script>
+
+
+</head>
+
+<body>
+
+    <a href="admin/admin.html"
+       title="Admin"
+       style="
+           position:fixed;
+           right:12px;
+           bottom:12px;
+           width:10px;
+           height:10px;
+           opacity:0.08;
+           z-index:9999;
+           border-radius:50%;
+           background:#7c3aed;
+       ">
+    </a>
+
+
+<div class="background">
+    <div class="grid"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+</div>
+
+<header class="topbar">
+
+    <a href="#home" class="logo">
+        <span class="logoIcon">🎮</span>
+        <span>Game<span class="logoAccent">Vault</span></span>
+    </a>
+
+    <nav class="mainNav">
+
+        <a href="#home" class="navLink active">
+            <i data-lucide="home"></i>
+            Home
+        </a>
+
+        <a href="#games" class="navLink">
+            <i data-lucide="gamepad-2"></i>
+            Games
+        </a>
+
+        <a href="#leaderboard" class="navLink">
+            <i data-lucide="trophy"></i>
+            Leaderboard
+        </a>
+
+        <a href="#about" class="navLink">
+            <i data-lucide="info"></i>
+            About
+        </a>
+
+    </nav>
+
+    <div class="headerActions">
+
+        <div class="onlineStatus">
+            <span class="onlineDot"></span>
+            ONLINE
+        </div>
+
+        <!-- INSTALL APP -->
+        <button
+            class="installAppButton"
+            id="installAppButton"
+            type="button"
+        >
+            <i data-lucide="download"></i>
+            <span>Install App</span>
+        </button>
+
+        <button
+            class="searchButton"
+            id="searchButton"
+            type="button"
+        >
+            <i data-lucide="search"></i>
+            <span>Search</span>
+        </button>
+
+        <button
+            class="profileButton"
+            id="profileButton"
+            type="button"
+        >
+            <span class="profileAvatar">👤</span>
+            <span class="profileName">Player</span>
+            <i data-lucide="chevron-down"></i>
+        </button>
+
+    </div>
+
+</header>
+
+<main id="home">
+
+<section class="hero">
+
+    <div class="heroGlow"></div>
+
+    <div class="badge">
+        <span class="pulse"></span>
+        16 GAMES AVAILABLE
+    </div>
+
+    <h1>
+        PLAY.<br>
+        <span>COMPETE.</span><br>
+        REPEAT.
+    </h1>
+
+    <p>
+        Your personal arcade for quick, addictive,
+        and competitive mini-games.
+        Pick a game, beat your score,
+        and climb the leaderboard.
+    </p>
+
+    <div class="heroButtons">
+
+        <a href="#games" class="playButton">
+            <i data-lucide="play"></i>
+            Play Now
+        </a>
+
+        <a href="#games" class="secondaryButton">
+            <i data-lucide="gamepad-2"></i>
+            Browse Games
+        </a>
+
+    </div>
+
+    <div class="heroStats">
+
+        <div class="heroStat">
+            <strong>16</strong>
+            <span>GAMES</span>
+        </div>
+
+        <div class="statDivider"></div>
+
+        <div class="heroStat">
+            <strong>8.4K</strong>
+            <span>PLAYERS</span>
+        </div>
+
+        <div class="statDivider"></div>
+
+        <div class="heroStat">
+            <strong>24/7</strong>
+            <span>ONLINE</span>
+        </div>
+
+        <div class="statDivider"></div>
+
+        <div class="heroStat">
+            <strong>∞</strong>
+            <span>FUN</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="gamesSection" id="games">
+
+    <div class="sectionHeader">
+
+        <div>
+            <span class="eyebrow">FEATURED</span>
+
+            <h2>Today's Challenge</h2>
+
+            <p class="sectionSubtitle">
+                Can you beat the vault?
+            </p>
+        </div>
+
+        <div class="gameCount">
+            <span class="liveDot"></span>
+            16 GAMES
+        </div>
+
+    </div>
+
+
+    <article class="featuredGame">
+
+        <div class="featuredContent">
+
+            <span class="featuredBadge">
+                🏎️ FEATURED
+            </span>
+
+            <h2>Turbo</h2>
+
+            <p>
+                Dodge traffic, collect coins,
+                grab turbo boosts and survive
+                as long as possible.
+            </p>
+
+            <a
+                href="games/turbo.html"
+                class="featuredPlay"
+            >
+                Play Turbo
+                <i data-lucide="arrow-right"></i>
+            </a>
+
+        </div>
+
+        <div class="featuredIcon">
+            🏎️
+        </div>
+
+        <div class="featuredStars">
+            ★ ★ ★ ★ ★
+        </div>
+
+    </article>
+
+
+    <div class="gamesGrid">
+
+        <a href="games/blockbreaker.html"
+           class="gameCard blockbreaker"
+           data-game="blockbreaker">
+
+            <div class="cardTop">
+                <span class="gameIcon">🧱</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ARCADE</span>
+                <h3>Block Breaker</h3>
+                <p>
+                    Break every block and chase
+                    the highest score.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🧱 Arcade</span>
+                <span>⭐ 4.8</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/bomb.html"
+           class="gameCard bomb"
+           data-game="bomb">
+
+            <div class="cardTop">
+                <span class="gameIcon">💣</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ACTION</span>
+                <h3>Bomb Escape</h3>
+                <p>
+                    Think fast, avoid danger and
+                    survive the countdown.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>💣 Survival</span>
+                <span>⭐ 4.7</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/coin.html"
+           class="gameCard coin"
+           data-game="coin">
+
+            <div class="cardTop">
+                <span class="gameIcon">🪙</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ARCADE</span>
+                <h3>Coin Rush</h3>
+                <p>
+                    Collect as many coins as you
+                    can before time runs out.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🪙 Collect</span>
+                <span>⭐ 4.8</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/heist.html"
+           class="gameCard heist"
+           data-game="heist">
+
+            <div class="cardTop">
+                <span class="gameIcon">🏦</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ACTION</span>
+                <h3>The Great Heist</h3>
+                <p>
+                    Steal the loot, avoid the guards
+                    and escape.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🎮 Solo</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/mystery.html"
+           class="gameCard mystery"
+           data-game="mystery">
+
+            <div class="cardTop">
+                <span class="gameIcon">🔮</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">MYSTERY</span>
+                <h3>Mystery Challenge</h3>
+                <p>
+                    Discover the mystery and solve
+                    the challenge.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🔮 Mystery</span>
+                <span>⭐ 4.6</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/Naruto.html"
+           class="gameCard naruto"
+           data-game="naruto">
+
+            <div class="cardTop">
+                <span class="gameIcon">🥷</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">COMBAT</span>
+                <h3>Shinobi Clash</h3>
+                <p>
+                    Become the strongest ninja
+                    in the arena.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>⚔️ Combat</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/neondodge.html"
+           class="gameCard neon"
+           data-game="neon">
+
+            <div class="cardTop">
+                <span class="gameIcon">🌃</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ARCADE</span>
+                <h3>Neon Runner</h3>
+                <p>
+                    Run through the neon city
+                    and survive.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>⚡ Fast</span>
+                <span>⭐ 4.8</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/quickmind.html"
+           class="gameCard mind"
+           data-game="memory">
+
+            <div class="cardTop">
+                <span class="gameIcon">🧠</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">PUZZLE</span>
+                <h3>Memory Rush</h3>
+                <p>
+                    Test your memory against
+                    the clock.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🧩 Puzzle</span>
+                <span>⭐ 4.7</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/reaction.html"
+           class="gameCard reaction"
+           data-game="reaction">
+
+            <div class="cardTop">
+                <span class="gameIcon">⚡</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">SKILL</span>
+                <h3>Reaction Rush</h3>
+                <p>
+                    Test your reaction speed
+                    and beat the clock.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>⚡ Reflex</span>
+                <span>⭐ 4.8</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/rocket.html"
+           class="gameCard rocket"
+           data-game="rocket">
+
+            <div class="cardTop">
+                <span class="gameIcon">🚀</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ACTION</span>
+                <h3>Rocket Escape</h3>
+                <p>
+                    Dodge obstacles and fly
+                    as far as possible.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🚀 Endless</span>
+                <span>⭐ 4.8</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/snake.html"
+           class="gameCard snake"
+           data-game="snake">
+
+            <div class="cardTop">
+                <span class="gameIcon">🐍</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ARCADE</span>
+                <h3>Snake</h3>
+                <p>
+                    Grow your snake, collect food
+                    and beat your high score.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🐍 Classic</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/void.html"
+           class="gameCard void"
+           data-game="void">
+
+            <div class="cardTop">
+                <span class="gameIcon">👾</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">2 PLAYER</span>
+                <h3>Void Swarm</h3>
+                <p>
+                    Survive the swarm together
+                    in chaotic multiplayer combat.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>👾 Co-op</span>
+                <span>⭐ 5.0</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/construction.html"
+           class="gameCard pixelduel"
+           data-game="pixelduel">
+
+            <div class="cardTop">
+                <span class="gameIcon">⚔️</span>
+                <span class="playIcon">
+                    <i data-lucide="lock"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">VERSUS</span>
+                <h3>Pixel Duel</h3>
+                <p>
+                    Face your rival and prove who
+                    rules the pixel arena.<br>
+                    In Construction...
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>⚔️ Battle</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/construction.html"
+           class="gameCard dungeon"
+           data-game="dungeondash">
+
+            <div class="cardTop">
+                <span class="gameIcon">🧙</span>
+                <span class="playIcon">
+                    <i data-lucide="lock"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">ADVENTURE</span>
+                <h3>Dungeon Dash</h3>
+                <p>
+                    Run through the dungeon,
+                    dodge traps and grab treasure.<br>
+                    In Construction...
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🗝️ Adventure</span>
+                <span>⭐ 4.8</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/turbo.html"
+           class="gameCard turbo"
+           data-game="turbo">
+
+            <div class="cardTop">
+                <span class="gameIcon">🏎️</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">RACING</span>
+                <h3>Turbo</h3>
+                <p>
+                    Dodge traffic, collect coins
+                    and hit turbo.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🏎️ Racing</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/construction.html"
+           class="gameCard mysterySoon"
+           data-game="construction">
+
+            <div class="cardTop">
+                <span class="gameIcon">🛠️</span>
+                <span class="playIcon">
+                    <i data-lucide="lock"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">COMING SOON</span>
+                <h3>New Game</h3>
+                <p>
+                    A brand-new game is being
+                    built inside the vault...
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🔨 Building</span>
+                <span>SOON</span>
+            </div>
+
+        </a>
+
+
+        <a href="games/construction.html"
+           class="gameCard mysterySoon"
+           data-game="construction">
+
+            <div class="cardTop">
+                <span class="gameIcon">🔮</span>
+                <span class="playIcon">
+                    <i data-lucide="lock"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">COMING SOON</span>
+                <h3>Secret Game</h3>
+                <p>
+                    Something mysterious is coming
+                    to GameVault very soon...
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🎮 Mystery</span>
+                <span>SOON</span>
+            </div>
+
+        </a>
+
+    </div>
+
+
+    <!-- INSTALL APP PROMO -->
+
+    <div class="appInstallCard" id="appInstallCard">
+
+        <div class="appInstallInfo">
+
+            <div class="appInstallIcon">
+                🎮
+            </div>
+
+            <div>
+                <h3>Install GameVault</h3>
+                <p>
+                    Add GameVault to your device
+                    and launch your arcade like an app.
+                </p>
+            </div>
+
+        </div>
+
+        <button
+            class="installMainButton"
+            id="installMainButton"
+            type="button"
+        >
+            Install GameVault
+        </button>
+
+    </div>
+
+</section>
+
+
+<section class="leaderboard" id="leaderboard">
+
+    <div class="leaderboardHeader">
+
+        <div>
+            <span class="eyebrow">COMPETE</span>
+            <h2>Global Leaderboard</h2>
+        </div>
+
+        <span class="comingSoon">
+            SEASON 01
+        </span>
+
+    </div>
+
+    <div class="leaderboardRows">
+
+        <div class="leaderRow">
+
+            <span class="rank gold">#1</span>
+            <span class="playerAvatar">🥷</span>
+
+            <div class="playerInfo">
+                <strong>ShadowX</strong>
+                <span>Shinobi Clash</span>
+            </div>
+
+            <strong class="playerScore">
+                98,420
+            </strong>
+
+        </div>
+
+
+        <div class="leaderRow">
+
+            <span class="rank silver">#2</span>
+            <span class="playerAvatar">🏎️</span>
+
+            <div class="playerInfo">
+                <strong>TurboKing</strong>
+                <span>Turbo</span>
+            </div>
+
+            <strong class="playerScore">
+                94,850
+            </strong>
+
+        </div>
+
+
+        <div class="leaderRow">
+
+            <span class="rank bronze">#3</span>
+            <span class="playerAvatar">👾</span>
+
+            <div class="playerInfo">
+                <strong>VoidMaster</strong>
+                <span>Void Swarm</span>
+            </div>
+
+            <strong class="playerScore">
+                91,200
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="about" id="about">
+
+    <div class="aboutIcon">
+        🎮
+    </div>
+
+    <div class="aboutContent">
+
+        <span class="eyebrow">
+            ABOUT GAMEVAULT
+        </span>
+
+        <h2>
+            One Hub.
+            <span>Endless Games.</span>
+        </h2>
+
+        <p>
+            GameVault is a collection of fast,
+            fun mini-games designed for anyone
+            who wants to jump in, play for a few
+            minutes and chase a high score.
+        </p>
+
+        <div class="aboutFeatures">
+
+            <span>⚡ Fast Games</span>
+            <span>🏆 High Scores</span>
+            <span>📱 Mobile Friendly</span>
+            <span>🎮 Free To Play</span>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+    <div class="footerBrand">
+        🎮 Game<span class="logoAccent">Vault</span>
+    </div>
+
+    <div class="footerLinks">
+
+        <a href="#home">Home</a>
+        <a href="#games">Games</a>
+        <a href="#leaderboard">Leaderboard</a>
+        <a href="#about">About</a>
+
+    </div>
+
+    <p class="copyright">
+        © 2026 Farsaoui. Built for gamers.
+    </p>
+
+</footer>
+
+
+<nav class="mobileNav">
+
+    <a href="#home" class="mobileNavItem active">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="#games" class="mobileNavItem">
+        <i data-lucide="gamepad-2"></i>
+        <span>Games</span>
+    </a>
+
+    <a href="#leaderboard" class="mobileNavItem">
+        <i data-lucide="trophy"></i>
+        <span>Scores</span>
+    </a>
+
+    <a href="#about" class="mobileNavItem">
+        <i data-lucide="info"></i>
+        <span>About</span>
+    </a>
+
+</nav>
+
+
+<script>
+
+/* =================================================
+   LUCIDE
+================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+});
+
+
+/* =================================================
+   GAME ROUTES
+================================================= */
+
+const gameRoutes = {
+
+    blockbreaker: "games/blockbreaker.html",
+    bomb: "games/bomb.html",
+    coin: "games/coin.html",
+    heist: "games/heist.html",
+    mystery: "games/mystery.html",
+    naruto: "games/Naruto.html",
+    neon: "games/neondodge.html",
+    memory: "games/quickmind.html",
+    reaction: "games/reaction.html",
+    rocket: "games/rocket.html",
+    snake: "games/snake.html",
+    void: "games/void.html",
+
+    pixelduel: "games/construction.html",
+    dungeondash: "games/construction.html",
+
+    turbo: "games/turbo.html",
+
+    construction: "games/construction.html"
+
+};
+
+
+/* =================================================
+   GAME CARD ROUTING
+================================================= */
+
+document
+    .querySelectorAll("[data-game]")
+    .forEach(card => {
+
+        card.addEventListener("click", event => {
+
+            if (
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey ||
+                event.button === 1
+            ) {
+                return;
+            }
+
+            const game = card.dataset.game;
+
+            if (gameRoutes[game]) {
+
+                event.preventDefault();
+
+                window.location.href =
+                    gameRoutes[game];
+
+            }
+
+        });
+
+    });
+
+
+/* =================================================
+   SEARCH
+================================================= */
+
+const searchButton =
+    document.getElementById("searchButton");
+
+if (searchButton) {
+
+    searchButton.addEventListener("click", () => {
+
+        const query =
+            prompt("🔎 Search GameVault:");
+
+        if (query === null) return;
+
+        const search =
+            query.toLowerCase().trim();
+
+        const cards =
+            document.querySelectorAll(".gameCard");
+
+        let found = false;
+
+        cards.forEach(card => {
+
+            const text =
+                card.textContent.toLowerCase();
+
+            if (
+                search === "" ||
+                text.includes(search)
+            ) {
+
+                card.style.display = "";
+
+                if (search !== "") {
+                    found = true;
+                }
+
+            } else {
+
+                card.style.display = "none";
+
+            }
+
+        });
+
+        const gamesSection =
+            document.getElementById("games");
+
+        if (gamesSection) {
+
+            gamesSection.scrollIntoView({
+                behavior: "smooth"
+            });
+
+        }
+
+        if (
+            search !== "" &&
+            !found
+        ) {
+
+            setTimeout(() => {
+
+                alert(
+                    '🎮 No games found for "' +
+                    query +
+                    '"'
+                );
+
+            }, 300);
+
+        }
+
+    });
+
+}
+
+
+/* =================================================
+   PROFILE
+================================================= */
+
+const profileButton =
+    document.getElementById("profileButton");
+
+if (profileButton) {
+
+    profileButton.addEventListener("click", () => {
+
+        alert(
+            "👤 Player Profile\n\n" +
+            "Coming soon!"
+        );
+
+    });
+
+}
+
+
+/* =================================================
+   ACTIVE NAVIGATION
+================================================= */
+
+const navLinks =
+    document.querySelectorAll(
+        ".navLink, .mobileNavItem"
+    );
+
+navLinks.forEach(link => {
+
+    link.addEventListener("click", () => {
+
+        navLinks.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        link.classList.add("active");
+
+    });
+
+});
+
+
+/* =================================================
+   RESET SEARCH
+================================================= */
+
+document
+    .querySelectorAll('a[href="#games"]')
+    .forEach(link => {
+
+        link.addEventListener("click", () => {
+
+            document
+                .querySelectorAll(".gameCard")
+                .forEach(card => {
+
+                    card.style.display = "";
+
+                });
+
+        });
+
+    });
+
+
+/* =================================================
+   GAMEVAULT APP INSTALL SYSTEM
+================================================= */
+
+let deferredInstallPrompt = null;
+
+const installAppButton =
+    document.getElementById("installAppButton");
+
+const installMainButton =
+    document.getElementById("installMainButton");
+
+const appInstallCard =
+    document.getElementById("appInstallCard");
+
+
+/*
+   Create PWA manifest dynamically.
+   This keeps the setup inside index.html.
+*/
+
+const manifest = {
+
+    name: "GameVault",
+
+    short_name: "GameVault",
+
+    description:
+        "GameVault — your personal arcade.",
+
+    start_url: "./",
+
+    scope: "./",
+
+    display: "standalone",
+
+    orientation: "any",
+
+    background_color: "#080b16",
+
+    theme_color: "#080b16",
+
+    icons: [
+        {
+            src:
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%237c5cff'/%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' font-size='270'%3E🎮%3C/text%3E%3C/svg%3E",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "any maskable"
+        }
+    ]
+
+};
+
+try {
+
+    const manifestBlob =
+        new Blob(
+            [JSON.stringify(manifest)],
+            {
+                type: "application/manifest+json"
+            }
+        );
+
+    const manifestURL =
+        URL.createObjectURL(manifestBlob);
+
+    const manifestLink =
+        document.createElement("link");
+
+    manifestLink.rel = "manifest";
+
+    manifestLink.href = manifestURL;
+
+    document.head.appendChild(manifestLink);
+
+} catch (error) {
+
+    console.log(
+        "GameVault manifest setup unavailable."
+    );
+
+}
+
+
+/* =================================================
+   BROWSER INSTALL PROMPT
+================================================= */
+
+window.addEventListener(
+    "beforeinstallprompt",
+    event => {
+
+        event.preventDefault();
+
+        deferredInstallPrompt = event;
+
+        if (installAppButton) {
+            installAppButton.style.display =
+                "inline-flex";
+        }
+
+        if (installMainButton) {
+            installMainButton.style.display =
+                "block";
+        }
+
+        if (appInstallCard) {
+            appInstallCard.style.display =
+                "flex";
+        }
+
+    }
+);
+
+
+/* =================================================
+   INSTALL FUNCTION
+================================================= */
+
+async function installGameVault() {
+
+    if (!deferredInstallPrompt) {
+
+        alert(
+            "📱 GameVault App\n\n" +
+            "If your browser supports installation, " +
+            "use the browser menu and choose " +
+            "\"Install GameVault\" or \"Add to Home Screen\"."
+        );
+
+        return;
+
+    }
+
+    deferredInstallPrompt.prompt();
+
+    const result =
+        await deferredInstallPrompt.userChoice;
+
+    if (result.outcome === "accepted") {
+
+        console.log(
+            "GameVault installation accepted."
+        );
+
+    }
+
+    deferredInstallPrompt = null;
+
+    if (installAppButton) {
+        installAppButton.style.display = "none";
+    }
+
+}
+
+
+/* =================================================
+   INSTALL BUTTONS
+================================================= */
+
+if (installAppButton) {
+
+    installAppButton.addEventListener(
+        "click",
+        installGameVault
+    );
+
+}
+
+if (installMainButton) {
+
+    installMainButton.addEventListener(
+        "click",
+        installGameVault
+    );
+
+}
+
+
+/* =================================================
+   INSTALLED APP DETECTION
+================================================= */
+
+window.addEventListener(
+    "appinstalled",
+    () => {
+
+        console.log(
+            "🎮 GameVault installed successfully!"
+        );
+
+        if (installAppButton) {
+            installAppButton.style.display =
+                "none";
+        }
+
+        if (appInstallCard) {
+            appInstallCard.style.display =
+                "none";
+        }
+
+    }
+);
+
+
+/* =================================================
+   STANDALONE MODE
+================================================= */
+
+const isStandalone =
+    window.matchMedia(
+        "(display-mode: standalone)"
+    ).matches ||
+    window.navigator.standalone === true;
+
+if (isStandalone) {
+
+    if (installAppButton) {
+        installAppButton.style.display =
+            "none";
+    }
+
+    if (appInstallCard) {
+        appInstallCard.style.display =
+            "none";
+    }
+
+}
+
+
+/* =================================================
+   MOBILE SAFETY
+================================================= */
+
+if (window.innerWidth <= 700) {
+
+    if (
+        installAppButton &&
+        deferredInstallPrompt
+    ) {
+
+        installAppButton.style.display =
+            "inline-flex";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

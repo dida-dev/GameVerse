@@ -1,0 +1,970 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #070711;
+
+    --purple: #8b5cf6;
+    --purple2: #a855f7;
+
+    --cyan: #22d3ee;
+
+    --green: #22c55e;
+    --green2: #16a34a;
+
+    --red: #ef4444;
+
+    --gold: #facc15;
+
+    --text: #f8fafc;
+
+    --muted: #9292a8;
+
+    --border: rgba(255,255,255,.08);
+}
+
+body {
+
+    min-height: 100vh;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    overflow-x: hidden;
+}
+
+.background {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -1;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(139,92,246,.14),
+            transparent 35%
+        ),
+        #070711;
+}
+
+.grid {
+
+    position: absolute;
+
+    inset: 0;
+
+    background-image:
+
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size: 45px 45px;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            black,
+            transparent 90%
+        );
+}
+
+.glow {
+
+    position: absolute;
+
+    width: 500px;
+
+    height: 500px;
+
+    border-radius: 50%;
+
+    filter: blur(100px);
+
+    opacity: .15;
+}
+
+.glow1 {
+
+    background: #8b5cf6;
+
+    top: -250px;
+
+    left: -150px;
+}
+
+.glow2 {
+
+    background: #22d3ee;
+
+    right: -200px;
+
+    bottom: -250px;
+}
+
+
+/* =========================
+HEADER
+========================= */
+
+.topbar {
+
+    height: 76px;
+
+    padding: 0 5%;
+
+    border-bottom:
+        1px solid var(--border);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background:
+        rgba(7,7,17,.8);
+
+    backdrop-filter:
+        blur(20px);
+}
+
+.logo {
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 21px;
+
+    font-weight: 900;
+}
+
+.logo span {
+
+    color: var(--purple);
+}
+
+.gameTitle {
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: #c4c4d6;
+}
+
+.backButton {
+
+    color: #aaaabd;
+
+    text-decoration: none;
+
+    border:
+        1px solid var(--border);
+
+    padding: 10px 17px;
+
+    border-radius: 10px;
+
+    transition: .2s;
+}
+
+.backButton:hover {
+
+    color: white;
+
+    border-color:
+        var(--purple);
+
+    background:
+        rgba(139,92,246,.1);
+}
+
+
+/* =========================
+MAIN
+========================= */
+
+main {
+
+    width: 100%;
+
+    padding: 55px 20px 100px;
+}
+
+.gameWrapper {
+
+    max-width: 1100px;
+
+    margin: auto;
+}
+
+.gameHeader {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    gap: 30px;
+
+    margin-bottom: 25px;
+}
+
+.eyebrow {
+
+    display: block;
+
+    color: var(--cyan);
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 8px;
+}
+
+.titleArea h1 {
+
+    font-size:
+        clamp(34px, 5vw, 58px);
+
+    line-height: 1;
+
+    margin-bottom: 10px;
+}
+
+.titleArea p {
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* =========================
+STATS
+========================= */
+
+.stats {
+
+    display: flex;
+
+    gap: 8px;
+}
+
+.stat {
+
+    min-width: 85px;
+
+    padding: 12px 14px;
+
+    text-align: center;
+
+    background:
+        rgba(255,255,255,.035);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+}
+
+.stat span {
+
+    display: block;
+
+    color: #7f7f94;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 4px;
+}
+
+.stat strong {
+
+    font-size: 19px;
+}
+
+
+/* =========================
+GAME
+========================= */
+
+.gameContainer {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 600px;
+
+    overflow: hidden;
+
+    border-radius: 22px;
+
+    border:
+        1px solid rgba(255,255,255,.1);
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.45);
+
+    background: #11111b;
+}
+
+.reactionArea {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    transition:
+        background .25s ease,
+        box-shadow .25s ease;
+}
+
+
+/* =========================
+GAME STATES
+========================= */
+
+.reactionArea.waiting {
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(139,92,246,.12),
+            transparent 55%
+        ),
+        #0c0c18;
+}
+
+.reactionArea.ready {
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(239,68,68,.2),
+            transparent 55%
+        ),
+        #240b10;
+
+    box-shadow:
+        inset 0 0 100px
+        rgba(239,68,68,.12);
+}
+
+.reactionArea.go {
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(34,197,94,.3),
+            transparent 60%
+        ),
+        #062814;
+
+    box-shadow:
+        inset 0 0 120px
+        rgba(34,197,94,.2);
+}
+
+.reactionArea.result {
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(34,211,238,.15),
+            transparent 60%
+        ),
+        #07151a;
+}
+
+
+/* =========================
+CONTENT
+========================= */
+
+.reactionContent {
+
+    position: relative;
+
+    z-index: 2;
+
+    padding: 30px;
+}
+
+.reactionIcon {
+
+    font-size: 75px;
+
+    margin-bottom: 15px;
+
+    filter:
+        drop-shadow(
+            0 0 20px
+            rgba(139,92,246,.4)
+        );
+
+    animation:
+        floatIcon 1.8s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+
+    50% {
+
+        transform:
+            translateY(-8px)
+            rotate(3deg);
+    }
+}
+
+.reactionArea.ready .reactionIcon {
+
+    color: var(--red);
+
+    animation:
+        pulseRed .7s infinite alternate;
+}
+
+@keyframes pulseRed {
+
+    from {
+
+        transform: scale(1);
+    }
+
+    to {
+
+        transform: scale(1.08);
+    }
+}
+
+.reactionArea.go .reactionIcon {
+
+    color: var(--green);
+
+    animation:
+        pulseGreen .5s infinite alternate;
+}
+
+@keyframes pulseGreen {
+
+    from {
+
+        transform: scale(1);
+    }
+
+    to {
+
+        transform: scale(1.15);
+    }
+}
+
+.reactionContent h2 {
+
+    font-size:
+        clamp(40px, 7vw, 70px);
+
+    line-height: 1;
+
+    margin-bottom: 15px;
+
+    letter-spacing: -2px;
+}
+
+.reactionContent p {
+
+    max-width: 470px;
+
+    margin: auto;
+
+    color: var(--muted);
+
+    line-height: 1.7;
+
+    font-size: 14px;
+}
+
+.reactionTime {
+
+    margin-top: 25px;
+
+    font-size: 48px;
+
+    font-weight: 900;
+
+    color: var(--cyan);
+
+    text-shadow:
+        0 0 25px
+        rgba(34,211,238,.35);
+}
+
+
+/* =========================
+DESKTOP CONTROLS
+========================= */
+
+.controls {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 30px;
+
+    margin-top: 20px;
+}
+
+.controls button {
+
+    min-width: 125px;
+
+    height: 48px;
+
+    padding: 0 22px;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,255,255,.05);
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+#startButton {
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--purple),
+            var(--purple2)
+        );
+
+    border-color:
+        rgba(168,85,247,.4);
+
+    box-shadow:
+        0 10px 30px
+        rgba(139,92,246,.2);
+}
+
+.controls button:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        var(--purple);
+}
+
+.controls button:active {
+
+    transform:
+        scale(.95);
+}
+
+.controlText {
+
+    text-align: center;
+}
+
+.controlText strong {
+
+    display: block;
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.controlText span {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================
+JOYSTICK
+========================= */
+
+.joystick {
+
+    display: none;
+
+    position: absolute;
+
+    left: 22px;
+
+    bottom: 22px;
+
+    width: 125px;
+
+    height: 125px;
+
+    z-index: 10;
+
+    touch-action: none;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    opacity: .9;
+}
+
+.joystickBase {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 100%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(139,92,246,.22),
+            rgba(139,92,246,.08) 55%,
+            rgba(255,255,255,.035) 56%,
+            rgba(255,255,255,.02)
+        );
+
+    border:
+        2px solid
+        rgba(255,255,255,.12);
+
+    box-shadow:
+        0 0 30px
+        rgba(139,92,246,.18),
+
+        inset 0 0 25px
+        rgba(139,92,246,.12);
+
+    backdrop-filter:
+        blur(8px);
+}
+
+.joystickBase::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 15px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+}
+
+.joystickKnob {
+
+    position: absolute;
+
+    width: 58px;
+
+    height: 58px;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #a855f7,
+            #6d28d9
+        );
+
+    border:
+        2px solid
+        rgba(255,255,255,.2);
+
+    box-shadow:
+        0 8px 25px
+        rgba(139,92,246,.45),
+
+        inset 0 2px 5px
+        rgba(255,255,255,.2);
+
+    transition:
+        transform .08s ease-out,
+        background .15s ease;
+}
+
+.joystick.active
+.joystickKnob {
+
+    background:
+        linear-gradient(
+            145deg,
+            #c084fc,
+            #8b5cf6
+        );
+
+    box-shadow:
+        0 8px 30px
+        rgba(168,85,247,.65),
+
+        0 0 20px
+        rgba(139,92,246,.35);
+}
+
+
+/* =========================
+GREEN INDICATOR
+========================= */
+
+.reactionArea.go
+.joystickBase {
+
+    border-color:
+        rgba(34,197,94,.5);
+
+    box-shadow:
+        0 0 35px
+        rgba(34,197,94,.3),
+
+        inset 0 0 30px
+        rgba(34,197,94,.15);
+}
+
+.reactionArea.go
+.joystickKnob {
+
+    background:
+        linear-gradient(
+            145deg,
+            #4ade80,
+            #16a34a
+        );
+
+    box-shadow:
+        0 0 30px
+        rgba(34,197,94,.6);
+}
+
+
+/* =========================
+MOBILE
+========================= */
+
+@media (max-width: 800px) {
+
+    .gameHeader {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .stats {
+
+        width: 100%;
+    }
+
+    .stat {
+
+        flex: 1;
+
+        min-width: 0;
+    }
+
+    .gameContainer {
+
+        height: 520px;
+    }
+
+    .gameTitle {
+
+        display: none;
+    }
+
+    .controls {
+
+        display: none;
+    }
+
+    .joystick {
+
+        display: block;
+    }
+}
+
+
+/* =========================
+PHONE
+========================= */
+
+@media (max-width: 500px) {
+
+    main {
+
+        padding:
+            30px 12px 80px;
+    }
+
+    .topbar {
+
+        padding:
+            0 15px;
+    }
+
+    .gameContainer {
+
+        height: 500px;
+
+        border-radius: 16px;
+    }
+
+    .titleArea h1 {
+
+        font-size: 38px;
+    }
+
+    .stats {
+
+        gap: 5px;
+    }
+
+    .stat {
+
+        padding:
+            9px 5px;
+    }
+
+    .stat strong {
+
+        font-size: 16px;
+    }
+
+    .reactionIcon {
+
+        font-size: 60px;
+    }
+
+    .reactionContent h2 {
+
+        font-size: 45px;
+    }
+
+    .reactionTime {
+
+        font-size: 40px;
+    }
+
+    .joystick {
+
+        width: 115px;
+
+        height: 115px;
+
+        left: 15px;
+
+        bottom: 15px;
+    }
+
+    .joystickKnob {
+
+        width: 54px;
+
+        height: 54px;
+    }
+}
+
+
+/* =========================
+SMALL PHONE
+========================= */
+
+@media (max-width: 360px) {
+
+    .joystick {
+
+        width: 100px;
+
+        height: 100px;
+    }
+
+    .joystickKnob {
+
+        width: 48px;
+
+        height: 48px;
+    }
+}

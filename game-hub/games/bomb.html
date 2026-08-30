@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bomb Defuse — GameVault</title>
+
+    <link rel="stylesheet" href="bomb.css">
+</head>
+
+<body>
+
+    <div class="background">
+        <div class="grid"></div>
+        <div class="glow glow-red"></div>
+        <div class="glow glow-purple"></div>
+    </div>
+
+    <header class="topbar">
+
+        <a href="../index.html" class="logo">
+            🎮 Game<span>Vault</span>
+        </a>
+
+        <div class="topStats">
+
+            <div class="stat">
+                <small>SCORE</small>
+                <strong id="score">0</strong>
+            </div>
+
+            <div class="stat">
+                <small>ROUND</small>
+                <strong id="round">1</strong>
+            </div>
+
+            <div class="stat">
+                <small>BEST</small>
+                <strong id="best">0</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="gameContainer">
+
+        <section class="gameIntro">
+
+            <div class="gameTag">
+                💣 BOMB SQUAD
+            </div>
+
+            <h1>
+                BOMB
+                <span>DEFUSE</span>
+            </h1>
+
+            <p>
+                Follow the sequence. Cut the correct wires.
+                Don't let the timer hit zero.
+            </p>
+
+        </section>
+
+
+        <section class="gamePanel">
+
+            <div class="hud">
+
+                <div class="hudItem">
+                    <span>❤️ LIVES</span>
+
+                    <div class="hearts" id="hearts">
+                        ❤️ ❤️ ❤️
+                    </div>
+                </div>
+
+
+                <div class="timerBox">
+
+                    <div class="timerLabel">
+                        TIME REMAINING
+                    </div>
+
+                    <div class="timer" id="timer">
+                        30
+                    </div>
+
+                    <div class="timerBar">
+                        <div id="timerFill"></div>
+                    </div>
+
+                </div>
+
+
+                <div class="comboBox">
+
+                    <span>🔥 COMBO</span>
+
+                    <strong id="combo">
+                        x0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="bombWrapper">
+
+                <div class="bombShadow"></div>
+
+                <div class="bomb">
+
+                    <div class="bombHeader">
+
+                        <div class="warning">
+                            ⚠️ CLASSIFIED DEVICE
+                        </div>
+
+                        <div class="serial">
+                            GV-2049
+                        </div>
+
+                    </div>
+
+
+                    <div class="bombTop">
+
+                        <div class="bolt"></div>
+                        <div class="bolt"></div>
+                        <div class="bolt"></div>
+
+                    </div>
+
+
+                    <div class="screenFrame">
+
+                        <div class="screen">
+
+                            <span class="screenLabel">
+                                SECURITY SYSTEM
+                            </span>
+
+                            <strong id="screenText">
+                                WAITING...
+                            </strong>
+
+                            <div class="screenDots">
+                                <i></i>
+                                <i></i>
+                                <i></i>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="instruction">
+
+                        <span class="instructionIcon">
+                            🔐
+                        </span>
+
+                        <div>
+                            <strong id="instructionTitle">
+                                DEFUSE SEQUENCE
+                            </strong>
+
+                            <p id="instructionText">
+                                Memorize the sequence shown above.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="wireArea">
+
+                        <div class="wireLabel">
+                            CUT A WIRE
+                        </div>
+
+                        <div class="wires">
+
+                            <button
+                                class="wire red"
+                                data-color="red"
+                                aria-label="Red wire"
+                            >
+                                <span>RED</span>
+                            </button>
+
+                            <button
+                                class="wire blue"
+                                data-color="blue"
+                                aria-label="Blue wire"
+                            >
+                                <span>BLUE</span>
+                            </button>
+
+                            <button
+                                class="wire yellow"
+                                data-color="yellow"
+                                aria-label="Yellow wire"
+                            >
+                                <span>YELLOW</span>
+                            </button>
+
+                            <button
+                                class="wire green"
+                                data-color="green"
+                                aria-label="Green wire"
+                            >
+                                <span>GREEN</span>
+                            </button>
+
+                            <button
+                                class="wire purple"
+                                data-color="purple"
+                                aria-label="Purple wire"
+                            >
+                                <span>PURPLE</span>
+                            </button>
+
+                            <button
+                                class="wire orange"
+                                data-color="orange"
+                                aria-label="Orange wire"
+                            >
+                                <span>ORANGE</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="bombBottom">
+
+                        <div class="port">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="redLight"></div>
+
+                        <div class="keypad">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="message" id="message">
+                Press START to begin the mission.
+            </div>
+
+
+            <button
+                class="startButton"
+                id="startButton"
+            >
+                <span>▶</span>
+                START MISSION
+            </button>
+
+
+            <div class="controls">
+
+                <span>
+                    🖱️ Select a wire
+                </span>
+
+                <span>
+                    ⚡ Faster rounds = more points
+                </span>
+
+                <span>
+                    💀 Three mistakes = mission failed
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <section
+            class="gameOver"
+            id="gameOver"
+        >
+
+            <div class="gameOverIcon">
+                💥
+            </div>
+
+            <span class="gameOverTag">
+                MISSION FAILED
+            </span>
+
+            <h2>
+                BOOM.
+            </h2>
+
+            <p>
+                The bomb wasn't defused in time.
+            </p>
+
+            <div class="finalStats">
+
+                <div>
+                    <small>FINAL SCORE</small>
+                    <strong id="finalScore">0</strong>
+                </div>
+
+                <div>
+                    <small>ROUNDS</small>
+                    <strong id="finalRound">0</strong>
+                </div>
+
+                <div>
+                    <small>BEST COMBO</small>
+                    <strong id="finalCombo">0</strong>
+                </div>
+
+            </div>
+
+            <button
+                class="restartButton"
+                id="restartButton"
+            >
+                🔄 TRY AGAIN
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        🎮 GameVault • Bomb Defuse
+    </footer>
+
+
+    <script src="bomb.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVault - Dash Reactor</title>
+
+    <link rel="stylesheet" href="dash.css">
+</head>
+
+<body>
+
+<main class="game-wrapper">
+
+    <header class="game-header">
+
+        <div>
+            <p class="eyebrow">GAMEVAULT</p>
+            <h1>⚡ Dash Reactor</h1>
+            <p class="subtitle">
+                Dodge. Dash. Survive.
+            </p>
+        </div>
+
+        <div class="score-board">
+
+            <div class="score-box">
+                <span>Score</span>
+                <strong id="score">0</strong>
+            </div>
+
+            <div class="score-box">
+                <span>Best</span>
+                <strong id="best">0</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <section class="game-card">
+
+        <div class="status-bar">
+
+            <span id="status">
+                Press Start to launch
+            </span>
+
+            <button id="startBtn">
+                Start Game
+            </button>
+
+        </div>
+
+
+        <div class="game-container">
+
+            <canvas
+                id="gameCanvas"
+                width="800"
+                height="500">
+            </canvas>
+
+
+            <div
+                id="gameOver"
+                class="game-over hidden">
+
+                <div class="game-over-box">
+
+                    <span class="game-over-icon">
+                        💥
+                    </span>
+
+                    <h2>Reactor Critical</h2>
+
+                    <p>
+                        Score:
+                        <strong id="finalScore">0</strong>
+                    </p>
+
+                    <p>
+                        Best:
+                        <strong id="finalBest">0</strong>
+                    </p>
+
+                    <button id="playAgainBtn">
+                        Dash Again
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="info-panel">
+
+            <div>
+                <span>Speed</span>
+                <strong id="speed">1x</strong>
+            </div>
+
+            <div>
+                <span>Energy</span>
+                <strong id="energy">100%</strong>
+            </div>
+
+            <div>
+                <span>Distance</span>
+                <strong id="distance">0m</strong>
+            </div>
+
+        </div>
+
+
+        <div class="controls">
+
+            <p>
+                Move with
+                <kbd>WASD</kbd>
+                or
+                <kbd>Arrow Keys</kbd>
+            </p>
+
+            <p>
+                Press
+                <kbd>SPACE</kbd>
+                to dash
+            </p>
+
+            <div class="mobile-controls">
+
+                <div
+                    id="joystick"
+                    class="joystick"
+                    aria-label="Movement joystick">
+
+                    <div
+                        id="joystickKnob"
+                        class="joystick-knob">
+                    </div>
+
+                </div>
+
+                <button
+                    id="mobileDash"
+                    class="dash-button">
+                    ⚡ DASH
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <footer>
+        <p>GameVault • Dash Reactor</p>
+    </footer>
+
+</main>
+
+
+<script src="dash.js"></script>
+
+</body>
+</html>

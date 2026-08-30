@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestFocus - Advanced Habit RPG Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- GOOGLE IDENTITY ENTRY ENGINE -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-card">
+            <div class="modal-header" style="text-align: center;">
+                <h2>⚔ QuestFocus Platform</h2>
+                <p>Launch your high-performance game logs</p>
+            </div>
+            
+            <div class="auth-form">
+                <!-- Standard Log In -->
+                <input type="email" id="auth-email" placeholder="Email address" required>
+                <input type="password" id="auth-password" placeholder="Password" required>
+                <button id="auth-submit-btn" class="checkout-btn" style="background: linear-gradient(135deg, #8257e5 0%, #693bc2 100%); box-shadow: 0 4px 12px rgba(130, 87, 229, 0.25);">Launch Workspace</button>
+                
+                <div class="auth-separator"><span>OR CONTINUE WITH</span></div>
+                
+                <!-- Google Authentication Integration -->
+                <button id="google-auth-btn" class="google-login-btn">
+                    <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google Workspace
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN GRID DASHBOARD -->
+    <div id="main-app" class="dashboard-grid hidden">
+        
+        <!-- LEFT CONTROL PANEL -->
+        <aside class="control-sidebar">
+            <div class="status-card border-glow">
+                <div class="header-top">
+                    <div>
+                        <h1>QuestFocus</h1>
+                        <p class="tagline">Production Build v2.6</p>
+                    </div>
+                    <span class="streak-badge">🔥 <span id="streak-count">1</span> Day</span>
+                </div>
+                
+                <div class="profile-info">
+                    <div id="user-avatar" class="avatar-ring">👤</div>
+                    <div class="level-details">
+                        <div class="level-header">
+                            <h2>LVL <span id="user-level">1</span></h2>
+                            <span id="premium-badge" class="badge hidden">PREMIUM</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div id="progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <div class="xp-text-row">
+                            <p><span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="economy-bar">
+                    <span class="coin-stat">🪙 <span id="gold-count">0</span> Gold</span>
+                    <span class="title-stat">🏷️ <span id="profile-title">Novice</span></span>
+                </div>
+
+                <button id="open-shop-btn" class="shop-btn">✨ Go Premium ($5/mo)</button>
+            </div>
+
+            <!-- PREMIUM CUSTOMIZATION MODULE -->
+            <section class="shop-card customization-panel">
+                <h3>🎨 Premium Identity Matrix</h3>
+                <div id="avatar-lock-overlay" class="blur-shield">
+                    <p>🔒 Premium Locked. Upgrade to broadcast a custom identity emblem or profile emoji.</p>
+                </div>
+                <div class="custom-icon-row">
+                    <input type="text" id="custom-avatar-input" maxlength="2" placeholder="🔥">
+                    <button id="save-avatar-btn" class="buy-btn">Apply Custom Icon</button>
+                </div>
+            </section>
+
+            <!-- PERFORMANCE MONITOR -->
+            <section id="analytics-section" class="analytics-card">
+                <div class="analytics-header">
+                    <h3>📊 Performance Metrics</h3>
+                    <span class="lock-status-indicator" id="analytics-lock-tag">🔒 Locked</span>
+                </div>
+                
+                <div id="analytics-blur-overlay" class="blur-shield">
+                    <p>✨ Upgrade to Premium to unlock real-time history analytics and curves.</p>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-val" id="metric-total-xp">0</span>
+                        <span class="metric-lbl">Total XP</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="metric-completion-rate">0%</span>
+                        <span class="metric-lbl">Success Rate</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COSMETIC ITEM REWARD SHOP -->
+            <section class="shop-card">
+                <h3>🏪 The Reward Emporium</h3>
+                <div class="shop-item-row">
+                    <div class="shop-item-details">
+                        <span class="item-icon">🧙‍♂️</span>
+                        <div>
+                            <h5>Mage Avatar Style</h5>
+                            <p class="item-cost">50 Gold</p>
+                        </div>
+                    </div>
+                    <button class="buy-btn" onclick="buyCosmetic('avatar', '🧙‍♂️', 50)">Buy</button>
+                </div>
+                <div class="shop-item-row">
+                    <div class="shop-item-details">
+                        <span class="item-icon">🛡️</span>
+                        <div>
+                            <h5>Paladin Title Unlocked</h5>
+                            <p class="item-cost">100 Gold</p>
+                        </div>
+                    </div>
+                    <button class="buy-btn" onclick="buyCosmetic('title', 'Paladin', 100)">Buy</button>
+                </div>
+                <p class="premium-shop-notice">⭐ Premium users earn 2x Gold per quest!</p>
+            </section>
+        </aside>
+
+        <!-- RIGHT WORKSPACE PANEL -->
+        <main class="workspace-area">
+            <!-- DAILY ROUTINE PLANNING WORKSPACE -->
+            <section class="planning-section">
+                <h3 class="section-title">📅 Daily Routine Plan</h3>
+                <div class="planning-input-row">
+                    <input type="text" id="routine-input" placeholder="Schedule a repeating daily habit (e.g., Read morning grammar)...">
+                    <button id="add-routine-btn">Lock Habit</button>
+                </div>
+                <ul id="routine-list" class="routine-grid-list"></ul>
+            </section>
+
+            <hr class="section-divider">
+
+            <!-- ONE-TIME QUEST LOG -->
+            <h3 class="section-title">📜 Active Operations</h3>
+            <div class="task-input-container">
+                <input type="text" id="task-input" placeholder="Type a new immediate campaign objective...">
+                <button id="add-task-btn">Deploy Quest</button>
+            </div>
+            <ul id="task-list"></ul>
+
+            <h3 class="section-title history-title">✅ Completed Archive</h3>
+            <ul id="history-list"></ul>
+        </main>
+    </div>
+
+    <!-- STRIPE GATEWAY MODAL -->
+    <div id="premium-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <button id="close-shop-btn" class="close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>👑 Join Premium</h2>
+                <p>Maximize your potential for just $5.00 a month</p>
+            </div>
+            
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <span class="icon">✨</span>
+                    <div>
+                        <h4>Custom Identity Profile Icon</h4>
+                        <p>Unlock the Identity Matrix. Choose and apply any custom icon or cosmetic badge.</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <span class="icon">📅</span>
+                    <div>
+                        <h4>Unlimited Daily Planning Slots</h4>
+                        <p>Lock down infinite recurring routines and custom calendars.</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <span class="icon">📊</span>
+                    <div>
+                        <h4>Advanced Metrics Engine</h4>
+                        <p>Unlock complete telemetry analytics graphs and historical dashboards.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="subscribe-btn" class="checkout-btn">Secure Checkout — $5.00/mo</button>
+            <p class="secure-text">🔒 Stripe Checkout Protocol Active.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Naruto RPG Ultimate v6.0</title>
+
+<style>
+
+:root{
+--orange:#ff6700;
+--blue:#00d9ff;
+--dark:#050508;
+--panel:#101018;
+--text:#f5f5fa;
+--green:#2ecc71;
+--red:#e74c3c;
+--gold:#f1c40f;
+--purple:#9b59b6;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
+
+body{
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+color:white;
+}
+
+#game{
+width:1200px;
+height:720px;
+position:relative;
+background:#050508;
+border:3px solid rgba(255,255,255,.1);
+overflow:hidden;
+}
+
+canvas{
+display:block;
+background:#090909;
+}
+
+#hud{
+position:absolute;
+top:10px;
+left:10px;
+right:10px;
+display:flex;
+justify-content:space-between;
+pointer-events:none;
+}
+
+.panel{
+background:rgba(0,0,0,.8);
+padding:12px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,.1);
+min-width:300px;
+}
+
+.bar{
+height:12px;
+background:#222;
+border-radius:5px;
+overflow:hidden;
+margin-bottom:8px;
+}
+
+.fill{
+height:100%;
+width:100%;
+}
+
+#hpFill{
+background:linear-gradient(
+90deg,
+#c0392b,
+#ff6b6b
+);
+}
+
+#chakraFill{
+background:linear-gradient(
+90deg,
+#2980b9,
+#00d9ff
+);
+}
+
+#xpFill{
+background:linear-gradient(
+90deg,
+#27ae60,
+#2ecc71
+);
+}
+
+#notify{
+position:absolute;
+top:150px;
+left:20px;
+font-weight:bold;
+font-size:18px;
+}
+
+.notification{
+margin-bottom:10px;
+}
+
+#comboBox{
+position:absolute;
+right:20px;
+top:180px;
+font-size:28px;
+font-weight:bold;
+color:#f1c40f;
+}
+
+#menu{
+position:absolute;
+inset:0;
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:100;
+}
+
+.title{
+font-size:48px;
+font-weight:900;
+margin-bottom:30px;
+}
+
+.charSelect{
+display:flex;
+gap:30px;
+}
+
+.card{
+width:300px;
+padding:20px;
+border:2px solid #222;
+cursor:pointer;
+border-radius:15px;
+transition:.3s;
+background:#0d0d14;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+.naruto:hover{
+border-color:orange;
+}
+
+.sasuke:hover{
+border-color:#5dade2;
+}
+
+#inventoryPanel{
+position:absolute;
+bottom:10px;
+right:10px;
+width:280px;
+height:160px;
+background:rgba(0,0,0,.85);
+border:1px solid rgba(255,255,255,.1);
+overflow:auto;
+padding:10px;
+font-size:12px;
+}
+
+#questPanel{
+position:absolute;
+bottom:10px;
+left:10px;
+width:280px;
+height:160px;
+background:rgba(0,0,0,.85);
+border:1px solid rgba(255,255,255,.1);
+overflow:auto;
+padding:10px;
+font-size:12px;
+}
+
+.damage{
+position:absolute;
+pointer-events:none;
+font-weight:bold;
+color:red;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<div id="menu">
+
+<div class="title">
+Naruto RPG Ultimate v6.0
+</div>
+
+<div class="charSelect">
+
+<div class="card naruto"
+onclick="selectCharacter('Naruto')">
+
+<h2>Naruto</h2>
+
+<p>
+Rasengan<br>
+Shadow Clones<br>
+Rasenshuriken<br>
+Nine Tails Mode
+</p>
+
+</div>
+
+<div class="card sasuke"
+onclick="selectCharacter('Sasuke')">
+
+<h2>Sasuke</h2>
+
+<p>
+Chidori<br>
+Amaterasu<br>
+Kirin<br>
+Susanoo
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="hud">
+
+<div class="panel">
+
+<div id="heroName">
+Naruto
+</div>
+
+HP
+
+<div class="bar">
+<div id="hpFill" class="fill"></div>
+</div>
+
+Chakra
+
+<div class="bar">
+<div id="chakraFill" class="fill"></div>
+</div>
+
+XP
+
+<div class="bar">
+<div id="xpFill" class="fill"></div>
+</div>
+
+<div id="statsText">
+LV 1
+</div>
+
+</div>
+
+<div class="panel">
+
+<div id="modeText">
+RPG MODE
+</div>
+
+<div id="bossText">
+No Boss
+</div>
+
+</div>
+
+</div>
+
+<div id="notify"></div>
+
+<div id="comboBox"></div>
+
+<div id="questPanel">
+<h3>QUESTS</h3>
+<hr>
+<div id="questList"></div>
+</div>
+
+<div id="inventoryPanel">
+<h3>INVENTORY</h3>
+<hr>
+<div id="inventoryList"></div>
+</div>
+
+<canvas
+id="canvas"
+width="1200"
+height="720">
+</canvas>
+
+</div>
+
+<script>
+
+const canvas=
+document.getElementById("canvas");
+
+const ctx=
+canvas.getContext("2d");
+
+let keys={};
+
+let currentMode="rpg";
+
+let selectedHero="Naruto";
+
+let particles=[];
+
+let enemies=[];
+
+let projectiles=[];
+
+let damageNumbers=[];
+
+let notifications=[];
+
+let combo={
+count:0,
+timer:0
+};
+
+let saveData={
+Naruto:{
+level:1,
+xp:0,
+need:100
+},
+Sasuke:{
+level:1,
+xp:0,
+need:100
+}
+};
+
+let player={
+x:150,
+y:500,
+w:50,
+h:80,
+vx:0,
+vy:0,
+speed:6,
+hp:120,
+maxHp:120,
+chakra:100,
+maxChakra:100,
+dir:1,
+form:"Base",
+state:"idle"
+};
+
+const cooldowns={
+e:0,
+q:0,
+r:0,
+f:0,
+c:0,
+v:0,
+i:0
+};
+
+const inventory=[];
+
+const quests=[
+{
+title:"Academy Graduation",
+goal:5,
+progress:0,
+reward:100,
+done:false
+},
+{
+title:"Rogue Hunter",
+goal:20,
+progress:0,
+reward:250,
+done:false
+}
+];
+
+const lootTable=[
+"Kunai",
+"Shuriken",
+"Explosive Tag",
+"Chakra Crystal",
+"Soldier Pill",
+"Mangekyo Fragment",
+"Kurama Fragment"
+];

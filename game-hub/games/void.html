@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GameVault - Void Swarm</title>
+
+    <link
+        rel="stylesheet"
+        href="void.css"
+    >
+</head>
+
+
+<body>
+
+<main class="game-wrapper">
+
+    <!-- ==============================
+         HEADER
+         ============================== -->
+
+    <header class="game-header">
+
+        <div>
+
+            <p class="eyebrow">
+                GAMEVAULT • 2 PLAYER
+            </p>
+
+            <h1>
+                👾 Void Swarm
+            </h1>
+
+            <p class="subtitle">
+                Survive the swarm together.
+            </p>
+
+        </div>
+
+
+        <div class="score-board">
+
+            <div class="score-box">
+
+                <span>
+                    Wave
+                </span>
+
+                <strong id="wave">
+                    1
+                </strong>
+
+            </div>
+
+
+            <div class="score-box">
+
+                <span>
+                    Score
+                </span>
+
+                <strong id="score">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==============================
+         GAME CARD
+         ============================== -->
+
+    <section class="game-card">
+
+
+        <!-- STATUS -->
+
+        <div class="status-bar">
+
+            <span id="status">
+                Ready for battle
+            </span>
+
+            <button id="startBtn">
+                Start Game
+            </button>
+
+        </div>
+
+
+        <!-- PLAYER HEALTH -->
+
+        <div class="player-status">
+
+
+            <!-- PLAYER 1 -->
+
+            <div class="player-card blue">
+
+                <span class="player-name">
+                    PLAYER 1
+                </span>
+
+                <div class="health-bar">
+
+                    <div id="health1"></div>
+
+                </div>
+
+                <small>
+                    WASD + F
+                </small>
+
+            </div>
+
+
+            <!-- PLAYER 2 -->
+
+            <div class="player-card pink">
+
+                <span class="player-name">
+                    PLAYER 2
+                </span>
+
+                <div class="health-bar">
+
+                    <div id="health2"></div>
+
+                </div>
+
+                <small>
+                    ARROWS + ENTER
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             GAME CANVAS
+             ============================== -->
+
+        <div class="game-container">
+
+            <canvas
+                id="gameCanvas"
+                width="900"
+                height="550">
+            </canvas>
+
+
+            <!-- GAME OVER -->
+
+            <div
+                id="gameOver"
+                class="game-over hidden">
+
+                <div class="game-over-box">
+
+                    <div class="game-over-icon">
+                        ☠️
+                    </div>
+
+                    <h2>
+                        The Void Won
+                    </h2>
+
+                    <p>
+                        Final Score:
+                        <strong id="finalScore">
+                            0
+                        </strong>
+                    </p>
+
+                    <p>
+                        Waves Survived:
+                        <strong id="finalWave">
+                            0
+                        </strong>
+                    </p>
+
+                    <button id="playAgainBtn">
+                        Fight Again
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             MOBILE CONTROLS
+             IMPORTANT:
+             These are OUTSIDE the canvas
+             container.
+             ============================== -->
+
+        <div class="mobile-controls">
+
+
+            <!-- PLAYER 1 -->
+
+            <div class="mobile-player player-one">
+
+                <span class="mobile-player-name">
+                    P1
+                </span>
+
+
+                <div
+                    id="joystick1"
+                    class="joystick">
+
+                    <div
+                        id="knob1"
+                        class="joystick-knob">
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="fire1"
+                    class="fire-button"
+                    type="button">
+
+                    🔵 FIRE
+
+                </button>
+
+            </div>
+
+
+            <!-- PLAYER 2 -->
+
+            <div class="mobile-player player-two">
+
+                <span class="mobile-player-name">
+                    P2
+                </span>
+
+
+                <div
+                    id="joystick2"
+                    class="joystick">
+
+                    <div
+                        id="knob2"
+                        class="joystick-knob">
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="fire2"
+                    class="fire-button"
+                    type="button">
+
+                    🩷 FIRE
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             DESKTOP CONTROLS
+             ============================== -->
+
+        <div class="controls">
+
+
+            <!-- PLAYER 1 -->
+
+            <div>
+
+                <strong>
+                    PLAYER 1
+                </strong>
+
+                <p>
+                    Move:
+
+                    <kbd>W</kbd>
+                    <kbd>A</kbd>
+                    <kbd>S</kbd>
+                    <kbd>D</kbd>
+                </p>
+
+                <p>
+                    Shoot:
+
+                    <kbd>F</kbd>
+                </p>
+
+            </div>
+
+
+            <!-- PLAYER 2 -->
+
+            <div>
+
+                <strong>
+                    PLAYER 2
+                </strong>
+
+                <p>
+                    Move:
+
+                    <kbd>↑</kbd>
+                    <kbd>←</kbd>
+                    <kbd>↓</kbd>
+                    <kbd>→</kbd>
+                </p>
+
+                <p>
+                    Shoot:
+
+                    <kbd>ENTER</kbd>
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==============================
+         FOOTER
+         ============================== -->
+
+    <footer>
+
+        <p>
+            GameVault • Void Swarm
+        </p>
+
+    </footer>
+
+</main>
+
+
+<script src="void.js"></script>
+
+</body>
+
+</html>

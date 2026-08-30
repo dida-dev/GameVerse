@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Mind — GAMEVERSE</title>
+    <link rel="stylesheet" href="quickmind.css">
+</head>
+
+<body>
+
+<div id="game">
+
+    <header class="hud">
+
+        <a href="../index.html" class="back">← HUB</a>
+
+        <div class="stats">
+
+            <div>
+                <small>SCORE</small>
+                <strong id="score">0</strong>
+            </div>
+
+            <div>
+                <small>STREAK</small>
+                <strong id="streak">0</strong>
+            </div>
+
+            <div>
+                <small>TIME</small>
+                <strong id="timer">30</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <div class="top">
+
+            <div>
+                <span class="label">QUICK MIND</span>
+                <h1>⚡ Reaction Rush</h1>
+            </div>
+
+            <div id="best">
+                BEST<br>
+                <strong>0</strong>
+            </div>
+
+        </div>
+
+        <section id="gameBox">
+
+            <div id="countdown">
+                <span>GET READY</span>
+                <strong>3</strong>
+            </div>
+
+            <div id="instruction">
+                WAIT FOR GREEN
+            </div>
+
+            <button id="reactionButton">
+                WAIT
+            </button>
+
+            <div id="feedback"></div>
+
+        </section>
+
+        <div class="tips">
+            Tap <b>GO!</b> as quickly as possible.<br>
+            Don't tap before the screen turns green.
+        </div>
+
+    </main>
+
+</div>
+
+
+<div id="result" class="hidden">
+
+    <div class="resultBox">
+
+        <div class="emoji">🧠</div>
+
+        <h1>ROUND COMPLETE</h1>
+
+        <p>Your score</p>
+
+        <strong id="finalScore">0</strong>
+
+        <div class="resultStats">
+
+            <div>
+                <span>BEST</span>
+                <b id="finalBest">0</b>
+            </div>
+
+            <div>
+                <span>STREAK</span>
+                <b id="finalStreak">0</b>
+            </div>
+
+        </div>
+
+        <button id="againBtn">
+            PLAY AGAIN
+        </button>
+
+        <a href="../index.html">
+            ← BACK TO HUB
+        </a>
+
+    </div>
+
+</div>
+
+<script src="quickmind.js"></script>
+
+</body>
+</html>

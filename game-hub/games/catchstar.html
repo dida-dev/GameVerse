@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catch the Star</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: relative;
+      width: 400px;
+      height: 500px;
+      background: #16213e;
+      border: 3px solid #0f3460;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    #scoreboard {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    #player {
+      position: absolute;
+      bottom: 20px;
+      left: 160px;
+      width: 80px;
+      height: 16px;
+      background: #e94560;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #e94560;
+    }
+
+    .star {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #f9d342;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      box-shadow: 0 0 10px #f9d342;
+    }
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(22, 33, 62, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    #overlay h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #f9d342;
+    }
+
+    #overlay p {
+      margin-bottom: 20px;
+      color: #8d99ae;
+    }
+
+    button {
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+    }
+
+    button:hover {
+      background: #ff597b;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <div id="scoreboard">
+      <span>Score: <span id="score">0</span></span>
+      <span>Lives: <span id="lives">3</span></span>
+    </div>
+
+    <div id="player"></div>
+
+    <div id="overlay">
+      <h1 id="title">Catch the Star</h1>
+      <p id="subtitle">Use Left/Right arrows or mouse to move</p>
+      <button id="start-btn" onclick="startGame()">Play Game</button>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('game-container');
+    const player = document.getElementById('player');
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
+    const overlay = document.getElementById('overlay');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+
+    let score = 0;
+    let lives = 3;
+    let playerX = 160;
+    const playerSpeed = 7;
+    let keys = {};
+    let stars = [];
+    let gameInterval;
+    let spawnInterval;
+    let isPlaying = false;
+
+    // Event Listeners for Controls
+    document.addEventListener('keydown', (e) => keys[e.key] = true);
+    document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+    container.addEventListener('mousemove', (e) => {
+      if (!isPlaying) return;
+      const rect = container.getBoundingClientRect();
+      playerX = e.clientX - rect.left - 40;
+      keepPlayerInBounds();
+    });
+
+    function keepPlayerInBounds() {
+      if (playerX < 0) playerX = 0;
+      if (playerX > 320) playerX = 320;
+      player.style.left = playerX + 'px';
+    }
+
+    function spawnStar() {
+      const starEl = document.createElement('div');
+      starEl.classList.add('star');
+
+      const star = {
+        x: Math.random() * 376,
+        y: -30,
+        speed: 2 + Math.random() * 3 + (score * 0.2), // Speed increases with score
+        el: starEl
+      };
+
+      starEl.style.left = star.x + 'px';
+      starEl.style.top = star.y + 'px';
+      container.appendChild(starEl);
+      stars.push(star);
+    }
+
+    function update() {
+      // Keyboard Movement
+      if (keys['ArrowLeft'] || keys['a']) {
+        playerX -= playerSpeed;
+        keepPlayerInBounds();
+      }
+      if (keys['ArrowRight'] || keys['d']) {
+        playerX += playerSpeed;
+        keepPlayerInBounds();
+      }
+
+      // Update Stars
+      for (let i = stars.length - 1; i >= 0; i--) {
+        const s = stars[i];
+        s.y += s.speed;
+        s.el.style.top = s.y + 'px';
+
+        // Collision Detection with Player
+        if (
+          s.y >= 444 && s.y <= 460 &&
+          s.x + 24 >= playerX && s.x <= playerX + 80
+        ) {
+          score += 10;
+          scoreEl.textContent = score;
+          s.el.remove();
+          stars.splice(i, 1);
+          continue;
+        }
+
+        // Missed Star (Bottom of Screen)
+        if (s.y > 500) {
+          lives--;
+          livesEl.textContent = lives;
+          s.el.remove();
+          stars.splice(i, 1);
+
+          if (lives <= 0) {
+            endGame();
+          }
+        }
+      }
+    }
+
+    function startGame() {
+      // Reset State
+      score = 0;
+      lives = 3;
+      playerX = 160;
+      scoreEl.textContent = score;
+      livesEl.textContent = lives;
+      player.style.left = playerX + 'px';
+
+      // Clear existing stars
+      stars.forEach(s => s.el.remove());
+      stars = [];
+
+      overlay.style.display = 'none';
+      isPlaying = true;
+
+      // Game Loops
+      gameInterval = setInterval(update, 1000 / 60); // 60 FPS
+      spawnInterval = setInterval(spawnStar, 1000);
+    }
+
+    function endGame() {
+      isPlaying = false;
+      clearInterval(gameInterval);
+      clearInterval(spawnInterval);
+
+      titleEl.textContent = 'Game Over';
+      subtitleEl.textContent = `Final Score: ${score}`;
+      document.getElementById('start-btn').textContent = 'Try Again';
+      overlay.style.display = 'flex';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GameVault - Neon Memory</title>
+
+    <link rel="stylesheet" href="memory.css">
+</head>
+
+<body>
+
+    <main class="game-wrapper">
+
+        <header class="game-header">
+            <div>
+                <p class="eyebrow">GAMEVAULT</p>
+                <h1>🧠 Neon Memory</h1>
+                <p class="subtitle">
+                    Remember the sequence. Beat the vault.
+                </p>
+            </div>
+
+            <div class="score-board">
+
+                <div class="score-box">
+                    <span>Level</span>
+                    <strong id="level">1</strong>
+                </div>
+
+                <div class="score-box">
+                    <span>Best</span>
+                    <strong id="best">0</strong>
+                </div>
+
+            </div>
+        </header>
+
+
+        <section class="game-card">
+
+            <div class="status-bar">
+
+                <span id="status">
+                    Watch the sequence...
+                </span>
+
+                <button id="startBtn">
+                    Start Game
+                </button>
+
+            </div>
+
+
+            <div class="memory-board" id="memoryBoard">
+
+                <button class="memory-tile" data-index="0"></button>
+                <button class="memory-tile" data-index="1"></button>
+                <button class="memory-tile" data-index="2"></button>
+                <button class="memory-tile" data-index="3"></button>
+
+                <button class="memory-tile" data-index="4"></button>
+                <button class="memory-tile" data-index="5"></button>
+                <button class="memory-tile" data-index="6"></button>
+                <button class="memory-tile" data-index="7"></button>
+
+                <button class="memory-tile" data-index="8"></button>
+                <button class="memory-tile" data-index="9"></button>
+                <button class="memory-tile" data-index="10"></button>
+                <button class="memory-tile" data-index="11"></button>
+
+                <button class="memory-tile" data-index="12"></button>
+                <button class="memory-tile" data-index="13"></button>
+                <button class="memory-tile" data-index="14"></button>
+                <button class="memory-tile" data-index="15"></button>
+
+            </div>
+
+
+            <div class="info-panel">
+
+                <div>
+                    <span>Sequence</span>
+                    <strong id="sequenceCount">0</strong>
+                </div>
+
+                <div>
+                    <span>Correct</span>
+                    <strong id="correctCount">0</strong>
+                </div>
+
+                <div>
+                    <span>Score</span>
+                    <strong id="score">0</strong>
+                </div>
+
+            </div>
+
+
+            <div
+                id="gameOver"
+                class="game-over hidden"
+            >
+
+                <div class="game-over-box">
+
+                    <span class="game-over-icon">💥</span>
+
+                    <h2>Memory Lost</h2>
+
+                    <p>
+                        You reached level
+                        <strong id="finalLevel">1</strong>
+                    </p>
+
+                    <p>
+                        Score:
+                        <strong id="finalScore">0</strong>
+                    </p>
+
+                    <button id="playAgainBtn">
+                        Play Again
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+            <p>GameVault • Neon Memory</p>
+        </footer>
+
+    </main>
+
+
+    <script src="memory.js"></script>
+
+</body>
+</html>
