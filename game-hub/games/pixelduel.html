@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pixel Duel — GameVault</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: #080b16;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* =========================
+       TOP NAVIGATION
+    ========================== */
+
+    .top-nav {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+      width: calc(100% - 30px);
+      z-index: 30;
+    }
+
+    .hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(124, 92, 255, 0.15);
+      border: 1px solid rgba(124, 92, 255, 0.4);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .hub-btn:hover {
+      background: rgba(124, 92, 255, 0.35);
+      border-color: rgba(124, 92, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    /* =========================
+       GAME CONTAINER
+    ========================== */
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 380px;
+      background: #0f172a;
+      border: 2px solid rgba(124, 92, 255, 0.3);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      margin-top: 25px;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================
+       HUD
+    ========================== */
+
+    .hud {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .health-bar-container {
+      width: 120px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    @media (min-width: 480px) {
+      .health-bar-container {
+        width: 200px;
+        height: 20px;
+      }
+    }
+
+    .health-bar {
+      height: 100%;
+      width: 100%;
+      transition: width 0.1s ease;
+    }
+
+    #p1-health {
+      background: linear-gradient(90deg, #ff4757, #ff6b81);
+    }
+
+    #p2-health {
+      background: linear-gradient(90deg, #1e90ff, #70a1ff);
+      float: right;
+    }
+
+    .player-label {
+      font-weight: 700;
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .p1-box {
+      text-align: left;
+    }
+
+    .p2-box {
+      text-align: right;
+    }
+
+    /* =========================
+       MOBILE CONTROLS
+    ========================== */
+
+    .mobile-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      padding: 10px 15px;
+    }
+
+    .player-ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* =========================
+       JOYSTICK
+    ========================== */
+
+    .joystick-base {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      touch-action: none;
+    }
+
+    .joystick-stick {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: transform 0.05s linear;
+    }
+
+    .p1-base {
+      border-color: rgba(255, 71, 87, 0.4);
+    }
+
+    .p1-stick {
+      background: radial-gradient(circle, #ff6b81, #ff4757);
+    }
+
+    .p2-base {
+      border-color: rgba(30, 144, 255, 0.4);
+    }
+
+    .p2-stick {
+      background: radial-gradient(circle, #70a1ff, #1e90ff);
+    }
+
+    /* =========================
+       ATTACK BUTTONS
+    ========================== */
+
+    .action-btn-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      font-size: 1.4rem;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.1s ease;
+      touch-action: manipulation;
+    }
+
+    .action-btn-circle:active {
+      transform: scale(0.92);
+    }
+
+    .p1-attack-btn {
+      background: rgba(255, 71, 87, 0.25);
+      border-color: rgba(255, 71, 87, 0.6);
+    }
+
+    .p1-attack-btn:active {
+      background: rgba(255, 71, 87, 0.5);
+    }
+
+    .p2-attack-btn {
+      background: rgba(30, 144, 255, 0.25);
+      border-color: rgba(30, 144, 255, 0.6);
+    }
+
+    .p2-attack-btn:active {
+      background: rgba(30, 144, 255, 0.5);
+    }
+
+    /* =========================
+       OVERLAY
+    ========================== */
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 11, 22, 0.94);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 20;
+      padding: 20px;
+    }
+
+    #overlay h1 {
+      font-size: 2rem;
+      color: #ff4757;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+    }
+
+    .controls-guide {
+      display: flex;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .control-col {
+      text-align: center;
+    }
+
+    .control-col h3 {
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    .control-col p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      line-height: 1.3;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 180px;
+    }
+
+    button,
+    .action-btn {
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #7c5cff, #00cfff);
+      color: #fff;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* =========================
+       MOBILE RESPONSIVE
+    ========================== */
+
+    @media (max-width: 600px) {
+      #game-container {
+        width: calc(100% - 20px);
+        height: min(380px, 60vh);
+      }
+
+      .mobile-controls {
+        width: calc(100% - 20px);
+      }
+
+      .controls-guide {
+        gap: 10px;
+        padding: 8px;
+      }
+
+      .control-col p {
+        font-size: 0.65rem;
+      }
+
+      #overlay h1 {
+        font-size: 1.6rem;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .mobile-controls {
+        opacity: 0.75;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       TOP NAV
+  ========================== -->
+
+  <div class="top-nav">
+    <a href="../index.html" class="hub-btn">
+      ◀ Return to Hub
+    </a>
+  </div>
+
+  <!-- =========================
+       GAME
+  ========================== -->
+
+  <div id="game-container">
+
+    <!-- HUD -->
+
+    <div class="hud">
+
+      <div class="p1-box">
+        <div class="player-label" style="color: #ff4757;">
+          P1 (Red)
+        </div>
+
+        <div class="health-bar-container">
+          <div id="p1-health" class="health-bar"></div>
+        </div>
+      </div>
+
+      <div class="p2-box">
+        <div class="player-label" style="color: #1e90ff;">
+          P2 (Blue)
+        </div>
+
+        <div class="health-bar-container">
+          <div id="p2-health" class="health-bar"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <canvas
+      id="canvas"
+      width="600"
+      height="380"
+    ></canvas>
+
+    <!-- =========================
+         START / END OVERLAY
+    ========================== -->
+
+    <div id="overlay">
+
+      <h1 id="title">
+        Pixel Duel 1v1
+      </h1>
+
+      <div class="controls-guide">
+
+        <div class="control-col">
+
+          <h3 style="color: #ff4757;">
+            Player 1
+          </h3>
+
+          <p>
+            Joystick / A-D — Move
+          </p>
+
+          <p>
+            Up Stick / W — Jump
+          </p>
+
+          <p>
+            ⚔️ / Space — Attack
+          </p>
+
+        </div>
+
+        <div class="control-col">
+
+          <h3 style="color: #1e90ff;">
+            Player 2
+          </h3>
+
+          <p>
+            Joystick / ◀-▶ — Move
+          </p>
+
+          <p>
+            Up Stick / ▲ — Jump
+          </p>
+
+          <p>
+            ⚔️ / Enter — Attack
+          </p>
+
+        </div>
+
+      </div>
+
+      <div class="btn-group">
+
+        <button
+          id="start-btn"
+          class="primary-btn"
+          onclick="startGame()"
+        >
+          Start Duel
+        </button>
+
+        <a
+          href="../index.html"
+          class="action-btn secondary-btn"
+        >
+          Main Menu
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       MOBILE CONTROLS
+  ========================== -->
+
+  <div class="mobile-controls">
+
+    <!-- P1 -->
+
+    <div class="player-ctrl-group">
+
+      <div
+        class="joystick-base p1-base"
+        id="joy-base-p1"
+      >
+        <div
+          class="joystick-stick p1-stick"
+          id="joy-stick-p1"
+        ></div>
+      </div>
+
+      <div
+        class="action-btn-circle p1-attack-btn"
+        id="btn-p1-attack"
+      >
+        ⚔️
+      </div>
+
+    </div>
+
+    <!-- P2 -->
+
+    <div class="player-ctrl-group">
+
+      <div
+        class="action-btn-circle p2-attack-btn"
+        id="btn-p2-attack"
+      >
+        ⚔️
+      </div>
+
+      <div
+        class="joystick-base p2-base"
+        id="joy-base-p2"
+      >
+        <div
+          class="joystick-stick p2-stick"
+          id="joy-stick-p2"
+        ></div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* =========================
+       DOM
+    ========================== */
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const overlay = document.getElementById('overlay');
+    const titleEl = document.getElementById('title');
+    const startBtn = document.getElementById('start-btn');
+
+    const p1HealthEl = document.getElementById('p1-health');
+    const p2HealthEl = document.getElementById('p2-health');
+
+
+    /* =========================
+       GAME SETTINGS
+    ========================== */
+
+    const gravity = 0.6;
+
+    let animationId = null;
+    let isPlaying = false;
+
+    let p1 = null;
+    let p2 = null;
+
+
+    /* =========================
+       INPUT
+    ========================== */
+
+    const keys = {};
+
+    const joyState = {
+
+      p1: {
+        x: 0,
+        y: 0
+      },
+
+      p2: {
+        x: 0,
+        y: 0
+      }
+
+    };
+
+
+    /* =========================
+       PLAYER CLASS
+    ========================== */
+
+    class Player {
+
+      constructor({
+        x,
+        y,
+        color,
+        controls
+      }) {
+
+        this.x = x;
+        this.y = y;
+
+        this.width = 32;
+        this.height = 48;
+
+        this.color = color;
+
+        this.vx = 0;
+        this.vy = 0;
+
+        this.speed = 4.5;
+        this.jumpPower = -12;
+
+        this.isGrounded = false;
+
+        this.health = 100;
+
+        this.controls = controls;
+
+        this.isAttacking = false;
+        this.attackCooldown = false;
+        this.attackHasHit = false;
+
+        this.attackBox = {
+          x: this.x,
+          y: this.y,
+          width: 40,
+          height: 30
+        };
+
+        this.facing =
+          controls.left === 'a'
+            ? 'right'
+            : 'left';
+
+      }
+
+
+      /* =========================
+         DRAW PLAYER
+      ========================== */
+
+      draw() {
+
+        /* Body */
+
+        ctx.fillStyle = this.color;
+
+        ctx.fillRect(
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
+
+
+        /* Visor */
+
+        ctx.fillStyle = '#ffffff';
+
+        const visorX =
+          this.facing === 'right'
+            ? this.x + 18
+            : this.x + 4;
+
+        ctx.fillRect(
+          visorX,
+          this.y + 10,
+          10,
+          6
+        );
+
+
+        /* Attack */
+
+        if (this.isAttacking) {
+
+          ctx.fillStyle = '#ffffff';
+
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = this.color;
+
+          ctx.fillRect(
+            this.attackBox.x,
+            this.attackBox.y,
+            this.attackBox.width,
+            this.attackBox.height
+          );
+
+          ctx.shadowBlur = 0;
+
+        }
+
+      }
+
+
+      /* =========================
+         UPDATE
+      ========================== */
+
+      update(enemy) {
+
+        /* Position */
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+
+        /* Gravity */
+
+        if (
+          this.y +
+          this.height +
+          this.vy <
+          canvas.height - 40
+        ) {
+
+          this.vy += gravity;
+
+          this.isGrounded = false;
+
+        } else {
+
+          this.vy = 0;
+
+          this.y =
+            canvas.height -
+            40 -
+            this.height;
+
+          this.isGrounded = true;
+
+        }
+
+
+        /* Horizontal boundaries */
+
+        if (this.x < 0) {
+          this.x = 0;
+        }
+
+        if (
+          this.x + this.width >
+          canvas.width
+        ) {
+
+          this.x =
+            canvas.width -
+            this.width;
+
+        }
+
+
+        /* Attack box */
+
+        this.attackBox.y =
+          this.y + 10;
+
+        if (this.facing === 'right') {
+
+          this.attackBox.x =
+            this.x + this.width;
+
+        } else {
+
+          this.attackBox.x =
+            this.x -
+            this.attackBox.width;
+
+        }
+
+
+        /* Attack collision */
+
+        if (
+          this.isAttacking &&
+          !this.attackHasHit &&
+          this.attackBox.x <
+            enemy.x + enemy.width &&
+          this.attackBox.x +
+            this.attackBox.width >
+            enemy.x &&
+          this.attackBox.y <
+            enemy.y + enemy.height &&
+          this.attackBox.y +
+            this.attackBox.height >
+            enemy.y
+        ) {
+
+          this.attackHasHit = true;
+
+          enemy.health -= 8;
+
+          if (enemy.health < 0) {
+            enemy.health = 0;
+          }
+
+
+          /* Knockback */
+
+          enemy.vx +=
+            this.facing === 'right'
+              ? 6
+              : -6;
+
+          enemy.vy -= 2;
+
+          this.isAttacking = false;
+
+        }
+
+
+        this.draw();
+
+      }
+
+
+      /* =========================
+         ATTACK
+      ========================== */
+
+      attack() {
+
+        if (
+          this.attackCooldown ||
+          this.isAttacking ||
+          !isPlaying
+        ) {
+          return;
+        }
+
+
+        this.isAttacking = true;
+
+        this.attackCooldown = true;
+
+        this.attackHasHit = false;
+
+
+        /* Attack animation */
+
+        setTimeout(() => {
+
+          this.isAttacking = false;
+
+        }, 150);
+
+
+        /* Attack cooldown */
+
+        setTimeout(() => {
+
+          this.attackCooldown = false;
+
+        }, 400);
+
+      }
+
+    }
+
+
+    /* =========================
+       JOYSTICK SETUP
+    ========================== */
+
+    function setupJoystick(
+      baseId,
+      stickId,
+      playerKey
+    ) {
+
+      const base =
+        document.getElementById(baseId);
+
+      const stick =
+        document.getElementById(stickId);
+
+
+      let touchId = null;
+
+      const maxRadius = 30;
+
+
+      /* Move stick */
+
+      function handleMove(
+        clientX,
+        clientY
+      ) {
+
+        const rect =
+          base.getBoundingClientRect();
+
+        const centerX =
+          rect.left +
+          rect.width / 2;
+
+        const centerY =
+          rect.top +
+          rect.height / 2;
+
+
+        let deltaX =
+          clientX - centerX;
+
+        let deltaY =
+          clientY - centerY;
+
+
+        const distance =
+          Math.hypot(
+            deltaX,
+            deltaY
+          );
+
+
+        if (
+          distance >
+          maxRadius
+        ) {
+
+          deltaX =
+            (deltaX / distance) *
+            maxRadius;
+
+          deltaY =
+            (deltaY / distance) *
+            maxRadius;
+
+        }
+
+
+        stick.style.transform =
+          `translate(
+            calc(-50% + ${deltaX}px),
+            calc(-50% + ${deltaY}px)
+          )`;
+
+
+        joyState[playerKey].x =
+          deltaX / maxRadius;
+
+        joyState[playerKey].y =
+          deltaY / maxRadius;
+
+      }
+
+
+      /* Reset */
+
+      function resetStick() {
+
+        stick.style.transform =
+          'translate(-50%, -50%)';
+
+        joyState[playerKey].x = 0;
+        joyState[playerKey].y = 0;
+
+        touchId = null;
+
+      }
+
+
+      /* Touch start */
+
+      base.addEventListener(
+        'touchstart',
+        (e) => {
+
+          e.preventDefault();
+
+          if (
+            touchId === null &&
+            e.changedTouches.length > 0
+          ) {
+
+            const touch =
+              e.changedTouches[0];
+
+            touchId =
+              touch.identifier;
+
+            handleMove(
+              touch.clientX,
+              touch.clientY
+            );
+
+          }
+
+        },
+        { passive: false }
+      );
+
+
+      /* Touch move */
+
+      window.addEventListener(
+        'touchmove',
+        (e) => {
+
+          if (touchId === null) {
+            return;
+          }
+
+          for (
+            const touch
+            of e.changedTouches
+          ) {
+
+            if (
+              touch.identifier ===
+              touchId
+            ) {
+
+              e.preventDefault();
+
+              handleMove(
+                touch.clientX,
+                touch.clientY
+              );
+
+            }
+
+          }
+
+        },
+        { passive: false }
+      );
+
+
+      /* Touch end */
+
+      window.addEventListener(
+        'touchend',
+        (e) => {
+
+          for (
+            const touch
+            of e.changedTouches
+          ) {
+
+            if (
+              touch.identifier ===
+              touchId
+            ) {
+
+              resetStick();
+
+            }
+
+          }
+
+        }
+      );
+
+
+      /* Touch cancelled */
+
+      window.addEventListener(
+        'touchcancel',
+        resetStick
+      );
+
+    }
+
+
+    /* =========================
+       KEYBOARD
+    ========================== */
+
+    window.addEventListener(
+      'keydown',
+      (e) => {
+
+        if (
+          [
+            'Space',
+            'ArrowUp',
+            'ArrowDown',
+            'ArrowLeft',
+            'ArrowRight'
+          ].includes(e.code)
+        ) {
+
+          e.preventDefault();
+
+        }
+
+
+        keys[e.key] = true;
+
+
+        if (
+          e.code === 'Space' &&
+          isPlaying &&
+          !e.repeat
+        ) {
+
+          p1.attack();
+
+        }
+
+
+        if (
+          e.code === 'Enter' &&
+          isPlaying &&
+          !e.repeat
+        ) {
+
+          p2.attack();
+
+        }
+
+      }
+    );
+
+
+    window.addEventListener(
+      'keyup',
+      (e) => {
+
+        keys[e.key] = false;
+
+      }
+    );
+
+
+    /* =========================
+       GAME INPUT
+    ========================== */
+
+    function handleInput() {
+
+      if (!p1 || !p2) {
+        return;
+      }
+
+
+      /* =====================
+         PLAYER 1
+      ====================== */
+
+      p1.vx = 0;
+
+
+      if (
+        keys['a'] ||
+        keys['A'] ||
+        joyState.p1.x < -0.3
+      ) {
+
+        p1.vx = -p1.speed;
+
+        p1.facing = 'left';
+
+      }
+
+
+      if (
+        keys['d'] ||
+        keys['D'] ||
+        joyState.p1.x > 0.3
+      ) {
+
+        p1.vx = p1.speed;
+
+        p1.facing = 'right';
+
+      }
+
+
+      if (
+        (
+          keys['w'] ||
+          keys['W'] ||
+          joyState.p1.y < -0.6
+        ) &&
+        p1.isGrounded
+      ) {
+
+        p1.vy =
+          p1.jumpPower;
+
+        p1.isGrounded = false;
+
+      }
+
+
+      /* =====================
+         PLAYER 2
+      ====================== */
+
+      p2.vx = 0;
+
+
+      if (
+        keys['ArrowLeft'] ||
+        joyState.p2.x < -0.3
+      ) {
+
+        p2.vx = -p2.speed;
+
+        p2.facing = 'left';
+
+      }
+
+
+      if (
+        keys['ArrowRight'] ||
+        joyState.p2.x > 0.3
+      ) {
+
+        p2.vx = p2.speed;
+
+        p2.facing = 'right';
+
+      }
+
+
+      if (
+        (
+          keys['ArrowUp'] ||
+          joyState.p2.y < -0.6
+        ) &&
+        p2.isGrounded
+      ) {
+
+        p2.vy =
+          p2.jumpPower;
+
+        p2.isGrounded = false;
+
+      }
+
+    }
+
+
+    /* =========================
+       DRAW STAGE
+    ========================== */
+
+    function drawStage() {
+
+      /* Background */
+
+      const bgGradient =
+        ctx.createLinearGradient(
+          0,
+          0,
+          0,
+          canvas.height
+        );
+
+
+      bgGradient.addColorStop(
+        0,
+        '#0f172a'
+      );
+
+      bgGradient.addColorStop(
+        1,
+        '#1e1b4b'
+      );
+
+
+      ctx.fillStyle =
+        bgGradient;
+
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+
+      /* Floor */
+
+      ctx.fillStyle =
+        '#334155';
+
+      ctx.fillRect(
+        0,
+        canvas.height - 40,
+        canvas.width,
+        40
+      );
+
+
+      /* Floor glow */
+
+      ctx.fillStyle =
+        '#7c5cff';
+
+      ctx.fillRect(
+        0,
+        canvas.height - 40,
+        canvas.width,
+        4
+      );
+
+
+      /* Background decorations */
+
+      ctx.fillStyle =
+        'rgba(124, 92, 255, 0.08)';
+
+      for (
+        let x = 0;
+        x < canvas.width;
+        x += 60
+      ) {
+
+        ctx.fillRect(
+          x,
+          canvas.height - 40,
+          2,
+          -80
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       GAME LOOP
+    ========================== */
+
+    function gameLoop() {
+
+      if (!isPlaying) {
+        return;
+      }
+
+
+      drawStage();
+
+      handleInput();
+
+
+      p1.update(p2);
+      p2.update(p1);
+
+
+      /* Health */
+
+      p1HealthEl.style.width =
+        `${p1.health}%`;
+
+      p2HealthEl.style.width =
+        `${p2.health}%`;
+
+
+      /* Winner */
+
+      if (
+        p1.health <= 0 ||
+        p2.health <= 0
+      ) {
+
+        endGame();
+
+        return;
+
+      }
+
+
+      animationId =
+        requestAnimationFrame(
+          gameLoop
+        );
+
+    }
+
+
+    /* =========================
+       RESET JOYSTICKS
+    ========================== */
+
+    function resetJoysticks() {
+
+      joyState.p1.x = 0;
+      joyState.p1.y = 0;
+
+      joyState.p2.x = 0;
+      joyState.p2.y = 0;
+
+
+      document.getElementById(
+        'joy-stick-p1'
+      ).style.transform =
+        'translate(-50%, -50%)';
+
+
+      document.getElementById(
+        'joy-stick-p2'
+      ).style.transform =
+        'translate(-50%, -50%)';
+
+    }
+
+
+    /* =========================
+       START GAME
+    ========================== */
+
+    function startGame() {
+
+      /* Stop previous loop */
+
+      if (animationId !== null) {
+
+        cancelAnimationFrame(
+          animationId
+        );
+
+      }
+
+
+      /* Reset keyboard */
+
+      for (
+        const key in keys
+      ) {
+
+        keys[key] = false;
+
+      }
+
+
+      resetJoysticks();
+
+
+      /* Create P1 */
+
+      p1 = new Player({
+
+        x: 100,
+        y: 200,
+
+        color: '#ff4757',
+
+        controls: {
+          left: 'a',
+          right: 'd',
+          jump: 'w'
+        }
+
+      });
+
+
+      /* Create P2 */
+
+      p2 = new Player({
+
+        x: 460,
+        y: 200,
+
+        color: '#1e90ff',
+
+        controls: {
+          left: 'ArrowLeft',
+          right: 'ArrowRight',
+          jump: 'ArrowUp'
+        }
+
+      });
+
+
+      /* Reset HUD */
+
+      p1HealthEl.style.width =
+        '100%';
+
+      p2HealthEl.style.width =
+        '100%';
+
+
+      /* Reset title */
+
+      titleEl.textContent =
+        'Pixel Duel 1v1';
+
+      titleEl.style.color =
+        '#ff4757';
+
+
+      /* Hide overlay */
+
+      overlay.style.display =
+        'none';
+
+
+      startBtn.textContent =
+        'Rematch';
+
+
+      isPlaying = true;
+
+
+      /* Start loop */
+
+      gameLoop();
+
+    }
+
+
+    /* =========================
+       END GAME
+    ========================== */
+
+    function endGame() {
+
+      isPlaying = false;
+
+
+      if (
+        animationId !== null
+      ) {
+
+        cancelAnimationFrame(
+          animationId
+        );
+
+        animationId = null;
+
+      }
+
+
+      /* Determine winner */
+
+      if (
+        p1.health <= 0 &&
+        p2.health <= 0
+      ) {
+
+        titleEl.textContent =
+          'DOUBLE KNOCKOUT!';
+
+        titleEl.style.color =
+          '#ffffff';
+
+      }
+
+      else if (
+        p1.health <= 0
+      ) {
+
+        titleEl.textContent =
+          'PLAYER 2 WINS!';
+
+        titleEl.style.color =
+          '#1e90ff';
+
+      }
+
+      else {
+
+        titleEl.textContent =
+          'PLAYER 1 WINS!';
+
+        titleEl.style.color =
+          '#ff4757';
+
+      }
+
+
+      startBtn.textContent =
+        'Rematch';
+
+
+      overlay.style.display =
+        'flex';
+
+    }
+
+
+    /* =========================
+       INITIALIZE TOUCH CONTROLS
+
+       IMPORTANT:
+       These are initialized ONCE,
+       not every time the game starts.
+    ========================== */
+
+    setupJoystick(
+      'joy-base-p1',
+      'joy-stick-p1',
+      'p1'
+    );
+
+    setupJoystick(
+      'joy-base-p2',
+      'joy-stick-p2',
+      'p2'
+    );
+
+
+    /* =========================
+       ATTACK BUTTONS
+    ========================== */
+
+    const p1AttackBtn =
+      document.getElementById(
+        'btn-p1-attack'
+      );
+
+    const p2AttackBtn =
+      document.getElementById(
+        'btn-p2-attack'
+      );
+
+
+    p1AttackBtn.addEventListener(
+      'touchstart',
+      (e) => {
+
+        e.preventDefault();
+
+        if (
+          isPlaying &&
+          p1
+        ) {
+
+          p1.attack();
+
+        }
+
+      },
+      { passive: false }
+    );
+
+
+    p2AttackBtn.addEventListener(
+      'touchstart',
+      (e) => {
+
+        e.preventDefault();
+
+        if (
+          isPlaying &&
+          p2
+        ) {
+
+          p2.attack();
+
+        }
+
+      },
+      { passive: false }
+    );
+
+
+    /* Also allow mouse clicking
+       for desktop testing. */
+
+    p1AttackBtn.addEventListener(
+      'mousedown',
+      (e) => {
+
+        e.preventDefault();
+
+        if (
+          isPlaying &&
+          p1
+        ) {
+
+          p1.attack();
+
+        }
+
+      }
+    );
+
+
+    p2AttackBtn.addEventListener(
+      'mousedown',
+      (e) => {
+
+        e.preventDefault();
+
+        if (
+          isPlaying &&
+          p2
+        ) {
+
+          p2.attack();
+
+        }
+
+      }
+    );
+
+
+  </script>
+
+</body>
+</html>

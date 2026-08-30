@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catch the Star — GameVault</title>
+  <title>Dungeon Dash — GameVault</title>
   <style>
     * {
       box-sizing: border-box;
@@ -64,12 +64,22 @@
       position: relative;
       width: 400px;
       height: 520px;
-      background: #0f172a;
+      background: #12101e;
       border: 2px solid rgba(124, 92, 255, 0.3);
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
       margin-top: 40px;
+    }
+
+    /* Dungeon Grid Background Details */
+    .dungeon-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
     }
 
     #scoreboard {
@@ -87,29 +97,46 @@
 
     #player {
       position: absolute;
-      bottom: 20px;
-      left: 160px;
-      width: 80px;
-      height: 16px;
-      background: linear-gradient(90deg, #7c5cff, #00d4ff);
-      border-radius: 8px;
-      box-shadow: 0 0 12px rgba(124, 92, 255, 0.8);
+      bottom: 25px;
+      left: 180px;
+      width: 40px;
+      height: 40px;
+      font-size: 28px;
+      display: grid;
+      place-items: center;
+      z-index: 5;
+      transition: left 0.05s ease-out;
     }
 
-    .star {
+    .trap {
       position: absolute;
-      width: 24px;
-      height: 24px;
-      background: #f9d342;
-      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-      box-shadow: 0 0 10px #f9d342;
+      width: 32px;
+      height: 32px;
+      font-size: 24px;
+      display: grid;
+      place-items: center;
     }
 
-    /* Game Over / Start Overlay */
+    .treasure {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      font-size: 24px;
+      display: grid;
+      place-items: center;
+      animation: pulse 0.8s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(0.9); }
+      to { transform: scale(1.1); }
+    }
+
+    /* Overlay Screen */
     #overlay {
       position: absolute;
       inset: 0;
-      background: rgba(8, 11, 22, 0.92);
+      background: rgba(8, 11, 22, 0.94);
       backdrop-filter: blur(6px);
       display: flex;
       flex-direction: column;
@@ -121,13 +148,15 @@
 
     #overlay h1 {
       font-size: 2.2rem;
-      color: #f9d342;
-      text-shadow: 0 0 15px rgba(249, 211, 66, 0.4);
+      color: #ffb703;
+      text-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
     }
 
     #overlay p {
       color: #94a3b8;
       font-size: 0.95rem;
+      text-align: center;
+      padding: 0 20px;
     }
 
     .btn-group {
@@ -182,19 +211,21 @@
   </div>
 
   <div id="game-container">
+    <div class="dungeon-bg"></div>
+    
     <div id="scoreboard">
-      <span>Score: <span id="score">0</span></span>
-      <span>Lives: <span id="lives">3</span></span>
+      <span>Treasure: <span id="score">0</span></span>
+      <span>Health: <span id="health">3</span> HP</span>
     </div>
 
-    <div id="player"></div>
+    <div id="player">🧙</div>
 
     <div id="overlay">
-      <h1 id="title">Catch the Star</h1>
-      <p id="subtitle">Use Left/Right arrows or mouse to move</p>
-
+      <h1 id="title">Dungeon Dash</h1>
+      <p id="subtitle">Dodge the traps (🔥/⚙️) and collect the loot (💎/💎)!</p>
+      
       <div class="btn-group">
-        <button id="start-btn" class="primary-btn" onclick="startGame()">Play Game</button>
+        <button id="start-btn" class="primary-btn" onclick="startGame()">Enter Dungeon</button>
         <a href="../index.html" class="action-btn secondary-btn">Main Menu</a>
       </div>
     </div>
@@ -204,20 +235,23 @@
     const container = document.getElementById('game-container');
     const player = document.getElementById('player');
     const scoreEl = document.getElementById('score');
-    const livesEl = document.getElementById('lives');
+    const healthEl = document.getElementById('health');
     const overlay = document.getElementById('overlay');
     const titleEl = document.getElementById('title');
     const subtitleEl = document.getElementById('subtitle');
 
     let score = 0;
-    let lives = 3;
-    let playerX = 160;
-    const playerSpeed = 8;
+    let health = 3;
+    let playerX = 180;
+    const playerSpeed = 7;
     let keys = {};
-    let stars = [];
+    let entities = []; // Holds both traps and treasures
     let gameInterval;
     let spawnInterval;
     let isPlaying = false;
+
+    const trapTypes = ['🔥', '⚙️', '🗡️', '💀'];
+    const treasureTypes = ['💎', '💰', '👑', '🏆'];
 
     // Controls
     document.addEventListener('keydown', (e) => keys[e.key] = true);
@@ -226,31 +260,39 @@
     container.addEventListener('mousemove', (e) => {
       if (!isPlaying) return;
       const rect = container.getBoundingClientRect();
-      playerX = e.clientX - rect.left - 40;
+      playerX = e.clientX - rect.left - 20;
       keepPlayerInBounds();
     });
 
     function keepPlayerInBounds() {
-      if (playerX < 0) playerX = 0;
-      if (playerX > 320) playerX = 320;
+      if (playerX < 10) playerX = 10;
+      if (playerX > 350) playerX = 350;
       player.style.left = playerX + 'px';
     }
 
-    function spawnStar() {
-      const starEl = document.createElement('div');
-      starEl.classList.add('star');
+    function spawnEntity() {
+      const isTreasure = Math.random() > 0.45; // 55% Traps, 45% Treasure
+      const el = document.createElement('div');
+      
+      const type = isTreasure 
+        ? treasureTypes[Math.floor(Math.random() * treasureTypes.length)]
+        : trapTypes[Math.floor(Math.random() * trapTypes.length)];
 
-      const star = {
-        x: Math.random() * 376,
+      el.textContent = type;
+      el.classList.add(isTreasure ? 'treasure' : 'trap');
+
+      const entity = {
+        x: 10 + Math.random() * 340,
         y: -30,
-        speed: 2.5 + Math.random() * 3 + (score * 0.05),
-        el: starEl
+        speed: 3 + Math.random() * 2.5 + (score * 0.02),
+        isTreasure: isTreasure,
+        el: el
       };
 
-      starEl.style.left = star.x + 'px';
-      starEl.style.top = star.y + 'px';
-      container.appendChild(starEl);
-      stars.push(star);
+      el.style.left = entity.x + 'px';
+      el.style.top = entity.y + 'px';
+      container.appendChild(el);
+      entities.push(entity);
     }
 
     function update() {
@@ -263,53 +305,55 @@
         keepPlayerInBounds();
       }
 
-      for (let i = stars.length - 1; i >= 0; i--) {
-        const s = stars[i];
-        s.y += s.speed;
-        s.el.style.top = s.y + 'px';
+      for (let i = entities.length - 1; i >= 0; i--) {
+        const item = entities[i];
+        item.y += item.speed;
+        item.el.style.top = item.y + 'px';
 
-        // Catch Star
+        // Collision Check with Player
         if (
-          s.y >= 464 && s.y <= 480 &&
-          s.x + 24 >= playerX && s.x <= playerX + 80
+          item.y >= 445 && item.y <= 485 &&
+          item.x + 30 >= playerX && item.x <= playerX + 40
         ) {
-          score += 10;
-          scoreEl.textContent = score;
-          s.el.remove();
-          stars.splice(i, 1);
+          if (item.isTreasure) {
+            score += 25;
+            scoreEl.textContent = score;
+          } else {
+            health--;
+            healthEl.textContent = health;
+            if (health <= 0) {
+              endGame();
+            }
+          }
+          item.el.remove();
+          entities.splice(i, 1);
           continue;
         }
 
-        // Miss Star
-        if (s.y > 520) {
-          lives--;
-          livesEl.textContent = lives;
-          s.el.remove();
-          stars.splice(i, 1);
-
-          if (lives <= 0) {
-            endGame();
-          }
+        // Clean up items below viewport
+        if (item.y > 520) {
+          item.el.remove();
+          entities.splice(i, 1);
         }
       }
     }
 
     function startGame() {
       score = 0;
-      lives = 3;
-      playerX = 160;
+      health = 3;
+      playerX = 180;
       scoreEl.textContent = score;
-      livesEl.textContent = lives;
+      healthEl.textContent = health;
       player.style.left = playerX + 'px';
 
-      stars.forEach(s => s.el.remove());
-      stars = [];
+      entities.forEach(item => item.el.remove());
+      entities = [];
 
       overlay.style.display = 'none';
       isPlaying = true;
 
       gameInterval = setInterval(update, 1000 / 60);
-      spawnInterval = setInterval(spawnStar, 900);
+      spawnInterval = setInterval(spawnEntity, 750);
     }
 
     function endGame() {
@@ -317,9 +361,9 @@
       clearInterval(gameInterval);
       clearInterval(spawnInterval);
 
-      titleEl.textContent = 'Game Over';
-      subtitleEl.textContent = `Final Score: ${score}`;
-      document.getElementById('start-btn').textContent = 'Play Again';
+      titleEl.textContent = 'Dungeon Over';
+      subtitleEl.textContent = `Loot Collected: ${score} Treasure`;
+      document.getElementById('start-btn').textContent = 'Try Again';
       overlay.style.display = 'flex';
     }
   </script>

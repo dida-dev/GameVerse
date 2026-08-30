@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>GameVault — Admin</title>
 
@@ -27,6 +30,10 @@
         textarea,
         select {
             font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* ================================
@@ -85,19 +92,21 @@
             outline: none;
         }
 
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 2px rgba(124,58,237,.12);
+        }
+
         select option {
             background: #18181f;
+            color: white;
         }
 
         textarea {
             min-height: 120px;
             resize: vertical;
-        }
-
-        input:focus,
-        textarea:focus,
-        select:focus {
-            border-color: #7c3aed;
         }
 
         .loginButton,
@@ -107,15 +116,27 @@
             padding: 14px;
             border: 0;
             border-radius: 11px;
-            background: linear-gradient(135deg,#7c3aed,#06b6d4);
+            background: linear-gradient(
+                135deg,
+                #7c3aed,
+                #06b6d4
+            );
             color: white;
             font-weight: bold;
             cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .loginButton:hover,
+        .primaryButton:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
         }
 
         .loginButton:disabled {
             opacity: .6;
             cursor: wait;
+            transform: none;
         }
 
         .error {
@@ -174,7 +195,7 @@
 
         .dashboardHeader p {
             color: #888;
-            margin-bottom: 0;
+            margin: 6px 0 0;
         }
 
         .logout {
@@ -184,6 +205,12 @@
             background: rgba(255,255,255,.05);
             color: white;
             cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .logout:hover {
+            background: rgba(239,68,68,.15);
+            border-color: rgba(239,68,68,.3);
         }
 
         /* ================================
@@ -204,6 +231,12 @@
             background: rgba(255,255,255,.04);
             color: #aaa;
             cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .tab:hover {
+            color: white;
+            background: rgba(255,255,255,.08);
         }
 
         .tab.active {
@@ -252,6 +285,7 @@
         .gameList {
             display: grid;
             gap: 10px;
+            margin-top: 20px;
         }
 
         .gameRow {
@@ -263,6 +297,11 @@
             border-radius: 13px;
             background: rgba(255,255,255,.04);
             border: 1px solid rgba(255,255,255,.06);
+            transition: .2s ease;
+        }
+
+        .gameRow:hover {
+            background: rgba(255,255,255,.06);
         }
 
         .gameName {
@@ -289,6 +328,7 @@
             border-radius: 20px;
             font-size: 11px;
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .status.live {
@@ -319,6 +359,11 @@
             background: #7c3aed;
             color: white;
             cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .smallButton:hover {
+            filter: brightness(1.1);
         }
 
         .smallButton.gray {
@@ -361,6 +406,8 @@
         .chatMessage p {
             margin: 5px 0;
             color: #ddd;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .chatMessage small {
@@ -455,6 +502,7 @@
         }
 
         .toggle {
+            flex-shrink: 0;
             width: 48px;
             height: 26px;
             border: 0;
@@ -493,7 +541,15 @@
             cursor: pointer;
         }
 
+        /* ================================
+           MOBILE
+        ================================= */
+
         @media(max-width:700px) {
+
+            body {
+                padding: 10px;
+            }
 
             .cards {
                 grid-template-columns: 1fr;
@@ -525,6 +581,10 @@
             .chatSend {
                 padding: 12px;
             }
+
+            .adminBox {
+                padding: 25px 20px;
+            }
         }
     </style>
 </head>
@@ -549,7 +609,9 @@
 
         <form id="loginForm">
 
-            <label for="username">Username</label>
+            <label for="username">
+                Username
+            </label>
 
             <input
                 id="username"
@@ -559,7 +621,9 @@
                 required
             >
 
-            <label for="password">Password</label>
+            <label for="password">
+                Password
+            </label>
 
             <input
                 id="password"
@@ -577,13 +641,19 @@
                 🔓 Sign In
             </button>
 
-            <div class="error" id="error">
+            <div
+                class="error"
+                id="error"
+            >
                 ❌ Incorrect username or password.
             </div>
 
         </form>
 
-        <a href="../index.html" class="back">
+        <a
+            href="../index.html"
+            class="back"
+        >
             ← Back to GameVault
         </a>
 
@@ -603,11 +673,21 @@
         <div class="dashboardHeader">
 
             <div>
-                <h1>🎮 GameVault Admin</h1>
-                <p>Welcome back, administrator.</p>
+
+                <h1>
+                    🎮 GameVault Admin
+                </h1>
+
+                <p>
+                    Welcome back, administrator.
+                </p>
+
             </div>
 
-            <button class="logout" id="logout">
+            <button
+                class="logout"
+                id="logout"
+            >
                 Logout
             </button>
 
@@ -618,23 +698,43 @@
 
         <div class="tabs">
 
-            <button class="tab active" data-panel="gamesPanel">
+            <button
+                class="tab active"
+                data-panel="gamesPanel"
+                type="button"
+            >
                 🎮 Games
             </button>
 
-            <button class="tab" data-panel="constructionPanel">
+            <button
+                class="tab"
+                data-panel="constructionPanel"
+                type="button"
+            >
                 🚧 Construction
             </button>
 
-            <button class="tab" data-panel="chatPanel">
+            <button
+                class="tab"
+                data-panel="chatPanel"
+                type="button"
+            >
                 💬 Global Chat
             </button>
 
-            <button class="tab" data-panel="announcementPanel">
+            <button
+                class="tab"
+                data-panel="announcementPanel"
+                type="button"
+            >
                 📢 Announcements
             </button>
 
-            <button class="tab" data-panel="settingsPanel">
+            <button
+                class="tab"
+                data-panel="settingsPanel"
+                type="button"
+            >
                 ⚙️ Settings
             </button>
 
@@ -645,17 +745,25 @@
              GAMES
         ====================================== -->
 
-        <section class="panel active" id="gamesPanel">
+        <section
+            class="panel active"
+            id="gamesPanel"
+        >
 
             <div class="card">
 
-                <h2>🎮 Game Manager</h2>
+                <h2>
+                    🎮 Game Manager
+                </h2>
 
                 <p>
                     Current GameVault games.
                 </p>
 
-                <div class="gameList" id="gameList"></div>
+                <div
+                    class="gameList"
+                    id="gameList"
+                ></div>
 
             </div>
 
@@ -666,13 +774,18 @@
              CONSTRUCTION
         ====================================== -->
 
-        <section class="panel" id="constructionPanel">
+        <section
+            class="panel"
+            id="constructionPanel"
+        >
 
             <div class="cards">
 
                 <div class="card">
 
-                    <h2>⚔️ Pixel Duel</h2>
+                    <h2>
+                        ⚔️ Pixel Duel
+                    </h2>
 
                     <p>
                         Manage the construction status.
@@ -700,7 +813,9 @@
 
                 <div class="card">
 
-                    <h2>🧙 Dungeon Dash</h2>
+                    <h2>
+                        🧙 Dungeon Dash
+                    </h2>
 
                     <p>
                         Manage the construction status.
@@ -728,7 +843,9 @@
 
                 <div class="card">
 
-                    <h2>🔮 Secret Game</h2>
+                    <h2>
+                        🔮 Secret Game
+                    </h2>
 
                     <p>
                         Manage your future game.
@@ -759,14 +876,19 @@
 
 
         <!-- =====================================
-             GLOBAL CHAT
+             CHAT
         ====================================== -->
 
-        <section class="panel" id="chatPanel">
+        <section
+            class="panel"
+            id="chatPanel"
+        >
 
             <div class="card">
 
-                <h2>💬 Global Chat</h2>
+                <h2>
+                    💬 Global Chat
+                </h2>
 
                 <p>
                     Send messages to the GameVault chat.
@@ -789,6 +911,7 @@
                             type="text"
                             placeholder="Write a message..."
                             maxlength="300"
+                            autocomplete="off"
                             required
                         >
 
@@ -806,6 +929,7 @@
                 <button
                     class="clearChat"
                     id="clearChat"
+                    type="button"
                 >
                     🗑️ Clear Chat
                 </button>
@@ -819,11 +943,16 @@
              ANNOUNCEMENTS
         ====================================== -->
 
-        <section class="panel" id="announcementPanel">
+        <section
+            class="panel"
+            id="announcementPanel"
+        >
 
             <div class="card">
 
-                <h2>📢 Announcement Editor</h2>
+                <h2>
+                    📢 Announcement Editor
+                </h2>
 
                 <p>
                     Save an announcement for GameVault.
@@ -836,11 +965,13 @@
                 <textarea
                     id="announcement"
                     placeholder="🚀 A new game is coming soon!"
+                    maxlength="1000"
                 ></textarea>
 
                 <button
                     class="primaryButton"
                     id="saveAnnouncement"
+                    type="button"
                 >
                     💾 Save Announcement
                 </button>
@@ -854,17 +985,24 @@
              SETTINGS
         ====================================== -->
 
-        <section class="panel" id="settingsPanel">
+        <section
+            class="panel"
+            id="settingsPanel"
+        >
 
             <div class="card">
 
-                <h2>⚙️ Settings</h2>
+                <h2>
+                    ⚙️ Settings
+                </h2>
 
                 <div class="setting">
 
                     <div class="settingText">
 
-                        <strong>Online Status</strong>
+                        <strong>
+                            Online Status
+                        </strong>
 
                         <span>
                             Show GameVault as online.
@@ -875,6 +1013,8 @@
                     <button
                         class="toggle on"
                         data-setting="online"
+                        type="button"
+                        aria-label="Toggle online status"
                     ></button>
 
                 </div>
@@ -884,7 +1024,9 @@
 
                     <div class="settingText">
 
-                        <strong>Maintenance Mode</strong>
+                        <strong>
+                            Maintenance Mode
+                        </strong>
 
                         <span>
                             Show that GameVault is under maintenance.
@@ -895,6 +1037,8 @@
                     <button
                         class="toggle"
                         data-setting="maintenance"
+                        type="button"
+                        aria-label="Toggle maintenance mode"
                     ></button>
 
                 </div>
@@ -904,7 +1048,9 @@
 
                     <div class="settingText">
 
-                        <strong>Allow New Games</strong>
+                        <strong>
+                            Allow New Games
+                        </strong>
 
                         <span>
                             Allow future games to appear.
@@ -915,6 +1061,8 @@
                     <button
                         class="toggle on"
                         data-setting="newGames"
+                        type="button"
+                        aria-label="Toggle new games"
                     ></button>
 
                 </div>
@@ -927,7 +1075,9 @@
                 style="margin-top:15px;"
             >
 
-                <h2>🗑️ Local Data</h2>
+                <h2>
+                    🗑️ Local Data
+                </h2>
 
                 <p>
                     Reset all data saved in this browser.
@@ -936,6 +1086,7 @@
                 <button
                     class="dangerButton"
                     id="resetData"
+                    type="button"
                 >
                     Reset Local Data
                 </button>
@@ -950,14 +1101,13 @@
 
 
 <!-- =========================================
-     CENTER BOTTOM MESSAGE
+     MESSAGE
 ========================================= -->
 
 <div
     class="bottomMessage"
     id="bottomMessage"
->
-</div>
+></div>
 
 
 <script>
@@ -994,113 +1144,183 @@ const bottomMessage =
 
 
 /* ================================
-   BUILT-IN LOGIN
+   LOGIN
 ================================ */
+
+/*
+    IMPORTANT:
+
+    This is NOT secure authentication.
+
+    Because this is a static HTML page,
+    anyone can inspect the JavaScript.
+
+    For a real admin panel, move authentication
+    to a backend/server.
+*/
 
 const ADMIN_USERNAME = "user";
 const ADMIN_PASSWORD = "password";
 
 
-loginForm.addEventListener("submit", function(event) {
+loginForm.addEventListener(
+    "submit",
+    function(event) {
 
-    event.preventDefault();
+        event.preventDefault();
 
-    error.style.display = "none";
-
-    const username =
-        document.getElementById("username")
-        .value
-        .trim();
-
-    const password =
-        document.getElementById("password")
-        .value;
+        error.style.display = "none";
 
 
-    loginButton.disabled = true;
-    loginButton.textContent = "Checking...";
+        const username =
+            document
+                .getElementById("username")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("password")
+                .value;
 
 
-    setTimeout(function() {
+        loginButton.disabled = true;
+        loginButton.textContent = "Checking...";
 
-        if (
-            username === ADMIN_USERNAME &&
-            password === ADMIN_PASSWORD
-        ) {
 
-            loginWrap.style.display = "none";
+        setTimeout(
+            function() {
 
-            dashboard.style.display = "block";
+                if (
+                    username === ADMIN_USERNAME &&
+                    password === ADMIN_PASSWORD
+                ) {
 
-            loginButton.disabled = false;
+                    showDashboard();
 
-            loginButton.textContent = "🔓 Sign In";
+                } else {
 
-            showMessage("✅ Welcome back, Administrator!");
+                    error.textContent =
+                        "❌ Incorrect username or password.";
 
-            loadGames();
+                    error.style.display =
+                        "block";
 
-            loadChat();
+                    loginButton.disabled =
+                        false;
 
-        } else {
+                    loginButton.textContent =
+                        "🔓 Sign In";
 
-            error.textContent =
-                "❌ Incorrect username or password.";
+                }
 
-            error.style.display = "block";
+            },
+            300
+        );
 
-            loginButton.disabled = false;
+    }
+);
 
-            loginButton.textContent =
-                "🔓 Sign In";
 
-        }
+/* ================================
+   SHOW DASHBOARD
+================================ */
 
-    }, 300);
+function showDashboard() {
 
-});
+    loginWrap.style.display =
+        "none";
+
+    dashboard.style.display =
+        "block";
+
+    loginButton.disabled =
+        false;
+
+    loginButton.textContent =
+        "🔓 Sign In";
+
+
+    loadGames();
+    loadChat();
+    loadAnnouncement();
+    loadSettings();
+
+
+    showMessage(
+        "✅ Welcome back, Administrator!"
+    );
+
+}
 
 
 /* ================================
    LOGOUT
 ================================ */
 
-logoutButton.addEventListener("click", function() {
+logoutButton.addEventListener(
+    "click",
+    function() {
 
-    dashboard.style.display = "none";
+        dashboard.style.display =
+            "none";
 
-    loginWrap.style.display = "flex";
+        loginWrap.style.display =
+            "flex";
 
-    document.getElementById("username").value = "";
 
-    document.getElementById("password").value = "";
+        document.getElementById(
+            "username"
+        ).value = "";
 
-    error.style.display = "none";
+        document.getElementById(
+            "password"
+        ).value = "";
 
-    showMessage("👋 Logged out.");
 
-});
+        error.style.display =
+            "none";
+
+
+        showMessage(
+            "👋 Logged out."
+        );
+
+    }
+);
 
 
 /* ================================
-   BOTTOM MESSAGE
+   MESSAGE
 ================================ */
 
-let messageTimer;
+let messageTimer = null;
+
 
 function showMessage(message) {
 
-    bottomMessage.textContent = message;
+    bottomMessage.textContent =
+        message;
 
-    bottomMessage.classList.add("show");
+    bottomMessage.classList.add(
+        "show"
+    );
+
 
     clearTimeout(messageTimer);
 
-    messageTimer = setTimeout(function() {
 
-        bottomMessage.classList.remove("show");
+    messageTimer =
+        setTimeout(
+            function() {
 
-    }, 3000);
+                bottomMessage.classList.remove(
+                    "show"
+                );
+
+            },
+            3000
+        );
 
 }
 
@@ -1109,49 +1329,85 @@ function showMessage(message) {
    TABS
 ================================ */
 
-document.querySelectorAll(".tab").forEach(function(tab) {
+document
+    .querySelectorAll(".tab")
+    .forEach(
+        function(tab) {
 
-    tab.addEventListener("click", function() {
+            tab.addEventListener(
+                "click",
+                function() {
 
-        document.querySelectorAll(".tab")
-            .forEach(function(item) {
-                item.classList.remove("active");
-            });
+                    document
+                        .querySelectorAll(".tab")
+                        .forEach(
+                            function(item) {
 
-        document.querySelectorAll(".panel")
-            .forEach(function(panel) {
-                panel.classList.remove("active");
-            });
+                                item.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
 
 
-        tab.classList.add("active");
+                    document
+                        .querySelectorAll(".panel")
+                        .forEach(
+                            function(panel) {
 
-        const panel =
-            document.getElementById(
-                tab.dataset.panel
+                                panel.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                    tab.classList.add(
+                        "active"
+                    );
+
+
+                    const panel =
+                        document.getElementById(
+                            tab.dataset.panel
+                        );
+
+
+                    if (panel) {
+
+                        panel.classList.add(
+                            "active"
+                        );
+
+                    }
+
+
+                    if (
+                        tab.dataset.panel ===
+                        "chatPanel"
+                    ) {
+
+                        loadChat();
+
+                    }
+
+                }
             );
 
-        if (panel) {
-            panel.classList.add("active");
         }
-
-
-        if (tab.dataset.panel === "chatPanel") {
-            loadChat();
-        }
-
-    });
-
-});
+    );
 
 
 /* ================================
    GAMES
 ================================ */
 
-const games = [
+const defaultGames = [
 
     {
+        id: "blockbreaker",
         name: "Block Breaker",
         emoji: "🧱",
         type: "Arcade",
@@ -1159,6 +1415,7 @@ const games = [
     },
 
     {
+        id: "bombescape",
         name: "Bomb Escape",
         emoji: "💣",
         type: "Action",
@@ -1166,6 +1423,7 @@ const games = [
     },
 
     {
+        id: "coinrush",
         name: "Coin Rush",
         emoji: "🪙",
         type: "Arcade",
@@ -1173,6 +1431,7 @@ const games = [
     },
 
     {
+        id: "greatheist",
         name: "The Great Heist",
         emoji: "🏦",
         type: "Action",
@@ -1180,6 +1439,7 @@ const games = [
     },
 
     {
+        id: "mystery",
         name: "Mystery Challenge",
         emoji: "🔮",
         type: "Mystery",
@@ -1187,6 +1447,7 @@ const games = [
     },
 
     {
+        id: "shinobiclash",
         name: "Shinobi Clash",
         emoji: "🥷",
         type: "Combat",
@@ -1194,6 +1455,7 @@ const games = [
     },
 
     {
+        id: "neonrunner",
         name: "Neon Runner",
         emoji: "🌃",
         type: "Arcade",
@@ -1201,6 +1463,7 @@ const games = [
     },
 
     {
+        id: "memoryrush",
         name: "Memory Rush",
         emoji: "🧠",
         type: "Puzzle",
@@ -1208,6 +1471,7 @@ const games = [
     },
 
     {
+        id: "reactionrush",
         name: "Reaction Rush",
         emoji: "⚡",
         type: "Skill",
@@ -1215,6 +1479,7 @@ const games = [
     },
 
     {
+        id: "rocketescape",
         name: "Rocket Escape",
         emoji: "🚀",
         type: "Action",
@@ -1222,6 +1487,7 @@ const games = [
     },
 
     {
+        id: "snake",
         name: "Snake",
         emoji: "🐍",
         type: "Arcade",
@@ -1229,6 +1495,7 @@ const games = [
     },
 
     {
+        id: "voidswarm",
         name: "Void Swarm",
         emoji: "👾",
         type: "2 Player",
@@ -1236,6 +1503,7 @@ const games = [
     },
 
     {
+        id: "pixelduel",
         name: "Pixel Duel",
         emoji: "⚔️",
         type: "Versus",
@@ -1243,6 +1511,7 @@ const games = [
     },
 
     {
+        id: "dungeondash",
         name: "Dungeon Dash",
         emoji: "🧙",
         type: "Adventure",
@@ -1250,6 +1519,7 @@ const games = [
     },
 
     {
+        id: "turbo",
         name: "Turbo",
         emoji: "🏎️",
         type: "Racing",
@@ -1257,6 +1527,7 @@ const games = [
     },
 
     {
+        id: "secret",
         name: "Secret Game",
         emoji: "🔮",
         type: "Coming Soon",
@@ -1266,101 +1537,225 @@ const games = [
 ];
 
 
-function loadGames() {
-
-    const gameList =
-        document.getElementById("gameList");
-
-    gameList.innerHTML = "";
+let games = [];
 
 
-    games.forEach(function(game, index) {
+/* ================================
+   LOAD GAME DATA
+================================ */
 
-        const row =
-            document.createElement("div");
+function loadGameData() {
 
-        row.className = "gameRow";
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "gamevault_games"
+            );
 
 
-        let statusText =
-            "LIVE";
+        if (saved) {
 
-        if (game.status === "construction") {
-            statusText = "IN CONSTRUCTION";
+            const parsed =
+                JSON.parse(saved);
+
+
+            if (
+                Array.isArray(parsed) &&
+                parsed.length
+            ) {
+
+                games = parsed;
+
+                return;
+
+            }
+
         }
 
-        if (game.status === "soon") {
-            statusText = "COMING SOON";
-        }
+    } catch (error) {
+
+        console.warn(
+            "Could not load saved games.",
+            error
+        );
+
+    }
 
 
-        row.innerHTML = `
-
-            <div class="gameName">
-
-                <span class="gameEmoji">
-                    ${game.emoji}
-                </span>
-
-                <div>
-                    <strong>
-                        ${game.name}
-                    </strong>
-
-                    <span>
-                        ${game.type}
-                    </span>
-                </div>
-
-            </div>
-
-
-            <div class="gameActions">
-
-                <span
-                    class="status ${game.status}"
-                >
-                    ${statusText}
-                </span>
-
-                <button
-                    class="smallButton gray"
-                    data-game-index="${index}"
-                >
-                    Change
-                </button>
-
-            </div>
-
-        `;
-
-
-        gameList.appendChild(row);
-
-    });
-
-
-    document
-        .querySelectorAll("[data-game-index]")
-        .forEach(function(button) {
-
-            button.addEventListener("click", function() {
-
-                const index =
-                    Number(button.dataset.gameIndex);
-
-                changeGameStatus(index);
-
-            });
-
-        });
+    games =
+        defaultGames.map(
+            function(game) {
+                return {
+                    ...game
+                };
+            }
+        );
 
 }
 
 
+function saveGameData() {
+
+    localStorage.setItem(
+        "gamevault_games",
+        JSON.stringify(games)
+    );
+
+}
+
+
+/* ================================
+   RENDER GAMES
+================================ */
+
+function loadGames() {
+
+    loadGameData();
+
+
+    const gameList =
+        document.getElementById(
+            "gameList"
+        );
+
+
+    gameList.innerHTML = "";
+
+
+    games.forEach(
+        function(game, index) {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "gameRow";
+
+
+            let statusText =
+                "LIVE";
+
+
+            if (
+                game.status ===
+                "construction"
+            ) {
+
+                statusText =
+                    "IN CONSTRUCTION";
+
+            }
+
+
+            if (
+                game.status ===
+                "soon"
+            ) {
+
+                statusText =
+                    "COMING SOON";
+
+            }
+
+
+            row.innerHTML = `
+
+                <div class="gameName">
+
+                    <span class="gameEmoji">
+                        ${escapeHTML(game.emoji)}
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(game.name)}
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(game.type)}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="gameActions">
+
+                    <span
+                        class="status ${escapeHTML(game.status)}"
+                    >
+                        ${statusText}
+                    </span>
+
+                    <button
+                        class="smallButton gray"
+                        data-game-index="${index}"
+                        type="button"
+                    >
+                        Change
+                    </button>
+
+                </div>
+
+            `;
+
+
+            gameList.appendChild(row);
+
+        }
+    );
+
+
+    document
+        .querySelectorAll(
+            "[data-game-index]"
+        )
+        .forEach(
+            function(button) {
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        const index =
+                            Number(
+                                button.dataset.gameIndex
+                            );
+
+
+                        changeGameStatus(
+                            index
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* ================================
+   CHANGE GAME STATUS
+================================ */
+
 function changeGameStatus(index) {
 
-    const game = games[index];
+    const game =
+        games[index];
+
+
+    if (!game) {
+        return;
+    }
+
 
     const statuses = [
         "live",
@@ -1368,16 +1763,26 @@ function changeGameStatus(index) {
         "soon"
     ];
 
+
     const current =
-        statuses.indexOf(game.status);
+        statuses.indexOf(
+            game.status
+        );
+
 
     const next =
-        (current + 1) % statuses.length;
+        (current + 1) %
+        statuses.length;
+
 
     game.status =
         statuses[next];
 
+
+    saveGameData();
+
     loadGames();
+
 
     showMessage(
         "🎮 " +
@@ -1390,52 +1795,113 @@ function changeGameStatus(index) {
 
 
 /* ================================
-   CONSTRUCTION
+   CONSTRUCTION SETTINGS
 ================================ */
 
 document
-    .querySelectorAll(".constructionSelect")
-    .forEach(function(select) {
+    .querySelectorAll(
+        ".constructionSelect"
+    )
+    .forEach(
+        function(select) {
 
-        const saved =
-            localStorage.getItem(
-                "gv_" + select.dataset.game
+            const key =
+                "gv_game_" +
+                select.dataset.game;
+
+
+            const saved =
+                localStorage.getItem(
+                    key
+                );
+
+
+            if (saved) {
+
+                select.value =
+                    saved;
+
+            }
+
+
+            select.addEventListener(
+                "change",
+                function() {
+
+                    localStorage.setItem(
+                        key,
+                        select.value
+                    );
+
+
+                    /*
+                        Also update the game
+                        manager if the game exists.
+                    */
+
+                    const game =
+                        games.find(
+                            function(item) {
+
+                                return (
+                                    item.id ===
+                                    select.dataset.game
+                                );
+
+                            }
+                        );
+
+
+                    if (game) {
+
+                        game.status =
+                            select.value;
+
+                        saveGameData();
+
+                    }
+
+
+                    loadGames();
+
+
+                    showMessage(
+                        "🚧 Game status updated."
+                    );
+
+                }
             );
 
-        if (saved) {
-            select.value = saved;
         }
-
-
-        select.addEventListener("change", function() {
-
-            localStorage.setItem(
-                "gv_" + select.dataset.game,
-                select.value
-            );
-
-            showMessage(
-                "🚧 " +
-                select.dataset.game +
-                " updated."
-            );
-
-        });
-
-    });
+    );
 
 
 /* ================================
-   GLOBAL CHAT
+   CHAT STORAGE
 ================================ */
 
 function getChat() {
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem("gamevault_chat")
-        ) || [];
+        const saved =
+            localStorage.getItem(
+                "gamevault_chat"
+            );
+
+
+        if (!saved) {
+            return [];
+        }
+
+
+        const parsed =
+            JSON.parse(saved);
+
+
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
 
     } catch {
 
@@ -1456,24 +1922,37 @@ function saveChat(messages) {
 }
 
 
+/* ================================
+   LOAD CHAT
+================================ */
+
 function loadChat() {
 
     const chatMessages =
-        document.getElementById("chatMessages");
+        document.getElementById(
+            "chatMessages"
+        );
 
-    if (!chatMessages) return;
+
+    if (!chatMessages) {
+        return;
+    }
 
 
     const messages =
         getChat();
 
 
-    chatMessages.innerHTML = "";
+    chatMessages.innerHTML =
+        "";
 
 
-    if (messages.length === 0) {
+    if (
+        messages.length === 0
+    ) {
 
         chatMessages.innerHTML = `
+
             <div
                 style="
                     text-align:center;
@@ -1483,42 +1962,76 @@ function loadChat() {
             >
                 💬 No messages yet.
             </div>
+
         `;
 
         return;
+
     }
 
 
-    messages.forEach(function(message) {
+    messages.forEach(
+        function(message) {
 
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "chatMessage" +
-            (message.admin ? " admin" : "");
-
-
-        item.innerHTML = `
-
-            <strong>
-                ${escapeHTML(message.username)}
-            </strong>
-
-            <p>
-                ${escapeHTML(message.text)}
-            </p>
-
-            <small>
-                ${escapeHTML(message.time)}
-            </small>
-
-        `;
+            const item =
+                document.createElement(
+                    "div"
+                );
 
 
-        chatMessages.appendChild(item);
+            item.className =
+                "chatMessage" +
+                (
+                    message.admin
+                        ? " admin"
+                        : ""
+                );
 
-    });
+
+            const username =
+                escapeHTML(
+                    message.username ||
+                    "Unknown"
+                );
+
+
+            const text =
+                escapeHTML(
+                    message.text ||
+                    ""
+                );
+
+
+            const time =
+                escapeHTML(
+                    message.time ||
+                    ""
+                );
+
+
+            item.innerHTML = `
+
+                <strong>
+                    ${username}
+                </strong>
+
+                <p>
+                    ${text}
+                </p>
+
+                <small>
+                    ${time}
+                </small>
+
+            `;
+
+
+            chatMessages.appendChild(
+                item
+            );
+
+        }
+    );
 
 
     chatMessages.scrollTop =
@@ -1528,59 +2041,72 @@ function loadChat() {
 
 
 /* ================================
-   SEND CHAT MESSAGE
+   SEND CHAT
 ================================ */
 
 const chatForm =
-    document.getElementById("chatForm");
+    document.getElementById(
+        "chatForm"
+    );
 
 
-chatForm.addEventListener("submit", function(event) {
+chatForm.addEventListener(
+    "submit",
+    function(event) {
 
-    event.preventDefault();
-
-
-    const input =
-        document.getElementById("chatInput");
+        event.preventDefault();
 
 
-    const text =
-        input.value.trim();
+        const input =
+            document.getElementById(
+                "chatInput"
+            );
 
 
-    if (!text) return;
+        const text =
+            input.value.trim();
 
 
-    const messages =
-        getChat();
+        if (!text) {
+            return;
+        }
 
 
-    messages.push({
-
-        username: "ADMIN",
-
-        text: text,
-
-        time: new Date()
-            .toLocaleString(),
-
-        admin: true
-
-    });
+        const messages =
+            getChat();
 
 
-    saveChat(messages);
+        messages.push({
+
+            username: "ADMIN",
+
+            text: text,
+
+            time:
+                new Date()
+                    .toLocaleString(),
+
+            admin: true
+
+        });
 
 
-    input.value = "";
+        saveChat(messages);
 
 
-    loadChat();
+        input.value =
+            "";
 
 
-    showMessage("💬 Message sent!");
+        loadChat();
 
-});
+
+        showMessage(
+            "💬 Message sent!"
+        );
+
+    }
+);
 
 
 /* ================================
@@ -1588,31 +2114,38 @@ chatForm.addEventListener("submit", function(event) {
 ================================ */
 
 document
-    .getElementById("clearChat")
-    .addEventListener("click", function() {
+    .getElementById(
+        "clearChat"
+    )
+    .addEventListener(
+        "click",
+        function() {
 
-        const confirmed =
-            confirm(
-                "⚠️ Clear the entire global chat?"
+            const confirmed =
+                confirm(
+                    "⚠️ Clear the entire global chat?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            localStorage.removeItem(
+                "gamevault_chat"
             );
 
 
-        if (!confirmed) return;
+            loadChat();
 
 
-        localStorage.removeItem(
-            "gamevault_chat"
-        );
+            showMessage(
+                "🗑️ Global chat cleared."
+            );
 
-
-        loadChat();
-
-
-        showMessage(
-            "🗑️ Global chat cleared."
-        );
-
-    });
+        }
+    );
 
 
 /* ================================
@@ -1620,52 +2153,65 @@ document
 ================================ */
 
 document
-    .getElementById("saveAnnouncement")
-    .addEventListener("click", function() {
+    .getElementById(
+        "saveAnnouncement"
+    )
+    .addEventListener(
+        "click",
+        function() {
 
-        const announcement =
-            document
-                .getElementById("announcement")
-                .value
-                .trim();
+            const announcement =
+                document
+                    .getElementById(
+                        "announcement"
+                    )
+                    .value
+                    .trim();
 
 
-        if (!announcement) {
+            if (!announcement) {
 
-            showMessage(
-                "⚠️ Enter an announcement first."
+                showMessage(
+                    "⚠️ Enter an announcement first."
+                );
+
+                return;
+
+            }
+
+
+            localStorage.setItem(
+                "gamevault_announcement",
+                announcement
             );
 
-            return;
+
+            showMessage(
+                "📢 Announcement saved!"
+            );
+
         }
-
-
-        localStorage.setItem(
-            "gamevault_announcement",
-            announcement
-        );
-
-
-        showMessage(
-            "📢 Announcement saved!"
-        );
-
-    });
-
-
-/* Load announcement */
-
-const savedAnnouncement =
-    localStorage.getItem(
-        "gamevault_announcement"
     );
 
 
-if (savedAnnouncement) {
+function loadAnnouncement() {
 
-    document
-        .getElementById("announcement")
-        .value = savedAnnouncement;
+    const saved =
+        localStorage.getItem(
+            "gamevault_announcement"
+        );
+
+
+    if (saved) {
+
+        document
+            .getElementById(
+                "announcement"
+            )
+            .value =
+            saved;
+
+    }
 
 }
 
@@ -1674,63 +2220,108 @@ if (savedAnnouncement) {
    SETTINGS
 ================================ */
 
-document
-    .querySelectorAll(".toggle")
-    .forEach(function(toggle) {
+function loadSettings() {
 
-        const setting =
-            toggle.dataset.setting;
+    document
+        .querySelectorAll(
+            ".toggle"
+        )
+        .forEach(
+            function(toggle) {
 
-
-        const saved =
-            localStorage.getItem(
-                "gv_setting_" + setting
-            );
-
-
-        if (saved === "true") {
-
-            toggle.classList.add("on");
-
-        }
-
-        if (saved === "false") {
-
-            toggle.classList.remove("on");
-
-        }
+                const setting =
+                    toggle.dataset.setting;
 
 
-        toggle.addEventListener(
-            "click",
-            function() {
-
-                toggle.classList.toggle("on");
-
-
-                const enabled =
-                    toggle.classList.contains("on");
+                const saved =
+                    localStorage.getItem(
+                        "gv_setting_" +
+                        setting
+                    );
 
 
-                localStorage.setItem(
-                    "gv_setting_" + setting,
-                    enabled
-                );
+                /*
+                    Only override the HTML
+                    default when a saved value
+                    exists.
+                */
+
+                if (
+                    saved === "true"
+                ) {
+
+                    toggle.classList.add(
+                        "on"
+                    );
+
+                }
 
 
-                showMessage(
-                    "⚙️ " +
-                    setting +
-                    " " +
-                    (enabled
-                        ? "enabled"
-                        : "disabled")
-                );
+                if (
+                    saved === "false"
+                ) {
+
+                    toggle.classList.remove(
+                        "on"
+                    );
+
+                }
 
             }
         );
 
-    });
+}
+
+
+document
+    .querySelectorAll(
+        ".toggle"
+    )
+    .forEach(
+        function(toggle) {
+
+            toggle.addEventListener(
+                "click",
+                function() {
+
+                    toggle.classList.toggle(
+                        "on"
+                    );
+
+
+                    const enabled =
+                        toggle.classList.contains(
+                            "on"
+                        );
+
+
+                    const setting =
+                        toggle.dataset.setting;
+
+
+                    localStorage.setItem(
+                        "gv_setting_" +
+                        setting,
+                        enabled
+                    );
+
+
+                    showMessage(
+                        "⚙️ " +
+                        setting +
+                        " " +
+                        (
+                            enabled
+                                ? "enabled"
+                                : "disabled"
+                        )
+                    );
+
+                }
+            );
+
+        }
+    );
 
 
 /* ================================
@@ -1738,56 +2329,83 @@ document
 ================================ */
 
 document
-    .getElementById("resetData")
-    .addEventListener("click", function() {
+    .getElementById(
+        "resetData"
+    )
+    .addEventListener(
+        "click",
+        function() {
 
-        const confirmed =
-            confirm(
-                "⚠️ Reset all GameVault admin data?"
-            );
-
-
-        if (!confirmed) return;
-
-
-        localStorage.removeItem(
-            "gamevault_chat"
-        );
-
-        localStorage.removeItem(
-            "gamevault_announcement"
-        );
+            const confirmed =
+                confirm(
+                    "⚠️ Reset all GameVault admin data?"
+                );
 
 
-        [
-            "pixelduel",
-            "dungeondash",
-            "secret"
-        ].forEach(function(game) {
+            if (!confirmed) {
+                return;
+            }
+
 
             localStorage.removeItem(
-                "gv_" + game
+                "gamevault_chat"
             );
-
-        });
-
-
-        [
-            "online",
-            "maintenance",
-            "newGames"
-        ].forEach(function(setting) {
 
             localStorage.removeItem(
-                "gv_setting_" + setting
+                "gamevault_announcement"
             );
 
-        });
+            localStorage.removeItem(
+                "gamevault_games"
+            );
 
 
-        location.reload();
+            [
+                "pixelduel",
+                "dungeondash",
+                "secret"
+            ].forEach(
+                function(game) {
 
-    });
+                    localStorage.removeItem(
+                        "gv_game_" +
+                        game
+                    );
+
+                }
+            );
+
+
+            [
+                "online",
+                "maintenance",
+                "newGames"
+            ].forEach(
+                function(setting) {
+
+                    localStorage.removeItem(
+                        "gv_setting_" +
+                        setting
+                    );
+
+                }
+            );
+
+
+            showMessage(
+                "🗑️ Data reset. Reloading..."
+            );
+
+
+            setTimeout(
+                function() {
+                    location.reload();
+                },
+                700
+            );
+
+        }
+    );
 
 
 /* ================================
@@ -1797,13 +2415,44 @@ document
 function escapeHTML(value) {
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
+
+
+/* ================================
+   INITIAL STATE
+================================ */
+
+loadGameData();
+
+loadAnnouncement();
+
+loadSettings();
 
 </script>
 
