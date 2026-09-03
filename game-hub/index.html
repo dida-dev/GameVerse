@@ -26,6 +26,56 @@
 
     <style>
         /* =================================================
+           VAULT COINS DISPLAY & ANIMATIONS
+        ================================================= */
+        .coinBadge {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 215, 0, 0.12);
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: #ffd700;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        .coinBadge.coinGain {
+            animation: pulseGain 0.4s ease;
+        }
+
+        @keyframes pulseGain {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); border-color: #ffd700; }
+            100% { transform: scale(1); }
+        }
+
+        .coinBadge .coinIcon {
+            font-size: 15px;
+        }
+
+        .coinFloatText {
+            position: absolute;
+            top: -15px;
+            right: 10px;
+            color: #ffd700;
+            font-weight: 800;
+            font-size: 12px;
+            pointer-events: none;
+            animation: floatUp 1s forwards ease-out;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* =================================================
            INSTALL APP BUTTON
         ================================================= */
 
@@ -217,6 +267,11 @@
     </nav>
 
     <div class="headerActions">
+
+        <div class="coinBadge" id="coinBadgeContainer" title="Vault Coins (Earn +1 every minute!)">
+            <span class="coinIcon">🪙</span>
+            <span id="vaultCoinsDisplay">0</span>
+        </div>
 
         <div class="onlineStatus">
             <span class="onlineDot"></span>
@@ -695,7 +750,7 @@
         </a>
 
 
-        <a href="games/Naruto.html"
+        <a href="../Naruto_Game/Naruto.html"
            class="gameCard naruto"
            data-game="naruto">
 
@@ -1142,14 +1197,50 @@
 <script>
 
 /* =================================================
-   LUCIDE
+   LUCIDE & VAULT COINS PASSIVE TIMER
 ================================================= */
+
+let vaultCoins = parseInt(localStorage.getItem("vaultCoins")) || 0;
+
+function updateCoinDisplay(amountGained = 0) {
+    const coinsDisplay = document.getElementById("vaultCoinsDisplay");
+    const container = document.getElementById("coinBadgeContainer");
+
+    if (coinsDisplay) {
+        coinsDisplay.textContent = vaultCoins.toLocaleString();
+    }
+
+    if (amountGained > 0 && container) {
+        container.classList.remove("coinGain");
+        void container.offsetWidth; // Force CSS reflow
+        container.classList.add("coinGain");
+
+        const floatMsg = document.createElement("span");
+        floatMsg.className = "coinFloatText";
+        floatMsg.textContent = `+${amountGained}`;
+        container.appendChild(floatMsg);
+
+        setTimeout(() => {
+            floatMsg.remove();
+        }, 1000);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
 
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
+
+    // Initialize coin display
+    updateCoinDisplay();
+
+    // Passive Coin Generation (Adds 1 coin every 60 seconds)
+    setInterval(() => {
+        vaultCoins += 1;
+        localStorage.setItem("vaultCoins", vaultCoins);
+        updateCoinDisplay(1);
+    }, 60000);
 
 });
 
@@ -1316,7 +1407,8 @@ if (profileButton) {
 
         alert(
             "👤 Player Profile\n\n" +
-            "Coming soon!"
+            "🪙 Vault Coins: " + vaultCoins + "\n\n" +
+            "More features coming soon!"
         );
 
     });

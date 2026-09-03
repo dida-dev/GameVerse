@@ -187,7 +187,7 @@
 <body>
 
   <div class="top-nav">
-    <a href="#" class="hub-btn">← Hub</a>
+    <a href="../index.html" class="hub-btn">← Hub</a>
   </div>
 
   <div id="game-container">
@@ -253,7 +253,7 @@
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.Right = false;
     });
 
-    // Cursor & Touch Tracking (PC Mouse + Mobile Touch Drag)
+    // Cursor & Touch Tracking
     function setPlayerPosition(clientX) {
       if (!gameActive) return;
       const rect = container.getBoundingClientRect();
@@ -263,21 +263,21 @@
       player.style.transform = `translateX(${playerX}px)`;
     }
 
-    // Mouse movement inside game frame (PC)
+    // Mouse movement
     container.addEventListener('mousemove', (e) => setPlayerPosition(e.clientX));
 
-    // Touch events for mobile screens
+    // Touch events
     container.addEventListener('touchmove', (e) => {
       if (e.touches.length > 0) {
         setPlayerPosition(e.touches[0].clientX);
       }
-    }, { passive: true });
+    }, { passive: false });
 
     container.addEventListener('touchstart', (e) => {
       if (e.touches.length > 0) {
         setPlayerPosition(e.touches[0].clientX);
       }
-    }, { passive: true });
+    }, { passive: false });
 
     function spawnStar() {
       const starEl = document.createElement('div');
@@ -333,7 +333,7 @@
     function gameLoop() {
       if (!gameActive) return;
 
-      // Handle Smooth Keyboard Movement (PC)
+      // Handle Smooth Keyboard Movement
       const moveSpeed = 7;
       if (keys.Left) {
         playerX = Math.max(0, playerX - moveSpeed);
