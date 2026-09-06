@@ -17,11 +17,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#09090f">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GameVault">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
@@ -76,7 +71,7 @@
         }
 
         /* =================================================
-           INSTALL APP BUTTON
+           INSTALL APP BUTTON & TRENDY BADGE
         ================================================= */
 
         .installAppButton {
@@ -180,6 +175,21 @@
             box-shadow: 0 10px 30px rgba(0, 207, 255, 0.25);
         }
 
+        .trendyBadge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 10px rgba(255, 65, 108, 0.4);
+            z-index: 2;
+        }
+
         @media (max-width: 700px) {
             .appInstallCard {
                 flex-direction: column;
@@ -237,7 +247,7 @@
 
 <header class="topbar">
 
-    <a href="#home" class="logo">
+    <a href="#home" id="reload" class="logo">
         <span class="logoIcon">🎮</span>
         <span>Game<span class="logoAccent">Vault</span></span>
     </a>
@@ -318,7 +328,7 @@
 
     <div class="badge">
         <span class="pulse"></span>
-        20 GAMES AVAILABLE
+        +25 GAMES AVAILABLE
     </div>
 
     <h1>
@@ -351,7 +361,7 @@
     <div class="heroStats">
 
         <div class="heroStat">
-            <strong>20</strong>
+            <strong>+25</strong>
             <span>GAMES</span>
         </div>
 
@@ -397,7 +407,7 @@
 
         <div class="gameCount">
             <span class="liveDot"></span>
-            20 GAMES
+             +20 GAMES
         </div>
 
     </div>
@@ -442,10 +452,70 @@
 
     <div class="gamesGrid">
 
-        <!-- 1. Cyber Runner -->
+        <!-- CombatMonster (Hardcore / Combat) -->
+        <a href="games/combatmonster.html"
+           class="gameCard combatmonster"
+           data-game="combatmonster"
+           data-category="hardcore combat super hard trendy"
+           style="position: relative;">
+
+            <span class="trendyBadge">🔥 TRENDY</span>
+
+            <div class="cardTop">
+                <span class="gameIcon">👹</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category" style="color: #ff4b2b;">HARDCORE</span>
+                <h3>CombatMonster</h3>
+                <p>
+                    Face brutal boss mechanics in an ultimate test of survival skills.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>💀 SUPER HARD</span>
+                <span>⭐ 5.0</span>
+            </div>
+
+        </a>
+
+        <!-- Draw a Circle (Precision / Skill) -->
+        <a href="games/drawcircle.html"
+           class="gameCard drawcircle"
+           data-game="drawcircle"
+           data-category="precision skill puzzle">
+
+            <div class="cardTop">
+                <span class="gameIcon">⭕</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">PRECISION</span>
+                <h3>Draw a Circle</h3>
+                <p>
+                    Test your hand steady accuracy and try to draw a perfect 100% circle.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🎨 Skill</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+        <!-- Cyber Runner (Action / Runner) -->
         <a href="games/cyberrunner.html"
            class="gameCard cyberrunner"
-           data-game="cyberrunner">
+           data-game="cyberrunner"
+           data-category="action runner">
 
             <div class="cardTop">
                 <span class="gameIcon">🏃</span>
@@ -470,10 +540,11 @@
 
         </a>
 
-        <!-- 2. Star Defender -->
+        <!-- Star Defender (Shooter / Space) -->
         <a href="games/stardefender.html"
            class="gameCard stardefender"
-           data-game="stardefender">
+           data-game="stardefender"
+           data-category="shooter space">
 
             <div class="cardTop">
                 <span class="gameIcon">🚀</span>
@@ -498,10 +569,11 @@
 
         </a>
 
-        <!-- 3. Cyber Snake -->
+        <!-- Cyber Snake (Arcade / Classic) -->
         <a href="games/cybersnake.html"
            class="gameCard cybersnake"
-           data-game="cybersnake">
+           data-game="cybersnake"
+           data-category="arcade classic snake">
 
             <div class="cardTop">
                 <span class="gameIcon">🐍</span>
@@ -526,10 +598,11 @@
 
         </a>
 
-        <!-- 4. Pixel Duel -->
+        <!-- Pixel Duel (Versus / Combat) -->
         <a href="games/pixelduel.html"
            class="gameCard pixelduel"
-           data-game="pixelduel">
+           data-game="pixelduel"
+           data-category="versus combat battle">
 
             <div class="cardTop">
                 <span class="gameIcon">⚔️</span>
@@ -554,10 +627,11 @@
 
         </a>
 
-        <!-- 5. Dungeon Dash -->
+        <!-- Dungeon Dash (Adventure) -->
         <a href="games/dungeondash.html"
            class="gameCard dungeondash"
-           data-game="dungeondash">
+           data-game="dungeondash"
+           data-category="adventure dungeon">
 
             <div class="cardTop">
                 <span class="gameIcon">🧙</span>
@@ -582,9 +656,11 @@
 
         </a>
 
+        <!-- Catch the Star (Arcade) -->
         <a href="games/catchstar.html"
            class="gameCard catchstar"
-           data-game="catchstar">
+           data-game="catchstar"
+           data-category="arcade reflex">
 
             <div class="cardTop">
                 <span class="gameIcon">⭐</span>
@@ -609,10 +685,11 @@
 
         </a>
 
-
+        <!-- Block Breaker (Arcade) -->
         <a href="games/blockbreaker.html"
            class="gameCard blockbreaker"
-           data-game="blockbreaker">
+           data-game="blockbreaker"
+           data-category="arcade">
 
             <div class="cardTop">
                 <span class="gameIcon">🧱</span>
@@ -637,10 +714,11 @@
 
         </a>
 
-
+        <!-- Bomb Escape (Action / Survival) -->
         <a href="games/bomb.html"
            class="gameCard bomb"
-           data-game="bomb">
+           data-game="bomb"
+           data-category="action survival">
 
             <div class="cardTop">
                 <span class="gameIcon">💣</span>
@@ -665,10 +743,11 @@
 
         </a>
 
-
+        <!-- Coin Rush (Arcade) -->
         <a href="games/coin.html"
            class="gameCard coin"
-           data-game="coin">
+           data-game="coin"
+           data-category="arcade collect">
 
             <div class="cardTop">
                 <span class="gameIcon">🪙</span>
@@ -693,10 +772,11 @@
 
         </a>
 
-
+        <!-- The Great Heist (Action) -->
         <a href="games/heist.html"
            class="gameCard heist"
-           data-game="heist">
+           data-game="heist"
+           data-category="action solo">
 
             <div class="cardTop">
                 <span class="gameIcon">🏦</span>
@@ -721,10 +801,11 @@
 
         </a>
 
-
+        <!-- Mystery Challenge (Mystery / Puzzle) -->
         <a href="games/mystery.html"
            class="gameCard mystery"
-           data-game="mystery">
+           data-game="mystery"
+           data-category="mystery puzzle">
 
             <div class="cardTop">
                 <span class="gameIcon">🔮</span>
@@ -749,10 +830,11 @@
 
         </a>
 
-
+        <!-- Shinobi Clash (Combat) -->
         <a href="../Naruto_Game/Naruto.html"
            class="gameCard naruto"
-           data-game="naruto">
+           data-game="naruto"
+           data-category="combat action ninja">
 
             <div class="cardTop">
                 <span class="gameIcon">🥷</span>
@@ -777,10 +859,11 @@
 
         </a>
 
-
+        <!-- Neon Runner (Arcade / Runner) -->
         <a href="games/neondodge.html"
            class="gameCard neon"
-           data-game="neon">
+           data-game="neon"
+           data-category="arcade runner fast">
 
             <div class="cardTop">
                 <span class="gameIcon">🌃</span>
@@ -805,10 +888,11 @@
 
         </a>
 
-
+        <!-- Memory Rush (Puzzle) -->
         <a href="games/quickmind.html"
            class="gameCard mind"
-           data-game="memory">
+           data-game="memory"
+           data-category="puzzle mind brain">
 
             <div class="cardTop">
                 <span class="gameIcon">🧠</span>
@@ -833,10 +917,11 @@
 
         </a>
 
-
+        <!-- Reaction Rush (Skill) -->
         <a href="games/reaction.html"
            class="gameCard reaction"
-           data-game="reaction">
+           data-game="reaction"
+           data-category="skill reflex speed">
 
             <div class="cardTop">
                 <span class="gameIcon">⚡</span>
@@ -861,10 +946,11 @@
 
         </a>
 
-
+        <!-- Rocket Escape (Action / Space) -->
         <a href="games/rocket.html"
            class="gameCard rocket"
-           data-game="rocket">
+           data-game="rocket"
+           data-category="action endless space">
 
             <div class="cardTop">
                 <span class="gameIcon">🚀</span>
@@ -889,10 +975,11 @@
 
         </a>
 
-
+        <!-- Snake (Arcade / Classic) -->
         <a href="games/snake.html"
            class="gameCard snake"
-           data-game="snake">
+           data-game="snake"
+           data-category="arcade classic">
 
             <div class="cardTop">
                 <span class="gameIcon">🐍</span>
@@ -917,10 +1004,11 @@
 
         </a>
 
-
+        <!-- Void Swarm (2 Player / Co-op) -->
         <a href="games/void.html"
            class="gameCard void"
-           data-game="void">
+           data-game="void"
+           data-category="2 player co-op multiplayer">
 
             <div class="cardTop">
                 <span class="gameIcon">👾</span>
@@ -945,10 +1033,11 @@
 
         </a>
 
-
+        <!-- Turbo (Racing / Action) -->
         <a href="games/turbo.html"
            class="gameCard turbo"
-           data-game="turbo">
+           data-game="turbo"
+           data-category="racing action speed">
 
             <div class="cardTop">
                 <span class="gameIcon">🏎️</span>
@@ -973,10 +1062,11 @@
 
         </a>
 
-
+        <!-- Secret Game (Coming Soon) -->
         <a href="games/construction.html"
            class="gameCard mysterySoon"
-           data-game="construction">
+           data-game="construction"
+           data-category="coming soon mystery">
 
             <div class="cardTop">
                 <span class="gameIcon">🔮</span>
@@ -997,6 +1087,64 @@
             <div class="cardBottom">
                 <span>🎮 Mystery</span>
                 <span>SOON</span>
+            </div>
+
+        </a>
+
+        <!-- Galaxy Defender (Shooter / Space) -->
+        <a href="games/galaxydefender.html"
+           class="gameCard galaxydefender"
+           data-game="galaxydefender"
+           data-category="shooter space">
+
+            <div class="cardTop">
+                <span class="gameIcon">🌌</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">SHOOTER</span>
+                <h3>Galaxy Defender</h3>
+                <p>
+                    Defend the galaxy, destroy enemy ships
+                    and survive the incoming waves.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🌌 Space</span>
+                <span>⭐ 4.9</span>
+            </div>
+
+        </a>
+
+        <!-- Dragon Boss Fight (Boss Fight / Combat) -->
+        <a href="games/DragonBossFight.html"
+           class="gameCard dragonbossfight"
+           data-game="dragonbossfight"
+           data-category="boss fight combat action hard">
+
+            <div class="cardTop">
+                <span class="gameIcon">🐉</span>
+                <span class="playIcon">
+                    <i data-lucide="play"></i>
+                </span>
+            </div>
+
+            <div class="cardInfo">
+                <span class="category">BOSS FIGHT</span>
+                <h3>Dragon Boss Fight</h3>
+                <p>
+                    Face a powerful dragon boss,
+                    dodge deadly attacks and defeat it.
+                </p>
+            </div>
+
+            <div class="cardBottom">
+                <span>🐉 Boss Battle</span>
+                <span>⭐ 5.0</span>
             </div>
 
         </a>
@@ -1202,6 +1350,14 @@
 
 let vaultCoins = parseInt(localStorage.getItem("vaultCoins")) || 0;
 
+const reloadbtn = document.getElementById("reload");
+
+reloadbtn.addEventListener("click", () => {
+    // Option A: Step up one folder level (Use if game is in a subfolder like /games/circle/)
+    window.location.reload();
+
+});
+
 function updateCoinDisplay(amountGained = 0) {
     const coinsDisplay = document.getElementById("vaultCoinsDisplay");
     const container = document.getElementById("coinBadgeContainer");
@@ -1251,8 +1407,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const gameRoutes = {
 
+    drawcircle: "games/drawcircle.html",
+    combatmonster: "games/combatmonster.html",
+
     cyberrunner: "games/cyberrunner.html",
     stardefender: "games/stardefender.html",
+    galaxydefender: "games/galaxydefender.html",
+
     cybersnake: "games/cybersnake.html",
     pixelduel: "games/pixelduel.html",
     dungeondash: "games/dungeondash.html",
@@ -1272,6 +1433,8 @@ const gameRoutes = {
     void: "games/void.html",
 
     turbo: "games/turbo.html",
+
+    dragonbossfight: "games/DragonBossFight.html",
 
     construction: "games/construction.html"
 
@@ -1314,83 +1477,52 @@ document
 
 
 /* =================================================
-   SEARCH
+   ENHANCED CATEGORY & TITLE SEARCH SYSTEM
 ================================================= */
 
-const searchButton =
-    document.getElementById("searchButton");
+const searchButton = document.getElementById("searchButton");
 
 if (searchButton) {
-
     searchButton.addEventListener("click", () => {
-
-        const query =
-            prompt("🔎 Search GameVault:");
+        const query = prompt("🔎 Search GameVault by Title or Category (e.g. Action, Hardcore, Arcade, Shooter, Racing):");
 
         if (query === null) return;
 
-        const search =
-            query.toLowerCase().trim();
-
-        const cards =
-            document.querySelectorAll(".gameCard");
-
-        let found = false;
+        const search = query.toLowerCase().trim();
+        const cards = document.querySelectorAll(".gameCard");
+        let count = 0;
 
         cards.forEach(card => {
-
-            const text =
-                card.textContent.toLowerCase();
+            const title = card.querySelector("h3") ? card.querySelector("h3").textContent.toLowerCase() : "";
+            const categoryText = card.querySelector(".category") ? card.querySelector(".category").textContent.toLowerCase() : "";
+            const tags = card.dataset.category ? card.dataset.category.toLowerCase() : "";
+            const fullText = card.textContent.toLowerCase();
 
             if (
                 search === "" ||
-                text.includes(search)
+                title.includes(search) ||
+                categoryText.includes(search) ||
+                tags.includes(search) ||
+                fullText.includes(search)
             ) {
-
                 card.style.display = "";
-
-                if (search !== "") {
-                    found = true;
-                }
-
+                count++;
             } else {
-
                 card.style.display = "none";
-
             }
-
         });
 
-        const gamesSection =
-            document.getElementById("games");
-
+        const gamesSection = document.getElementById("games");
         if (gamesSection) {
-
-            gamesSection.scrollIntoView({
-                behavior: "smooth"
-            });
-
+            gamesSection.scrollIntoView({ behavior: "smooth" });
         }
 
-        if (
-            search !== "" &&
-            !found
-        ) {
-
+        if (search !== "" && count === 0) {
             setTimeout(() => {
-
-                alert(
-                    '🎮 No games found for "' +
-                    query +
-                    '"'
-                );
-
+                alert(`🎮 No games found matching "${query}". Try searching "Action", "Arcade", "Hardcore", or "Shooter".`);
             }, 300);
-
         }
-
     });
-
 }
 
 
