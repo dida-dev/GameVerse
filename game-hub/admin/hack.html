@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM CORE TERMINAL</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            overflow: hidden; /* Empêche les barres de défilement */
+            font-weight: bold;
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        body:focus {
+            outline: none;
+        }
+
+        /* Effet CRT rétro */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 999;
+            background-size: 100% 2px;
+            pointer-events: none;
+        }
+
+        #terminal {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: block;
+        }
+
+        .cursor {
+            display: inline-block;
+            background-color: #0f0;
+            width: 10px;
+            height: 18px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        /* Le Canvas pour la pluie binaire (caché par défaut) */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            z-index: 10;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body tabindex="0">
+
+    <!-- Écran de texte classique -->
+    <div id="terminal"><span id="code-content"></span><span class="cursor"></span></div>
+
+    <!-- Écran de pluie binaire du haut vers le bas -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <script>
+        const fakeCode = `
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+int main(int argc, char *argv[]) {
+    printf("Initializing buffer overflow exploit...\\n");
+    int server_fd, new_socket;
+    struct sockaddr_in address;
+
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("Socket creation failed");
+        return -1;
+    }
+
+    void *exec_mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    memcpy(exec_mem, payload, sizeof(payload));
+
+    printf("Connecting to remote C2 server at 142.250.190.46...\\n");
+    for(int i = 0; i <= 100; i += 20) {
+        printf("Uploading rootkit payload: [%d%%]\\n", i);
+        usleep(50000);
+    }
+
+    printf("ACCESS GRANTED: Root access achieved on node_0x4F9B.\\n");
+    return 0;
+}
+`;
+
+        let index = 0;
+        let isMatrixMode = false;
+        let matrixAnimation = null;
+
+        const codeContent = document.getElementById('code-content');
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        const speed = 3;
+
+        // Configuration de la pluie binaire
+        let columns = [];
+        const fontSize = 16;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const totalColumns = Math.floor(canvas.width / fontSize);
+            columns = Array(totalColumns).fill(1);
+        }
+
+        // Animation qui dessine les lignes qui tombent
+        function drawMatrix() {
+            // Un fond noir semi-transparent crée l'effet de traînée (fade)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0f0'; // Couleur verte
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < columns.length; i++) {
+                // Choisit au hasard entre 0 et 1
+                const text = Math.round(Math.random()).toString();
+                const x = i * fontSize;
+                const y = columns[i] * fontSize;
+
+                ctx.fillText(text, x, y);
+
+                // Si le bit dépasse le bas de l'écran, on le renvoie en haut aléatoirement
+                if (y > canvas.height && Math.random() > 0.975) {
+                    columns[i] = 0;
+                }
+                columns[i]++;
+            }
+        }
+
+        function startMatrix() {
+            resizeCanvas();
+            canvas.style.display = 'block';
+            // Lance l'animation à 30 images par seconde
+            matrixAnimation = setInterval(drawMatrix, 33);
+        }
+
+        function stopMatrix() {
+            clearInterval(matrixAnimation);
+            canvas.style.display = 'none';
+        }
+
+        window.addEventListener('resize', () => {
+            if (isMatrixMode) resizeCanvas();
+        });
+
+        window.addEventListener('keydown', function(event) {
+            // Raccourci Shift + 5
+            if (event.shiftKey && event.code === "Digit5") {
+                event.preventDefault();
+                isMatrixMode = !isMatrixMode;
+
+                if (isMatrixMode) {
+                    startMatrix();
+                } else {
+                    stopMatrix();
+                }
+                return;
+            }
+
+            // Désactive la frappe classique si la pluie binaire est active
+            if (isMatrixMode) {
+                event.preventDefault();
+                return;
+            }
+
+            // Gestion de la frappe manuelle du code C
+            if (event.key !== "F11" && event.key !== "F5") {
+                event.preventDefault();
+            }
+
+            if (index < fakeCode.length) {
+                const chunk = fakeCode.substring(index, index + speed);
+                codeContent.innerText += chunk;
+                index += speed;
+            } else {
+                index = 0;
+            }
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        window.onload = () => { window.focus(); };
+    </script>
+</body>
+</html>
