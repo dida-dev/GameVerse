@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NEON//RUSH - Sniper Scope & Pitch Aiming</title>
+<title>NEON//RUSH - Enhanced with Radar Map</title>
 
 <style>
 * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -58,21 +58,60 @@ canvas {
   inset: 0;
   display: none;
   pointer-events: none;
-  background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.95) 60%, rgba(0,0,0,1) 100%);
+  background: radial-gradient(circle at center, transparent 35%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0.98) 80%, #000 100%);
 }
 
-#sniperScope::before, #sniperScope::after {
-  content: '';
+#sniperScope .scope-line-h {
   position: absolute;
-  background: rgba(0, 234, 255, 0.7);
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 234, 255, 0.6);
+  transform: translateY(-50%);
 }
 
-#sniperScope::before {
-  left: 0; right: 0; top: 50%; height: 1px;
+#sniperScope .scope-line-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0, 234, 255, 0.6);
+  transform: translateX(-50%);
 }
 
-#sniperScope::after {
-  top: 0; bottom: 0; left: 50%; width: 1px;
+#sniperScope .scope-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(70vh, 70vw);
+  height: min(70vh, 70vw);
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(0, 234, 255, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 0 25px rgba(0, 234, 255, 0.2) inset;
+}
+
+/* MINIMAP RADAR */
+#minimapContainer {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 140px;
+  height: 140px;
+  background: rgba(5, 9, 17, 0.8);
+  border: 1px solid #243852;
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.15);
+}
+
+#minimap {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 #top {
@@ -266,6 +305,10 @@ button.play-btn {
 <canvas id="game"></canvas>
 
 <div id="hud">
+  <div id="minimapContainer">
+    <canvas id="minimap" width="140" height="140"></canvas>
+  </div>
+
   <div id="top">
     ROUND <span id="round">1</span> &nbsp;•&nbsp; <span id="alive">0</span> ENEMIES
   </div>
@@ -282,7 +325,11 @@ button.play-btn {
     <span class="dot"></span>
   </div>
 
-  <div id="sniperScope"></div>
+  <div id="sniperScope">
+    <div class="scope-ring"></div>
+    <div class="scope-line-h"></div>
+    <div class="scope-line-v"></div>
+  </div>
 
   <div id="left">
     <div style="font-size: 11px; font-weight: bold; color: #8496ad;">HP <span id="hpText" style="color:#fff; float:right;">100</span></div>
@@ -312,7 +359,7 @@ button.play-btn {
 <div id="menu">
   <div>
     <h1>NEON//RUSH</h1>
-    <p>PRESS 'E' TO SNIPE/ZOOM • 2D GUN SWAY (X & Y)</p>
+    <p>PRESS 'E' TO SNIPE/ZOOM • WATCH THE RADAR MAP</p>
     <button id="play" class="play-btn">ENTER ARENA</button>
   </div>
 </div>
@@ -320,6 +367,9 @@ button.play-btn {
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+
+const miniCanvas = document.getElementById("minimap");
+const miniCtx = miniCanvas.getContext("2d");
 
 let W = innerWidth;
 let H = innerHeight;
@@ -331,6 +381,7 @@ const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 if (isMobile) {
   document.getElementById("mobileControls").style.display = "block";
+  document.getElementById("minimapContainer").style.top = "80px";
 }
 
 addEventListener("resize", () => {
@@ -805,54 +856,94 @@ function renderBlockyBots() {
 
     if (Math.abs(angle) > currentFOV / 2) continue;
     const dist = Math.hypot(dx, dy) * Math.cos(angle);
+    if (dist < 10) continue;
+
     const screenX = (W / 2) + Math.tan(angle) / Math.tan(currentFOV / 2) * (W / 2);
+    if (zBuffer[Math.min(W - 1, Math.max(0, Math.floor(screenX)))] < dist) continue;
 
-    if (zBuffer[Math.floor(screenX)] < dist) continue;
-
-    const height = Math.min(H, (TILE * H) / dist);
+    const baseScale = (TILE * H) / dist;
     const centerY = (H / 2) + player.pitch + player.jump * 2;
-    const topY = centerY - height * 0.4;
+    const botYaw = Math.atan2(player.y - bot.y, player.x - bot.x) + Math.PI / 2;
+    const walkCycle = Math.sin(performance.now() * 0.015 + bot.x) * 0.35;
 
-    const bodyW = height * 0.32;
-    const headS = height * 0.22;
-    const armW = height * 0.08;
-    const legW = height * 0.10;
+    function projectPoint(px, py, pz) {
+      const rx = px * Math.cos(botYaw) - pz * Math.sin(botYaw);
+      const rz = px * Math.sin(botYaw) + pz * Math.cos(botYaw);
 
-    // Head
-    ctx.fillStyle = "#ffcc00";
-    ctx.fillRect(screenX - headS / 2, topY - headS, headS, headS);
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(screenX - headS / 2, topY - headS, headS, headS);
+      const worldDx = (bot.x + rx) - player.x;
+      const worldDy = (bot.y + rz) - player.y;
 
-    // Eyes
-    ctx.fillStyle = "#000";
-    ctx.fillRect(screenX - headS * 0.25, topY - headS * 0.65, headS * 0.15, headS * 0.2);
-    ctx.fillRect(screenX + headS * 0.1, topY - headS * 0.65, headS * 0.15, headS * 0.2);
+      let camAngle = Math.atan2(worldDy, worldDx) - player.angle;
+      while (camAngle > Math.PI) camAngle -= Math.PI * 2;
+      while (camAngle < -Math.PI) camAngle += Math.PI * 2;
 
-    // Torso
-    ctx.fillStyle = "#0066ff";
-    ctx.fillRect(screenX - bodyW / 2, topY, bodyW, height * 0.35);
-    ctx.strokeRect(screenX - bodyW / 2, topY, bodyW, height * 0.35);
+      const fovScale = Math.tan(currentFOV / 2);
+      const sx = (W / 2) + (Math.tan(camAngle) / fovScale) * (W / 2);
+      const sy = centerY - (py * baseScale / TILE);
+      return { x: sx, y: sy };
+    }
 
-    // Arms
-    ctx.fillStyle = "#ffcc00";
-    ctx.fillRect(screenX - bodyW / 2 - armW, topY, armW, height * 0.32);
-    ctx.fillRect(screenX + bodyW / 2, topY, armW, height * 0.32);
+    function drawPart(ox, oy, oz, w, h, d, color) {
+      const hw = w / 2, hd = d / 2;
+      const y1 = oy + h / 2, y2 = oy - h / 2;
 
-    // Legs
-    ctx.fillStyle = "#00cc44";
-    ctx.fillRect(screenX - bodyW * 0.4, topY + height * 0.35, legW, height * 0.32);
-    ctx.fillRect(screenX + bodyW * 0.4 - legW, topY + height * 0.35, legW, height * 0.32);
+      const p1 = projectPoint(ox - hw, y1, oz - hd);
+      const p2 = projectPoint(ox + hw, y1, oz - hd);
+      const p3 = projectPoint(ox + hw, y2, oz - hd);
+      const p4 = projectPoint(ox - hw, y2, oz - hd);
 
-    // HP Bar
-    const barW = Math.max(40, bodyW * 1.4);
-    const barH = 7;
-    const barX = screenX - barW / 2;
-    const barY = topY - headS - 18;
+      const p5 = projectPoint(ox - hw, y1, oz + hd);
+      const p6 = projectPoint(ox + hw, y1, oz + hd);
+      const p7 = projectPoint(ox + hw, y2, oz + hd);
+      const p8 = projectPoint(ox - hw, y2, oz + hd);
 
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
-    ctx.fillRect(barX - 2, barY - 2, barW + 4, barH + 4);
+      ctx.beginPath();
+      ctx.moveTo(p5.x, p5.y); ctx.lineTo(p6.x, p6.y); ctx.lineTo(p7.x, p7.y); ctx.lineTo(p8.x, p8.y);
+      ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p6.x, p6.y); ctx.lineTo(p5.x, p5.y);
+      ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.lineTo(p7.x, p7.y); ctx.lineTo(p6.x, p6.y);
+      ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.stroke();
+    }
+
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1.5;
+
+    const cHead = "#f5cd30";
+    const cTorso = "#0066ff";
+    const cArm = "#f5cd30";
+    const cLeg = "#00cc44";
+
+    const aspectCorrection = currentFOV / (Math.PI / 3);
+    const scaleW = (12 / aspectCorrection);
+
+    drawPart(0, 36, 0, scaleW, 16, 12, cHead);
+    drawPart(0, 14, 0, scaleW * 1.3, 26, 8, cTorso);
+    drawPart(-scaleW * 0.9, 14, 0, scaleW * 0.5, 24, 7, cArm);
+    drawPart(scaleW * 0.9, 14, 0, scaleW * 0.5, 24, 7, cArm);
+    drawPart(-scaleW * 0.35, -11 + walkCycle * 4, 0, scaleW * 0.55, 22, 7, cLeg);
+    drawPart(scaleW * 0.35, -11 - walkCycle * 4, 0, scaleW * 0.55, 22, 7, cLeg);
+
+    const faceCenter = projectPoint(0, 36, -6.5);
+    if (faceCenter.x > 0 && faceCenter.x < W) {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(faceCenter.x - 3, faceCenter.y - 2, 1.5, 2.5);
+      ctx.fillRect(faceCenter.x + 1.5, faceCenter.y - 2, 1.5, 2.5);
+      ctx.fillRect(faceCenter.x - 1.5, faceCenter.y + 2.5, 3, 1);
+    }
+
+    const topProj = projectPoint(0, 48, 0);
+    const barW = Math.max(36, baseScale * 0.35);
+    const barH = 5;
+    const barX = topProj.x - barW / 2;
+    const barY = topProj.y;
+
+    ctx.fillStyle = "rgba(0,0,0,0.8)";
+    ctx.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
 
     const hpPct = Math.max(0, bot.hp / bot.maxHp);
     ctx.fillStyle = hpPct > 0.5 ? "#00ff66" : hpPct > 0.25 ? "#ffaa00" : "#ff2244";
@@ -873,7 +964,7 @@ function renderDamageTexts() {
 }
 
 function render3DWeapon() {
-  if (player.isScoped) return; // Hide 3D gun mesh when looking through sniper overlay
+  if (player.isScoped) return;
 
   ctx.save();
 
@@ -927,6 +1018,49 @@ function render3DWeapon() {
   ctx.restore();
 }
 
+function renderMinimap() {
+  const mw = miniCanvas.width;
+  const mh = miniCanvas.height;
+
+  miniCtx.clearRect(0, 0, mw, mh);
+
+  const scaleX = mw / worldW;
+  const scaleY = mh / worldH;
+
+  miniCtx.fillStyle = "#172538";
+  for (let ty = 0; ty < MH; ty++) {
+    for (let tx = 0; tx < MW; tx++) {
+      if (map[ty][tx] === "#") {
+        miniCtx.fillRect(tx * TILE * scaleX, ty * TILE * scaleY, TILE * scaleX + 0.5, TILE * scaleY + 0.5);
+      }
+    }
+  }
+
+  miniCtx.fillStyle = "#ff3f73";
+  for (const b of bots) {
+    const bx = b.x * scaleX;
+    const by = b.y * scaleY;
+    miniCtx.beginPath();
+    miniCtx.arc(bx, by, 3, 0, Math.PI * 2);
+    miniCtx.fill();
+  }
+
+  const px = player.x * scaleX;
+  const py = player.y * scaleY;
+
+  miniCtx.strokeStyle = "#00eaff";
+  miniCtx.lineWidth = 2;
+  miniCtx.beginPath();
+  miniCtx.moveTo(px, py);
+  miniCtx.lineTo(px + Math.cos(player.angle) * 8, py + Math.sin(player.angle) * 8);
+  miniCtx.stroke();
+
+  miniCtx.fillStyle = "#00eaff";
+  miniCtx.beginPath();
+  miniCtx.arc(px, py, 2.5, 0, Math.PI * 2);
+  miniCtx.fill();
+}
+
 function updateHUD() {
   const w = weapons[player.weapon];
   document.getElementById("hpText").textContent = Math.max(0, Math.ceil(player.hp));
@@ -937,6 +1071,8 @@ function updateHUD() {
   document.getElementById("weapon").textContent = w.name;
   document.getElementById("ammo").textContent = player.reload ? "RELOAD" : player.ammo[player.weapon];
   document.getElementById("reserve").textContent = player.reserve[player.weapon];
+
+  renderMinimap();
 }
 
 let lastFrameTime = performance.now();
@@ -968,6 +1104,7 @@ function loop() {
   renderDamageTexts();
   if (started) render3DWeapon();
 }
+
 
 loop();
 

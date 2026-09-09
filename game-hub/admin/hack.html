@@ -1,204 +1,1350 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYSTEM CORE TERMINAL</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #0f0;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
-            margin: 0;
-            overflow: hidden; /* Empêche les barres de défilement */
-            font-weight: bold;
-            text-shadow: 0 0 5px #0f0;
-        }
-
-        body:focus {
-            outline: none;
-        }
-
-        /* Effet CRT rétro */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            z-index: 999;
-            background-size: 100% 2px;
-            pointer-events: none;
-        }
-
-        #terminal {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            display: block;
-        }
-
-        .cursor {
-            display: inline-block;
-            background-color: #0f0;
-            width: 10px;
-            height: 18px;
-            animation: blink 1s infinite;
-            vertical-align: middle;
-        }
-
-        /* Le Canvas pour la pluie binaire (caché par défaut) */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-            z-index: 10;
-        }
-
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-    </style>
-</head>
-<body tabindex="0">
-
-    <!-- Écran de texte classique -->
-    <div id="terminal"><span id="code-content"></span><span class="cursor"></span></div>
-
-    <!-- Écran de pluie binaire du haut vers le bas -->
-    <canvas id="matrix-canvas"></canvas>
-
-    <script>
-        const fakeCode = `
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/socket.h>
-
-int main(int argc, char *argv[]) {
-    printf("Initializing buffer overflow exploit...\\n");
-    int server_fd, new_socket;
-    struct sockaddr_in address;
-
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("Socket creation failed");
-        return -1;
-    }
-
-    void *exec_mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    memcpy(exec_mem, payload, sizeof(payload));
-
-    printf("Connecting to remote C2 server at 142.250.190.46...\\n");
-    for(int i = 0; i <= 100; i += 20) {
-        printf("Uploading rootkit payload: [%d%%]\\n", i);
-        usleep(50000);
-    }
-
-    printf("ACCESS GRANTED: Root access achieved on node_0x4F9B.\\n");
-    return 0;
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>SYSTEM CORE</title> <style> :root { --green: #00ff41; --cyan: #00ffff; --red: #ff3030; --yellow: #ffe600; }
+{
+box-sizing: border-box;
 }
-`;
+html, body {
+margin: 0;
+width: 100%;
+height: 100%;
+}
 
-        let index = 0;
-        let isMatrixMode = false;
-        let matrixAnimation = null;
+body {
+background: #000;
+color: var(--green);
+font-family: "Courier New", monospace;
+font-weight: bold;
+overflow: hidden;
+text-shadow: 0 0 5px var(--green);
+}
 
-        const codeContent = document.getElementById('code-content');
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-        const speed = 3;
+/* =========================
+FALLING BACKGROUND
+========================= */
 
-        // Configuration de la pluie binaire
-        let columns = [];
-        const fontSize = 16;
+#rain {
+position: fixed;
+inset: 0;
+width: 100%;
+height: 100%;
+z-index: 0;
+pointer-events: none;
+opacity: .18;
+}
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const totalColumns = Math.floor(canvas.width / fontSize);
-            columns = Array(totalColumns).fill(1);
+/* =========================
+CRT EFFECT
+========================= */
+
+body::before {
+content: "";
+position: fixed;
+inset: 0;
+pointer-events: none;
+z-index: 1000;
+
+background:
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0,0,0,.3) 3px
+    );
+
+}
+
+/* =========================
+TERMINAL
+========================= */
+
+#terminal {
+position: relative;
+z-index: 2;
+
+width: 100%;
+height: 100%;
+
+padding: 25px;
+
+overflow-y: auto;
+
+}
+
+#output {
+white-space: pre-wrap;
+word-break: break-word;
+}
+
+.line {
+margin-bottom: 5px;
+}
+
+.info {
+color: var(--cyan);
+}
+
+.success {
+color: var(--green);
+}
+
+.warning {
+color: var(--yellow);
+}
+
+.error {
+color: var(--red);
+}
+
+.dim {
+opacity: .5;
+}
+
+/* =========================
+INPUT
+========================= */
+
+.input-line {
+display: flex;
+margin-top: 10px;
+}
+
+.prompt {
+white-space: nowrap;
+}
+
+#commandInput {
+flex: 1;
+min-width: 0;
+
+margin-left: 8px;
+
+background: transparent;
+border: none;
+outline: none;
+
+color: white;
+
+font: inherit;
+
+caret-color: var(--green);
+
+text-shadow: 0 0 5px var(--green);
+
+}
+
+/* =========================
+HUD
+========================= */
+
+#hud {
+position: fixed;
+top: 15px;
+right: 20px;
+
+z-index: 10;
+
+font-size: 12px;
+line-height: 1.5;
+
+text-align: right;
+
+}
+
+/* =========================
+BOOT
+========================= */
+
+#boot {
+position: fixed;
+inset: 0;
+
+z-index: 2000;
+
+background: #000;
+
+padding: 30px;
+
+overflow: hidden;
+
+}
+
+#bootText {
+margin-top: 20px;
+}
+
+#progress {
+width: 400px;
+max-width: 90%;
+
+height: 12px;
+
+border: 1px solid var(--green);
+
+margin-top: 20px;
+
+}
+
+#bar {
+width: 0;
+height: 100%;
+
+background: var(--green);
+
+box-shadow: 0 0 10px var(--green);
+
+}
+
+#percent {
+margin-top: 5px;
+}
+
+/* =========================
+HACKER MODE
+========================= */
+
+#hackMode {
+position: fixed;
+inset: 0;
+
+z-index: 900;
+
+display: none;
+
+background: rgba(0,0,0,.96);
+
+padding: 25px;
+
+overflow: hidden;
+
+color: var(--green);
+
+font-size: 14px;
+
+text-shadow:
+    0 0 5px var(--green),
+    0 0 10px rgba(0,255,65,.5);
+
+}
+
+#hackOutput {
+height: 100%;
+
+overflow: hidden;
+
+white-space: pre-wrap;
+
+word-break: break-all;
+
+line-height: 1.35;
+
+}
+
+.hack-cursor {
+display: inline-block;
+
+width: 9px;
+height: 17px;
+
+background: var(--green);
+
+vertical-align: middle;
+
+animation: blink .5s infinite;
+
+}
+
+@keyframes blink {
+0%, 49% {
+opacity: 1;
+}
+
+50%, 100% {
+    opacity: 0;
+}
+
+}
+
+/* =========================
+MOBILE
+========================= */
+
+@media(max-width: 600px) {
+
+#terminal {
+    padding: 15px;
+    font-size: 12px;
+}
+
+#hud {
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+}
+
+#boot {
+    padding: 15px;
+    font-size: 11px;
+}
+
+#hackMode {
+    padding: 15px;
+    font-size: 10px;
+}
+
+}
+</style>
+
+</head> <body> <!-- FALLING BACKGROUND -->
+<canvas id="rain"></canvas>
+
+<!-- BOOT SCREEN --> <div id="boot"> <pre> ███████╗██╗ ██╗███████╗████████╗███████╗███╗ ███╗ ██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║ ███████╗ ╚████╔╝ ███████╗ ██║ █████╗ ██╔████╔██║ ╚════██║ ╚██╔╝ ╚════██║ ██║ ██╔══╝ ██║╚██╔╝██║ ███████║ ██║ ███████║ ██║ ███████╗██║ ╚═╝ ██║ ╚══════╝ ╚═╝ ╚══════╝ ╚═╝ ╚══════╝╚═╝ ╚═╝ </pre> <div id="bootText"></div> <div id="progress"> <div id="bar"></div> </div> <div id="percent">0%</div> </div> <!-- HUD --> <div id="hud"> SYSTEM CORE // ONLINE<br> CPU: <span id="cpu">0</span>%<br> RAM: <span id="ram">0</span>%<br> NET: ONLINE<br> TIME: <span id="clock">00:00:00</span> </div> <!-- TERMINAL --> <div id="terminal">
+<div id="output"></div>
+
+<div class="input-line">
+
+    <span class="prompt">
+        root@system-core:~$
+    </span>
+
+    <input
+        id="commandInput"
+        autocomplete="off"
+        spellcheck="false"
+        autofocus
+    >
+
+</div>
+
+</div> <!-- HACKER TYPING MODE --> <div id="hackMode"> <div id="hackOutput"></div> </div> <script>
+/* =====================================================
+ELEMENTS
+===================================================== */
+
+const output =
+document.getElementById("output");
+
+const input =
+document.getElementById("commandInput");
+
+const terminal =
+document.getElementById("terminal");
+
+const boot =
+document.getElementById("boot");
+
+const bootText =
+document.getElementById("bootText");
+
+const bar =
+document.getElementById("bar");
+
+const percent =
+document.getElementById("percent");
+
+const hackMode =
+document.getElementById("hackMode");
+
+const hackOutput =
+document.getElementById("hackOutput");
+
+/* =====================================================
+HISTORY
+===================================================== */
+
+let history = [];
+let historyIndex = -1;
+
+/* =====================================================
+PRINT
+===================================================== */
+
+function print(text = "", type = "") {
+
+const line =
+    document.createElement("div");
+
+line.className =
+    "line " + type;
+
+line.textContent =
+    text;
+
+output.appendChild(line);
+
+terminal.scrollTop =
+    terminal.scrollHeight;
+
+}
+
+/* =====================================================
+BOOT
+===================================================== */
+
+const bootMessages = [
+
+"[ OK ] Starting SYSTEM CORE...",
+
+"[ OK ] Loading kernel...",
+
+"[ OK ] Checking memory...",
+
+"[ OK ] CPU diagnostics passed.",
+
+"[ OK ] Network interface detected.",
+
+"[ OK ] Security subsystem active.",
+
+"[ OK ] Terminal initialized.",
+
+"[ OK ] SYSTEM CORE ONLINE."
+
+];
+
+let bootIndex = 0;
+
+function startBoot() {
+
+if (
+    bootIndex >=
+    bootMessages.length
+) {
+
+    bar.style.width = "100%";
+    percent.textContent = "100%";
+
+    setTimeout(() => {
+
+        boot.style.display = "none";
+
+        printBanner();
+
+        input.focus();
+
+    }, 500);
+
+    return;
+}
+
+const line =
+    document.createElement("div");
+
+line.textContent =
+    bootMessages[bootIndex];
+
+bootText.appendChild(line);
+
+bootIndex++;
+
+const progress =
+    Math.floor(
+        bootIndex /
+        bootMessages.length *
+        100
+    );
+
+bar.style.width =
+    progress + "%";
+
+percent.textContent =
+    progress + "%";
+
+setTimeout(
+    startBoot,
+    180
+);
+
+}
+
+function printBanner() {
+
+print("");
+
+print(
+    "╔══════════════════════════════════════════╗"
+);
+
+print(
+    "║          SYSTEM CORE TERMINAL            ║"
+);
+
+print(
+    "║              VERSION 4.0                 ║"
+);
+
+print(
+    "╚══════════════════════════════════════════╝"
+);
+
+print("");
+
+print(
+    "System ready.",
+    "success"
+);
+
+print(
+    "Type 'help' for available commands.",
+    "info"
+);
+
+print("");
+
+}
+
+/* =====================================================
+COMMANDS
+===================================================== */
+
+const commands = {
+
+help() {
+
+    print(
+        "AVAILABLE COMMANDS",
+        "info"
+    );
+
+    print(
+        "------------------"
+    );
+
+    print("help      - show commands");
+    print("clear     - clear terminal");
+    print("status    - system status");
+    print("whoami    - current user");
+    print("date      - current date");
+    print("neofetch  - system information");
+    print("scan      - network scan");
+    print("hack      - hacker typing mode");
+    print("theme     - green / cyan / red");
+    print("history   - command history");
+    print("reboot    - restart");
+
+    print("");
+},
+
+clear() {
+
+    output.innerHTML = "";
+},
+
+status() {
+
+    print(
+        "SYSTEM STATUS",
+        "info"
+    );
+
+    print("------------------");
+    print("CPU        : ONLINE");
+    print("Memory     : STABLE");
+    print("Network    : CONNECTED");
+    print("Firewall   : ACTIVE");
+    print("Encryption : AES-256");
+    print("Threat     : LOW", "success");
+},
+
+whoami() {
+
+    print(
+        "root",
+        "success"
+    );
+},
+
+date() {
+
+    print(
+        new Date().toString(),
+        "info"
+    );
+},
+
+neofetch() {
+
+    print("       ██████████");
+    print("     ██          ██");
+    print("    ██ SYSTEM     ██");
+    print("     ██  CORE    ██");
+    print("       ██████████");
+
+    print("");
+
+    print("OS       : CORE OS");
+    print("Kernel   : 6.6.13");
+    print("CPU      : Quantum-X");
+    print("Memory   : 64 GB");
+    print("Terminal : CRT-9000");
+},
+
+scan() {
+
+    print(
+        "Starting network scan...",
+        "info"
+    );
+
+    let progress = 0;
+
+    const timer =
+        setInterval(() => {
+
+            progress += 20;
+
+            print(
+                "Scanning... " +
+                progress +
+                "%"
+            );
+
+            if (
+                progress >= 100
+            ) {
+
+                clearInterval(timer);
+
+                print("");
+
+                print(
+                    "SCAN COMPLETE",
+                    "success"
+                );
+
+                print(
+                    "Nodes found: " +
+                    Math.floor(
+                        Math.random() * 40 + 10
+                    )
+                );
+            }
+
+        }, 150);
+},
+
+hack() {
+
+    startHack();
+},
+
+history() {
+
+    if (!history.length) {
+
+        print(
+            "No command history."
+        );
+
+        return;
+    }
+
+    history.forEach(
+        (command, index) => {
+
+            print(
+                `${index + 1}  ${command}`
+            );
         }
+    );
+},
 
-        // Animation qui dessine les lignes qui tombent
-        function drawMatrix() {
-            // Un fond noir semi-transparent crée l'effet de traînée (fade)
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+theme(args) {
 
-            ctx.fillStyle = '#0f0'; // Couleur verte
-            ctx.font = fontSize + 'px monospace';
+    const colors = {
 
-            for (let i = 0; i < columns.length; i++) {
-                // Choisit au hasard entre 0 et 1
-                const text = Math.round(Math.random()).toString();
-                const x = i * fontSize;
-                const y = columns[i] * fontSize;
+        green: "#00ff41",
 
-                ctx.fillText(text, x, y);
+        cyan: "#00ffff",
 
-                // Si le bit dépasse le bas de l'écran, on le renvoie en haut aléatoirement
-                if (y > canvas.height && Math.random() > 0.975) {
-                    columns[i] = 0;
-                }
-                columns[i]++;
-            }
+        red: "#ff3030"
+    };
+
+    const theme =
+        args[0];
+
+    if (!colors[theme]) {
+
+        print(
+            "Use: theme green / cyan / red",
+            "warning"
+        );
+
+        return;
+    }
+
+    document.documentElement
+        .style
+        .setProperty(
+            "--green",
+            colors[theme]
+        );
+
+    print(
+        "Theme changed to " + theme,
+        "success"
+    );
+},
+
+reboot() {
+
+    print(
+        "Rebooting SYSTEM CORE...",
+        "warning"
+    );
+
+    setTimeout(
+        () => location.reload(),
+        800
+    );
+}
+
+};
+
+/* =====================================================
+TERMINAL INPUT
+===================================================== */
+
+input.addEventListener(
+"keydown",
+event => {
+
+    /* ENTER */
+
+    if (
+        event.key === "Enter"
+    ) {
+
+        const raw =
+            input.value.trim();
+
+        if (!raw)
+            return;
+
+        history.push(raw);
+
+        historyIndex =
+            history.length;
+
+        print(
+            "root@system-core:~$ " +
+            raw
+        );
+
+        input.value = "";
+
+        const parts =
+            raw.split(/\s+/);
+
+        const command =
+            parts[0].toLowerCase();
+
+        const args =
+            parts.slice(1);
+
+        if (
+            commands[command]
+        ) {
+
+            commands[command](args);
+
+        } else {
+
+            print(
+                "Command not found: " +
+                command,
+                "error"
+            );
+
+            print(
+                "Type 'help'.",
+                "dim"
+            );
         }
+    }
 
-        function startMatrix() {
-            resizeCanvas();
-            canvas.style.display = 'block';
-            // Lance l'animation à 30 images par seconde
-            matrixAnimation = setInterval(drawMatrix, 33);
+    /* ARROW UP */
+
+    if (
+        event.key === "ArrowUp"
+    ) {
+
+        event.preventDefault();
+
+        if (
+            historyIndex > 0
+        ) {
+
+            historyIndex--;
+
+            input.value =
+                history[
+                    historyIndex
+                ];
         }
+    }
 
-        function stopMatrix() {
-            clearInterval(matrixAnimation);
-            canvas.style.display = 'none';
+    /* ARROW DOWN */
+
+    if (
+        event.key === "ArrowDown"
+    ) {
+
+        event.preventDefault();
+
+        if (
+            historyIndex <
+            history.length - 1
+        ) {
+
+            historyIndex++;
+
+            input.value =
+                history[
+                    historyIndex
+                ];
+
+        } else {
+
+            historyIndex =
+                history.length;
+
+            input.value = "";
         }
+    }
 
-        window.addEventListener('resize', () => {
-            if (isMatrixMode) resizeCanvas();
-        });
+    /* CTRL + L */
 
-        window.addEventListener('keydown', function(event) {
-            // Raccourci Shift + 5
-            if (event.shiftKey && event.code === "Digit5") {
-                event.preventDefault();
-                isMatrixMode = !isMatrixMode;
+    if (
+        event.ctrlKey &&
+        event.key.toLowerCase() === "l"
+    ) {
 
-                if (isMatrixMode) {
-                    startMatrix();
-                } else {
-                    stopMatrix();
-                }
-                return;
-            }
+        event.preventDefault();
 
-            // Désactive la frappe classique si la pluie binaire est active
-            if (isMatrixMode) {
-                event.preventDefault();
-                return;
-            }
+        commands.clear();
+    }
 
-            // Gestion de la frappe manuelle du code C
-            if (event.key !== "F11" && event.key !== "F5") {
-                event.preventDefault();
-            }
+    /* ESC */
 
-            if (index < fakeCode.length) {
-                const chunk = fakeCode.substring(index, index + speed);
-                codeContent.innerText += chunk;
-                index += speed;
-            } else {
-                index = 0;
-            }
-            window.scrollTo(0, document.body.scrollHeight);
-        });
+    if (
+        event.key === "Escape"
+    ) {
 
-        window.onload = () => { window.focus(); };
-    </script>
-</body>
-</html>
+        stopHack();
+    }
+}
+
+);
+
+/* =====================================================
+HACKER TYPING MODE
+===================================================== */
+
+let hackRunning = false;
+
+let hackTimer = null;
+
+/* Fake hacker-style text */
+
+const hackPrefixes = [
+
+"[SYSTEM]",
+
+"[CORE]",
+
+"[NET]",
+
+"[AUTH]",
+
+"[NODE]",
+
+"[DATA]",
+
+"[PROC]",
+
+"[CRYPT]",
+
+"[IO]",
+
+"[MEM]"
+
+];
+
+const hackActions = [
+
+"initializing process",
+
+"loading module",
+
+"scanning node",
+
+"processing packet",
+
+"decoding data",
+
+"generating key",
+
+"checking response",
+
+"reading memory",
+
+"processing request",
+
+"opening channel",
+
+"routing packet",
+
+"executing command",
+
+"syncing database",
+
+"verifying hash",
+
+"encrypting stream",
+
+"decrypting block"
+
+];
+
+function randomHex(length = 8) {
+
+const chars =
+    "0123456789ABCDEF";
+
+let result = "";
+
+for (
+    let i = 0;
+    i < length;
+    i++
+) {
+
+    result +=
+        chars[
+            Math.floor(
+                Math.random() *
+                chars.length
+            )
+        ];
+}
+
+return result;
+
+}
+
+function randomBinary(length = 32) {
+
+let result = "";
+
+for (
+    let i = 0;
+    i < length;
+    i++
+) {
+
+    result +=
+        Math.random() > .5
+            ? "1"
+            : "0";
+}
+
+return result;
+
+}
+
+function randomIP() {
+
+return (
+    Math.floor(Math.random() * 223 + 1) +
+    "." +
+    Math.floor(Math.random() * 255) +
+    "." +
+    Math.floor(Math.random() * 255) +
+    "." +
+    Math.floor(Math.random() * 255)
+);
+
+}
+
+function randomLine() {
+
+const type =
+    Math.floor(
+        Math.random() * 7
+    );
+
+if (type === 0) {
+
+    return (
+        hackPrefixes[
+            Math.floor(
+                Math.random() *
+                hackPrefixes.length
+            )
+        ] +
+        " " +
+        hackActions[
+            Math.floor(
+                Math.random() *
+                hackActions.length
+            )
+        ] +
+        "..."
+    );
+}
+
+if (type === 1) {
+
+    return (
+        "0x" +
+        randomHex(16) +
+        "  " +
+        randomHex(8) +
+        "  " +
+        randomHex(8)
+    );
+}
+
+if (type === 2) {
+
+    return (
+        randomBinary(16) +
+        " " +
+        randomBinary(16) +
+        " " +
+        randomBinary(16)
+    );
+}
+
+if (type === 3) {
+
+    return (
+        "node://" +
+        randomIP() +
+        ":" +
+        Math.floor(
+            Math.random() *
+            9000 + 1000
+        )
+    );
+}
+
+if (type === 4) {
+
+    return (
+        "HASH[" +
+        randomHex(32) +
+        "]"
+    );
+}
+
+if (type === 5) {
+
+    return (
+        ">>> " +
+        randomHex(4) +
+        " :: " +
+        randomBinary(24)
+    );
+}
+
+return (
+    "0x" +
+    randomHex(4) +
+    " > " +
+    randomHex(12) +
+    " > " +
+    randomHex(8)
+);
+
+}
+
+function startHack() {
+
+if (hackRunning)
+    return;
+
+hackRunning = true;
+
+hackMode.style.display =
+    "block";
+
+hackOutput.innerHTML = "";
+
+/* Header */
+
+hackOutput.textContent =
+    "SYSTEM CORE // HACKER MODE\n" +
+    "----------------------------------------\n\n";
+
+let lines = 0;
+
+function addLine() {
+
+    if (!hackRunning)
+        return;
+
+    /*
+        Generate several lines
+        to create the rapid hacker
+        terminal effect.
+    */
+
+    const amount =
+        Math.floor(
+            Math.random() * 3
+        ) + 1;
+
+    for (
+        let i = 0;
+        i < amount;
+        i++
+    ) {
+
+        hackOutput.textContent +=
+            randomLine() +
+            "\n";
+
+        lines++;
+    }
+
+    /*
+        Keep the screen moving.
+    */
+
+    const maxLines =
+        Math.floor(
+            window.innerHeight / 19
+        );
+
+    const allLines =
+        hackOutput.textContent
+            .split("\n");
+
+    if (
+        allLines.length >
+        maxLines
+    ) {
+
+        hackOutput.textContent =
+            allLines
+                .slice(
+                    -maxLines
+                )
+                .join("\n");
+    }
+
+    /*
+        Random typing speed.
+    */
+
+    hackTimer =
+        setTimeout(
+            addLine,
+            Math.random() * 70 + 25
+        );
+}
+
+addLine();
+
+}
+
+function stopHack() {
+
+if (!hackRunning)
+    return;
+
+hackRunning = false;
+
+clearTimeout(
+    hackTimer
+);
+
+hackMode.style.display =
+    "none";
+
+input.focus();
+
+}
+
+/* =====================================================
+FALLING BINARY BACKGROUND
+===================================================== */
+
+const rain =
+document.getElementById("rain");
+
+const rainCtx =
+rain.getContext("2d");
+
+const fontSize = 15;
+
+const characters =
+"101101010100101010110101" +
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+"abcdefghijklmnopqrstuvwxyz";
+
+let drops = [];
+
+function resizeRain() {
+
+rain.width =
+    window.innerWidth;
+
+rain.height =
+    window.innerHeight;
+
+const columns =
+    Math.floor(
+        rain.width /
+        fontSize
+    );
+
+drops =
+    Array(columns)
+        .fill(0)
+        .map(() =>
+            Math.random() *
+            -rain.height /
+            fontSize
+        );
+
+}
+
+function drawRain() {
+
+rainCtx.fillStyle =
+    "rgba(0,0,0,.08)";
+
+rainCtx.fillRect(
+    0,
+    0,
+    rain.width,
+    rain.height
+);
+
+rainCtx.font =
+    fontSize +
+    "px Courier New";
+
+for (
+    let i = 0;
+    i < drops.length;
+    i++
+) {
+
+    const char =
+        characters[
+            Math.floor(
+                Math.random() *
+                characters.length
+            )
+        ];
+
+    const x =
+        i * fontSize;
+
+    const y =
+        drops[i] *
+        fontSize;
+
+    rainCtx.fillStyle =
+        Math.random() > .94
+            ? "#ffffff"
+            : getComputedStyle(
+                document.documentElement
+            ).getPropertyValue(
+                "--green"
+            );
+
+    rainCtx.fillText(
+        char,
+        x,
+        y
+    );
+
+    if (
+        y > rain.height &&
+        Math.random() > .97
+    ) {
+
+        drops[i] =
+            Math.random() * -20;
+    }
+
+    drops[i] +=
+        Math.random() * .7 +
+        .5;
+}
+
+}
+
+resizeRain();
+
+window.addEventListener(
+"resize",
+resizeRain
+);
+
+setInterval(
+drawRain,
+35
+);
+
+/* =====================================================
+HUD
+===================================================== */
+
+function updateHUD() {
+
+document.getElementById(
+    "cpu"
+).textContent =
+    Math.floor(
+        Math.random() * 40 + 20
+    );
+
+document.getElementById(
+    "ram"
+).textContent =
+    Math.floor(
+        Math.random() * 30 + 40
+    );
+
+document.getElementById(
+    "clock"
+).textContent =
+    new Date()
+        .toLocaleTimeString();
+
+}
+
+setInterval(
+updateHUD,
+1000
+);
+
+updateHUD();
+
+/* =====================================================
+CLICK TO FOCUS
+===================================================== */
+
+document.addEventListener(
+"click",
+() => {
+
+    if (!hackRunning) {
+        input.focus();
+    }
+}
+
+);
+
+/* =====================================================
+START
+===================================================== */
+
+startBoot();
+
+</script> </body> </html>
+
+
