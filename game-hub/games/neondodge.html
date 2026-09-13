@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Dodge — GAMEVERSE</title>
+    <link rel="stylesheet" href="neondodge.css">
+</head>
+<body>
+
+<div id="game">
+    <header class="hud">
+        <a href="../index.html" class="back">← HUB</a>
+        <div class="stats">
+            <div>
+                <small>SCORE</small>
+                <strong id="score">0</strong>
+            </div>
+            <div>
+                <small>COMBO</small>
+                <strong id="combo">x1</strong>
+            </div>
+            <div>
+                <small>TIME</small>
+                <strong id="timer">0</strong>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="title">
+            <div>
+                <span>GAME #03</span>
+                <h1>⚡ Neon Dodge</h1>
+            </div>
+            <div class="best">
+                BEST
+                <strong id="best">0</strong>
+            </div>
+        </div>
+
+        <div id="arena">
+            <div class="stars"></div>
+            <div id="player">◈</div>
+            <div id="objects"></div>
+            <div id="powerups"></div>
+            <div id="warning">⚠️</div>
+            <div id="message"></div>
+
+            <!-- ADDED: Virtual Joystick -->
+            <div id="joystickZone">
+                <div id="joystickBase">
+                    <div id="joystickStick"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="leftBtn">◀</button>
+            <button id="boostBtn">⚡ BOOST</button>
+            <button id="rightBtn">▶</button>
+        </div>
+
+        <p class="instructions">
+            Move left and right. Dodge the red blocks.
+            Collect ⚡ energy for bonus points.
+        </p>
+    </main>
+</div>
+
+<div id="result" class="hidden">
+    <div class="resultBox">
+        <div class="resultIcon">💥</div>
+        <h1>RUN OVER</h1>
+        <p>FINAL SCORE</p>
+        <strong id="finalScore">0</strong>
+        <div class="resultStats">
+            <div>
+                <span>BEST</span>
+                <b id="finalBest">0</b>
+            </div>
+            <div>
+                <span>TIME</span>
+                <b id="finalTime">0s</b>
+            </div>
+        </div>
+        <button id="againBtn">PLAY AGAIN</button>
+        <a href="../index.html">← BACK TO HUB</a>
+    </div>
+</div>
+
+<script src="neondodge.js"></script>
+</body>
+</html>

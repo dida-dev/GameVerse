@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Star Defender — GameVault</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: #080b16;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+      width: 100%;
+      z-index: 30;
+    }
+
+    .hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(124, 92, 255, 0.15);
+      border: 1px solid rgba(124, 92, 255, 0.4);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .hub-btn:hover {
+      background: rgba(124, 92, 255, 0.35);
+      border-color: rgba(124, 92, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    /* Game Container */
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 380px;
+      background: #030712;
+      border: 2px solid rgba(255, 180, 0, 0.3);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(255, 180, 0, 0.15);
+      margin-top: 25px;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Score HUD */
+    .hud {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 700;
+      z-index: 10;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .score-box {
+      color: #ffb400;
+      text-shadow: 0 0 10px rgba(255, 180, 0, 0.5);
+    }
+
+    .lives-box {
+      color: #ff4757;
+      text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+    }
+
+    /* Mobile Joystick & Controls Area */
+    .mobile-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      padding: 12px 25px;
+    }
+
+    .joystick-base {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 180, 0, 0.4);
+      touch-action: none;
+    }
+
+    .joystick-stick {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffca3a, #ffb400);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .fire-btn-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255, 71, 87, 0.25);
+      border: 2px solid rgba(255, 71, 87, 0.6);
+      font-size: 1.4rem;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      active: scale(0.92);
+    }
+
+    /* Overlay Screen */
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 11, 22, 0.94);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 20;
+    }
+
+    #overlay h1 {
+      font-size: 2.2rem;
+      color: #ffb400;
+      text-shadow: 0 0 15px rgba(255, 180, 0, 0.5);
+      letter-spacing: 2px;
+    }
+
+    #overlay p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 200px;
+      margin-top: 10px;
+    }
+
+    button, .action-btn {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #ffb400, #ff4757);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 180, 0, 0.3);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <div class="top-nav">
+    <a href="../index.html" class="hub-btn">
+      ◀ Return to Hub
+    </a>
+  </div>
+
+  <div id="game-container">
+    <div class="hud">
+      <div class="score-box">Score: <span id="score-val">0</span></div>
+      <div class="lives-box">Shield: <span id="lives-val">❤️❤️❤️</span></div>
+    </div>
+
+    <canvas id="canvas" width="600" height="380"></canvas>
+
+    <!-- Overlay Screen -->
+    <div id="overlay">
+      <h1 id="title">Star Defender</h1>
+      <p id="subtitle">Joystick / A-D = Move | Fire / Space = Shoot</p>
+
+      <div class="btn-group">
+        <button id="start-btn" class="primary-btn" onclick="startGame()">Launch Ship</button>
+        <a href="../index.html" class="action-btn secondary-btn">Main Menu</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Touch Joystick & Action Buttons -->
+  <div class="mobile-controls">
+    <div class="joystick-base" id="joy-base">
+      <div class="joystick-stick" id="joy-stick"></div>
+    </div>
+    <div class="fire-btn-circle" id="btn-fire">🔥</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+    const scoreEl = document.getElementById('score-val');
+    const livesEl = document.getElementById('lives-val');
+
+    let isPlaying = false;
+    let animationId;
+    let score = 0;
+    let lives = 3;
+
+    const ship = {
+      x: 285,
+      y: 320,
+      width: 30,
+      height: 30,
+      speed: 6,
+      vx: 0
+    };
+
+    let bullets = [];
+    let enemies = [];
+    let stars = [];
+    const keys = {};
+
+    let joyX = 0; // -1 to 1
+
+    // Starfield Background
+    for (let i = 0; i < 50; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1,
+        speed: Math.random() * 2 + 0.5
+      });
+    }
+
+    function spawnEnemy() {
+      enemies.push({
+        x: Math.random() * (canvas.width - 30),
+        y: -30,
+        width: 26,
+        height: 26,
+        speed: Math.random() * 2 + 1.5,
+        color: '#ff4757'
+      });
+    }
+
+    function shoot() {
+      if (!isPlaying) return;
+      bullets.push({
+        x: ship.x + ship.width / 2 - 2,
+        y: ship.y,
+        width: 4,
+        height: 12,
+        speed: 8
+      });
+    }
+
+    // Virtual Joystick Logic
+    function setupJoystick() {
+      const base = document.getElementById('joy-base');
+      const stick = document.getElementById('joy-stick');
+      let touchId = null;
+      const maxRadius = 30;
+
+      function handleMove(clientX) {
+        const rect = base.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        let deltaX = clientX - centerX;
+
+        if (Math.abs(deltaX) > maxRadius) {
+          deltaX = Math.sign(deltaX) * maxRadius;
+        }
+
+        stick.style.transform = `translate(calc(-50% + ${deltaX}px), -50%)`;
+        joyX = deltaX / maxRadius;
+      }
+
+      function resetStick() {
+        stick.style.transform = `translate(-50%, -50%)`;
+        joyX = 0;
+        touchId = null;
+      }
+
+      base.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (touchId === null && e.changedTouches.length > 0) {
+          const t = e.changedTouches[0];
+          touchId = t.identifier;
+          handleMove(t.clientX);
+        }
+      });
+
+      window.addEventListener('touchmove', (e) => {
+        if (touchId === null) return;
+        for (let t of e.changedTouches) {
+          if (t.identifier === touchId) {
+            handleMove(t.clientX);
+          }
+        }
+      });
+
+      window.addEventListener('touchend', (e) => {
+        for (let t of e.changedTouches) {
+          if (t.identifier === touchId) resetStick();
+        }
+      });
+      window.addEventListener('touchcancel', resetStick);
+    }
+
+    function update() {
+      if (!isPlaying) return;
+
+      // Movement input calculation
+      ship.vx = 0;
+      if (keys['ArrowLeft'] || keys['KeyA']) ship.vx = -ship.speed;
+      if (keys['ArrowRight'] || keys['KeyD']) ship.vx = ship.speed;
+
+      if (joyX !== 0) ship.vx = joyX * ship.speed;
+
+      ship.x += ship.vx;
+      if (ship.x < 0) ship.x = 0;
+      if (ship.x + ship.width > canvas.width) ship.x = canvas.width - ship.width;
+
+      // Spawns
+      if (Math.random() < 0.035) spawnEnemy();
+
+      // Clear Canvas
+      ctx.fillStyle = '#030712';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Stars
+      ctx.fillStyle = '#ffffff';
+      stars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > canvas.height) s.y = 0;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      });
+
+      // Draw Ship
+      ctx.fillStyle = '#ffb400';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#ffb400';
+      ctx.beginPath();
+      ctx.moveTo(ship.x + ship.width / 2, ship.y);
+      ctx.lineTo(ship.x + ship.width, ship.y + ship.height);
+      ctx.lineTo(ship.x, ship.y + ship.height);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Bullets
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.y -= b.speed;
+
+        ctx.fillStyle = '#00f3ff';
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#00f3ff';
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+        ctx.shadowBlur = 0;
+
+        if (b.y < -10) bullets.splice(i, 1);
+      }
+
+      // Enemies
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const e = enemies[i];
+        e.y += e.speed;
+
+        ctx.fillStyle = e.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = e.color;
+        ctx.fillRect(e.x, e.y, e.width, e.height);
+        ctx.shadowBlur = 0;
+
+        // Bullet Collisions
+        for (let j = bullets.length - 1; j >= 0; j--) {
+          const b = bullets[j];
+          if (
+            b.x < e.x + e.width &&
+            b.x + b.width > e.x &&
+            b.y < e.y + e.height &&
+            b.y + b.height > e.y
+          ) {
+            enemies.splice(i, 1);
+            bullets.splice(j, 1);
+            score += 10;
+            scoreEl.textContent = score;
+            break;
+          }
+        }
+
+        // Hit Ship or Passed Ground
+        if (
+          e.x < ship.x + ship.width &&
+          e.x + e.width > ship.x &&
+          e.y < ship.y + ship.height &&
+          e.y + e.height > ship.y
+        ) {
+          enemies.splice(i, 1);
+          lives--;
+          updateLivesHUD();
+          if (lives <= 0) endGame();
+        } else if (e.y > canvas.height) {
+          enemies.splice(i, 1);
+        }
+      }
+
+      animationId = requestAnimationFrame(update);
+    }
+
+    function updateLivesHUD() {
+      livesEl.textContent = '❤️'.repeat(Math.max(0, lives));
+    }
+
+    // Touch Fire Action
+    document.getElementById('btn-fire').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      shoot();
+    });
+
+    // Keyboard Controls
+    window.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+      if (e.code === 'Space') shoot();
+    });
+
+    window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+    function startGame() {
+      setupJoystick();
+
+      score = 0;
+      lives = 3;
+      bullets = [];
+      enemies = [];
+      ship.x = canvas.width / 2 - ship.width / 2;
+
+      scoreEl.textContent = '0';
+      updateLivesHUD();
+      overlay.style.display = 'none';
+      isPlaying = true;
+
+      update();
+    }
+
+    function endGame() {
+      isPlaying = false;
+      cancelAnimationFrame(animationId);
+
+      titleEl.textContent = "MISSION FAILED";
+      subtitleEl.textContent = `Final Score: ${score} Points`;
+      document.getElementById('start-btn').textContent = 'Play Again';
+      overlay.style.display = 'flex';
+    }
+  </script>
+</body>
+</html>

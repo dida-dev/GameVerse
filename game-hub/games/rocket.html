@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#050816">
+
+    <title>Rocket Escape — GAMEVERSE</title>
+
+    <link rel="stylesheet" href="rocket.css">
+</head>
+
+<body>
+
+    <div class="stars"></div>
+
+    <header>
+
+        <a href="../index.html" class="backButton">
+            ← HUB
+        </a>
+
+        <div class="title">
+            🚀 ROCKET ESCAPE
+        </div>
+
+        <div class="best">
+            BEST
+            <strong id="bestScore">0</strong>
+        </div>
+
+    </header>
+
+
+    <div class="hud">
+
+        <div>
+            <span>SCORE</span>
+            <strong id="score">0</strong>
+        </div>
+
+        <div>
+            <span>ENERGY</span>
+            <strong id="energy">100</strong>
+        </div>
+
+        <div>
+            <span>SPEED</span>
+            <strong id="speed">1x</strong>
+        </div>
+
+    </div>
+
+
+    <main>
+
+        <div id="gameArea">
+
+            <div id="objects"></div>
+
+            <div id="rocket">
+                🚀
+            </div>
+
+
+            <div id="startScreen" class="overlay">
+
+                <div class="panel">
+
+                    <div class="bigIcon">
+                        🚀
+                    </div>
+
+                    <h1>
+                        ROCKET ESCAPE
+                    </h1>
+
+                    <p>
+                        Dodge meteors, collect energy
+                        and survive as long as possible.
+                    </p>
+
+                    <div class="controls">
+                        <span>⌨️ WASD / ARROWS</span>
+                        <span>📱 DRAG TO MOVE</span>
+                    </div>
+
+                    <button id="startBtn">
+                        LAUNCH 🚀
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="message"></div>
+
+
+            <div id="resultScreen"
+                 class="overlay hidden">
+
+                <div class="panel">
+
+                    <div id="resultIcon"
+                         class="bigIcon">
+                        💥
+                    </div>
+
+                    <h1 id="resultTitle">
+                        SHIP DESTROYED
+                    </h1>
+
+                    <div class="finalScore">
+
+                        <span>SCORE</span>
+
+                        <strong id="finalScore">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <div class="results">
+
+                        <div>
+                            <span>BEST</span>
+                            <strong id="finalBest">
+                                0
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>ENERGY</span>
+                            <strong id="finalEnergy">
+                                0
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>METEORS</span>
+                            <strong id="finalMeteors">
+                                0
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <button id="againBtn">
+                        LAUNCH AGAIN 🚀
+                    </button>
+
+                    <a
+                        href="../index.html"
+                        class="hubButton"
+                    >
+                        ← BACK TO HUB
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <div class="mobileHint">
+        DRAG YOUR ROCKET TO DODGE 🚀
+    </div>
+
+
+    <script src="rocket.js"></script>
+
+</body>
+</html>

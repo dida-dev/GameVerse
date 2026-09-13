@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Coin Catcher — GameVault</title>
+
+    <link rel="stylesheet" href="coin.css">
+</head>
+
+<body>
+
+    <div class="background">
+        <div class="grid"></div>
+        <div class="glow glow1"></div>
+        <div class="glow glow2"></div>
+    </div>
+
+    <header class="topbar">
+
+        <a href="../index.html" class="logo">
+            🎮 Game<span>Vault</span>
+        </a>
+
+        <div class="gameTitle">
+            🪙 COIN CATCHER
+        </div>
+
+        <a href="../index.html" class="backButton">
+            ← Hub
+        </a>
+
+    </header>
+
+
+    <main>
+
+        <section class="gameWrapper">
+
+            <div class="gameHeader">
+
+                <div class="titleArea">
+                    <span class="eyebrow">ARCADE</span>
+                    <h1>Coin Catcher</h1>
+                    <p>Catch the coins. Build your combo. Beat your high score.</p>
+                </div>
+
+                <div class="stats">
+
+                    <div class="stat">
+                        <span>SCORE</span>
+                        <strong id="score">0</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>COMBO</span>
+                        <strong id="combo">x1</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>TIME</span>
+                        <strong id="time">45</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>BEST</span>
+                        <strong id="best">0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="gameContainer">
+
+                <canvas id="gameCanvas"></canvas>
+
+                <div class="startScreen" id="startScreen">
+
+                    <div class="coinLogo">🪙</div>
+
+                    <h2>READY?</h2>
+
+                    <p>
+                        Move your basket left and right
+                        and catch as many coins as possible.
+                    </p>
+
+                    <div class="instructions">
+
+                        <div>
+                            <span>← →</span>
+                            Move
+                        </div>
+
+                        <div>
+                            <span>A D</span>
+                            Move
+                        </div>
+
+                        <div>
+                            <span>🪙</span>
+                            Catch
+                        </div>
+
+                    </div>
+
+                    <button id="startButton">
+                        START GAME
+                    </button>
+
+                </div>
+
+
+                <div class="gameOver" id="gameOver">
+
+                    <div class="resultIcon">🏆</div>
+
+                    <span class="eyebrow">RUN COMPLETE</span>
+
+                    <h2>GAME OVER</h2>
+
+                    <div class="finalScore">
+                        <span>FINAL SCORE</span>
+                        <strong id="finalScore">0</strong>
+                    </div>
+
+                    <div class="resultStats">
+
+                        <div>
+                            <span>BEST COMBO</span>
+                            <strong id="finalCombo">x1</strong>
+                        </div>
+
+                        <div>
+                            <span>COINS</span>
+                            <strong id="finalCoins">0</strong>
+                        </div>
+
+                    </div>
+
+                    <button id="restartButton">
+                        PLAY AGAIN
+                    </button>
+
+                    <a href="../index.html" class="hubButton">
+                        RETURN TO HUB
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="controls">
+
+                <button id="leftButton">←</button>
+
+                <div class="controlText">
+                    <strong>MOVE YOUR BASKET</strong>
+                    <span>Catch falling coins before they disappear!</span>
+                </div>
+
+                <button id="rightButton">→</button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="coin.js"></script>
+
+</body>
+</html>

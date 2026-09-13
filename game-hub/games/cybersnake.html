@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVault - Snake</title>
+
+    <link rel="stylesheet" href="snake.css">
+</head>
+
+<body>
+    <main class="game-wrapper">
+
+        <header class="game-header">
+            <div>
+                <a href="../index.html" class="hub-btn">← Back to Hub</a>
+                <p class="eyebrow">GAMEVAULT</p>
+                <h1>🐍 Snake</h1>
+            </div>
+
+            <div class="score-board">
+                <div class="score-box">
+                    <span>Score</span>
+                    <strong id="score">0</strong>
+                </div>
+
+                <div class="score-box">
+                    <span>Best</span>
+                    <strong id="highScore">0</strong>
+                </div>
+            </div>
+        </header>
+
+        <section class="game-card">
+
+            <div class="status-bar">
+                <span id="status">Ready?</span>
+                <button id="restartBtn" type="button">Restart</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+                <div id="gameOver" class="game-over hidden">
+                    <div class="game-over-box">
+                        <span class="game-over-icon">💀</span>
+                        <h2>Game Over</h2>
+                        <p>Your score: <strong id="finalScore">0</strong></p>
+                        <button id="playAgainBtn" type="button">
+                            Play Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <p>Use <kbd>WASD</kbd> or <kbd>Arrow Keys</kbd> to move</p>
+
+                <div class="mobile-controls">
+                    <button data-direction="up" aria-label="Move up">▲</button>
+
+                    <div>
+                        <button data-direction="left" aria-label="Move left">◀</button>
+                        <button data-direction="down" aria-label="Move down">▼</button>
+                        <button data-direction="right" aria-label="Move right">▶</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <footer>
+            <p>GameVault • Snake</p>
+        </footer>
+
+    </main>
+
+    <script src="snake.js"></script>
+</body>
+</html>
