@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudoku</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #222;
+    }
+
+    .game {
+        width: min(95vw, 520px);
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,.25);
+        text-align: center;
+    }
+
+    h1 {
+        margin: 0 0 5px;
+        font-size: 2.4rem;
+        color: #4f46e5;
+    }
+
+    .subtitle {
+        margin: 0 0 20px;
+        color: #777;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    select, button {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    select {
+        background: #f1f1f1;
+    }
+
+    button {
+        background: #4f46e5;
+        color: white;
+        font-weight: bold;
+        transition: .2s;
+    }
+
+    button:hover {
+        transform: translateY(-1px);
+        background: #4338ca;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: space-between;
+        margin: 12px 0;
+        font-weight: bold;
+        color: #555;
+    }
+
+    #board {
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        width: 100%;
+        aspect-ratio: 1;
+        border: 3px solid #222;
+        margin: 15px auto;
+    }
+
+    .cell {
+        border: 1px solid #aaa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: clamp(18px, 5vw, 30px);
+        font-weight: 600;
+        background: white;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    /* Thick 3x3 box borders */
+    .cell:nth-child(3n) {
+        border-right: 3px solid #222;
+    }
+
+    .cell:nth-child(9n) {
+        border-right: none;
+    }
+
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) {
+        border-bottom: 3px solid #222;
+    }
+
+    .given {
+        background: #e8e7ff;
+        color: #222;
+        cursor: default;
+    }
+
+    .selected {
+        background: #dbeafe !important;
+    }
+
+    .same-number {
+        background: #ede9fe !important;
+    }
+
+    .wrong {
+        background: #fee2e2 !important;
+        color: #dc2626;
+    }
+
+    .correct {
+        color: #2563eb;
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .number-btn {
+        background: #f3f4f6;
+        color: #333;
+        font-size: 20px;
+        padding: 12px;
+    }
+
+    .number-btn:hover {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .actions button {
+        flex: 1;
+    }
+
+    #message {
+        min-height: 24px;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    .success {
+        color: #16a34a;
+    }
+
+    .error {
+        color: #dc2626;
+    }
+
+    @media (max-width: 400px) {
+        .game {
+            padding: 15px;
+        }
+
+        .top-bar {
+            justify-content: center;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+    <h1>Sudoku</h1>
+    <p class="subtitle">Fill every row, column and 3×3 box.</p>
+
+    <div class="top-bar">
+        <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+
+        <button onclick="newGame()">New Game</button>
+    </div>
+
+    <div class="stats">
+        <span>⏱️ <span id="timer">00:00</span></span>
+        <span>❌ Mistakes: <span id="mistakes">0</span>/3</span>
+    </div>
+
+    <div id="board"></div>
+
+    <div class="controls" id="numberPad"></div>
+
+    <div class="actions">
+        <button onclick="erase()">⌫ Erase</button>
+        <button onclick="hint()">💡 Hint</button>
+        <button onclick="checkBoard()">✓ Check</button>
+    </div>
+
+    <div id="message"></div>
+</div>
+
+<script>
+let solution = [];
+let puzzle = [];
+let board = [];
+let selected = null;
+let mistakes = 0;
+let seconds = 0;
+let timerInterval = null;
+let gameOver = false;
+
+const boardElement = document.getElementById("board");
+const numberPad = document.getElementById("numberPad");
+const message = document.getElementById("message");
+
+const difficulties = {
+    easy: 38,
+    medium: 48,
+    hard: 55
+};
+
+// -------------------------
+// Sudoku generation
+// -------------------------
+
+function newGame() {
+    clearInterval(timerInterval);
+
+    mistakes = 0;
+    seconds = 0;
+    selected = null;
+    gameOver = false;
+
+    document.getElementById("mistakes").textContent = mistakes;
+    document.getElementById("timer").textContent = "00:00";
+    message.textContent = "";
+    message.className = "";
+
+    solution = generateSolution();
+
+    const difficulty = document.getElementById("difficulty").value;
+    puzzle = createPuzzle(solution, difficulties[difficulty]);
+
+    board = puzzle.map(row => [...row]);
+
+    renderBoard();
+    createNumberPad();
+
+    timerInterval = setInterval(() => {
+        if (!gameOver) {
+            seconds++;
+            updateTimer();
+        }
+    }, 1000);
+}
+
+function generateSolution() {
+    const grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+
+    fillGrid(grid);
+    return grid;
+}
+
+function fillGrid(grid) {
+    const empty = findEmpty(grid);
+
+    if (!empty) return true;
+
+    const [row, col] = empty;
+
+    const numbers = shuffle([1,2,3,4,5,6,7,8,9]);
+
+    for (const num of numbers) {
+        if (isValid(grid, row, col, num)) {
+            grid[row][col] = num;
+
+            if (fillGrid(grid)) {
+                return true;
+            }
+
+            grid[row][col] = 0;
+        }
+    }
+
+    return false;
+}
+
+function findEmpty(grid) {
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            if (grid[r][c] === 0) {
+                return [r, c];
+            }
+        }
+    }
+
+    return null;
+}
+
+function isValid(grid, row, col, num) {
+
+    // Row
+    for (let c = 0; c < 9; c++) {
+        if (grid[row][c] === num) return false;
+    }
+
+    // Column
+    for (let r = 0; r < 9; r++) {
+        if (grid[r][col] === num) return false;
+    }
+
+    // 3x3 box
+    const boxRow = Math.floor(row / 3) * 3;
+    const boxCol = Math.floor(col / 3) * 3;
+
+    for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+            if (grid[r][c] === num) return false;
+        }
+    }
+
+    return true;
+}
+
+function createPuzzle(solution, removeCount) {
+    const grid = solution.map(row => [...row]);
+
+    let removed = 0;
+
+    while (removed < removeCount) {
+        const r = Math.floor(Math.random() * 9);
+        const c = Math.floor(Math.random() * 9);
+
+        if (grid[r][c] !== 0) {
+            grid[r][c] = 0;
+            removed++;
+        }
+    }
+
+    return grid;
+}
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+}
+
+// -------------------------
+// Rendering
+// -------------------------
+
+function renderBoard() {
+    boardElement.innerHTML = "";
+
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+
+            const cell = document.createElement("div");
+            cell.className = "cell";
+
+            const value = board[r][c];
+
+            if (puzzle[r][c] !== 0) {
+                cell.classList.add("given");
+            } else if (value !== 0) {
+                cell.classList.add("correct");
+
+                if (value !== solution[r][c]) {
+                    cell.classList.add("wrong");
+                }
+            }
+
+            if (selected &&
+                selected.row === r &&
+                selected.col === c) {
+                cell.classList.add("selected");
+            }
+
+            if (selected &&
+                value !== 0 &&
+                value === board[selected.row][selected.col]) {
+                cell.classList.add("same-number");
+            }
+
+            if (value !== 0) {
+                cell.textContent = value;
+            }
+
+            cell.addEventListener("click", () => selectCell(r, c));
+
+            boardElement.appendChild(cell);
+        }
+    }
+}
+
+function selectCell(row, col) {
+    if (gameOver) return;
+
+    selected = { row, col };
+    renderBoard();
+}
+
+function createNumberPad() {
+    numberPad.innerHTML = "";
+
+    for (let i = 1; i <= 9; i++) {
+        const button = document.createElement("button");
+
+        button.textContent = i;
+        button.className = "number-btn";
+
+        button.addEventListener("click", () => enterNumber(i));
+
+        numberPad.appendChild(button);
+    }
+}
+
+// -------------------------
+// Game controls
+// -------------------------
+
+function enterNumber(num) {
+    if (!selected || gameOver) return;
+
+    const { row, col } = selected;
+
+    // Don't modify original clues
+    if (puzzle[row][col] !== 0) return;
+
+    board[row][col] = num;
+
+    if (num !== solution[row][col]) {
+        mistakes++;
+
+        document.getElementById("mistakes").textContent = mistakes;
+
+        if (mistakes >= 3) {
+            gameOver = true;
+            clearInterval(timerInterval);
+
+            message.textContent = "Game over! You made 3 mistakes.";
+            message.className = "error";
+
+            renderBoard();
+            return;
+        }
+    }
+
+    renderBoard();
+
+    if (isComplete()) {
+        gameOver = true;
+        clearInterval(timerInterval);
+
+        message.textContent =
+            `🎉 Congratulations! You solved it in ${formatTime(seconds)}!`;
+
+        message.className = "success";
+    }
+}
+
+function erase() {
+    if (!selected || gameOver) return;
+
+    const { row, col } = selected;
+
+    if (puzzle[row][col] === 0) {
+        board[row][col] = 0;
+        renderBoard();
+    }
+}
+
+function hint() {
+    if (!selected || gameOver) {
+        message.textContent = "Select an empty square first.";
+        message.className = "error";
+        return;
+    }
+
+    const { row, col } = selected;
+
+    if (puzzle[row][col] !== 0) {
+        message.textContent = "That square is already filled.";
+        message.className = "error";
+        return;
+    }
+
+    board[row][col] = solution[row][col];
+
+    renderBoard();
+
+    message.textContent = "💡 Hint added!";
+    message.className = "success";
+
+    if (isComplete()) {
+        gameOver = true;
+        clearInterval(timerInterval);
+        message.textContent =
+            `🎉 Puzzle complete in ${formatTime(seconds)}!`;
+    }
+}
+
+function checkBoard() {
+    if (gameOver) return;
+
+    let wrong = 0;
+    let empty = 0;
+
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+
+            if (board[r][c] === 0) {
+                empty++;
+            } else if (board[r][c] !== solution[r][c]) {
+                wrong++;
+            }
+        }
+    }
+
+    if (wrong > 0) {
+        message.textContent =
+            `❌ You have ${wrong} incorrect square${wrong > 1 ? "s" : ""}.`;
+
+        message.className = "error";
+    } else if (empty > 0) {
+        message.textContent =
+            `👍 Everything filled so far is correct. ${empty} squares left.`;
+
+        message.className = "success";
+    } else {
+        gameOver = true;
+        clearInterval(timerInterval);
+
+        message.textContent =
+            `🎉 You solved the Sudoku in ${formatTime(seconds)}!`;
+
+        message.className = "success";
+    }
+}
+
+function isComplete() {
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            if (board[r][c] !== solution[r][c]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// -------------------------
+// Timer
+// -------------------------
+
+function updateTimer() {
+    document.getElementById("timer").textContent =
+        formatTime(seconds);
+}
+
+function formatTime(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+
+    return String(minutes).padStart(2, "0") +
+           ":" +
+           String(secs).padStart(2, "0");
+}
+
+// -------------------------
+// Keyboard support
+// -------------------------
+
+document.addEventListener("keydown", (event) => {
+    if (gameOver) return;
+
+    if (event.key >= "1" && event.key <= "9") {
+        enterNumber(Number(event.key));
+    }
+
+    if (event.key === "Backspace" || event.key === "Delete") {
+        erase();
+    }
+});
+
+// Start game
+newGame();
+</script>
+
+</body>
+</html>

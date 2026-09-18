@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skyline Obby</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-1: #090f1f;
+        --bg-2: #112751;
+        --bg-3: #1a9cff;
+        --panel: rgba(10, 15, 28, 0.62);
+        --panel-border: rgba(255, 255, 255, 0.14);
+        --text: #ebf6ff;
+        --blue: #71d6ff;
+        --cyan: #58f0d5;
+        --gold: #ffd95b;
+        --danger: #ff5a7f;
+        --purple: #8a7cff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        margin: 0;
+        height: 100%;
+        font-family: "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #183668 0%, var(--bg-2) 18%, var(--bg-1) 70%);
+        color: var(--text);
+        overflow: hidden;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+      }
+
+      .game-shell {
+        position: relative;
+        width: min(1200px, 100%);
+        height: min(760px, 92vh);
+        overflow: hidden;
+        border-radius: 28px;
+        border: 1px solid var(--panel-border);
+        background: linear-gradient(180deg, rgba(12, 17, 32, 0.76), rgba(5, 9, 18, 0.9));
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.44);
+        touch-action: none;
+      }
+
+      .sky-glow {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 18% 12%, rgba(113, 214, 255, 0.3), transparent 25%),
+          radial-gradient(circle at 72% 20%, rgba(88, 240, 213, 0.16), transparent 20%),
+          linear-gradient(180deg, rgba(147, 206, 255, 0.08), rgba(255, 255, 255, 0));
+      }
+
+      .stars {
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.9), transparent 100%),
+          radial-gradient(2px 2px at 30% 12%, rgba(255,255,255,0.75), transparent 100%),
+          radial-gradient(1.5px 1.5px at 55% 18%, rgba(255,255,255,0.95), transparent 100%),
+          radial-gradient(2px 2px at 72% 15%, rgba(255,255,255,0.72), transparent 100%),
+          radial-gradient(2px 2px at 88% 22%, rgba(255,255,255,0.82), transparent 100%),
+          radial-gradient(1.8px 1.8px at 45% 30%, rgba(255,255,255,0.9), transparent 100%);
+        opacity: 0.84;
+      }
+
+      .hud {
+        position: absolute;
+        top: 16px;
+        left: 18px;
+        right: 18px;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        pointer-events: none;
+      }
+
+      .hud-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-radius: 14px;
+        background: rgba(8, 12, 23, 0.52);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(8px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+      }
+
+      .hud-card strong {
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.8);
+      }
+
+      .hud-card span {
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+
+      #resetBtn {
+        pointer-events: auto;
+      }
+
+      .leaderboard-panel {
+        position: absolute;
+        top: 92px;
+        right: 18px;
+        z-index: 26;
+        width: 220px;
+        padding: 14px 14px 8px;
+        border-radius: 16px;
+        background: rgba(8, 12, 23, 0.64);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(8px);
+      }
+
+      .leaderboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.7);
+      }
+
+      #leaderboardList {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      #leaderboardList li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.04);
+        font-size: 0.9rem;
+      }
+
+      #leaderboardList li.empty {
+        justify-content: center;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.78rem;
+      }
+
+      .game-area {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .world {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1800px;
+        height: 620px;
+        transform: translateX(0);
+        transition: transform 0.12s linear;
+      }
+
+      .platform {
+        position: absolute;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #7b6bff, #2f3d9d);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.23), 0 12px 18px rgba(8, 12, 28, 0.26);
+      }
+
+      .platform.alt {
+        background: linear-gradient(180deg, #58f0d5, #1e9da1);
+      }
+
+      .platform.bounce {
+        background: linear-gradient(180deg, #ffd777, #ff9d42);
+      }
+
+      .platform::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+        border-radius: inherit;
+      }
+
+      .hazard {
+        position: absolute;
+        background: linear-gradient(180deg, #ff5d68, #a61e38);
+        border-radius: 14px 14px 18px 18px;
+        box-shadow: inset 0 2px 8px rgba(255,255,255,0.12);
+      }
+
+      .hazard::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(135deg, transparent 45%, rgba(255,255,255,0.18) 45%, transparent 58%);
+        background-size: 18px 18px;
+      }
+
+      .checkpoint {
+        position: absolute;
+        width: 22px;
+        height: 62px;
+        border-radius: 12px 12px 6px 6px;
+        background: linear-gradient(180deg, #67f3d8, #238ca0);
+        box-shadow: 0 0 20px rgba(103, 243, 216, 0.4);
+      }
+
+      .checkpoint::before {
+        content: "";
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        left: 5px;
+        top: 7px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.8);
+      }
+
+      .star {
+        position: absolute;
+        background: linear-gradient(180deg, #fff6a1, #ffd34d);
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 80% 94%, 50% 70%, 20% 94%, 32% 57%, 2% 35%, 39% 35%);
+        box-shadow: 0 0 18px rgba(255, 220, 90, 0.6);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+
+      .goal {
+        position: absolute;
+        width: 52px;
+        height: 84px;
+        border-radius: 18px 18px 8px 8px;
+        background: linear-gradient(180deg, #fff0ab, #ffbf4d);
+        box-shadow: 0 10px 28px rgba(255, 190, 60, 0.38);
+      }
+
+      .goal::before,
+      .goal::after {
+        content: "";
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        height: 12px;
+        border-radius: 12px;
+        background: rgba(77, 49, 0, 0.35);
+      }
+
+      .goal::before { bottom: 0; }
+      .goal::after { top: 10px; background: rgba(255,255,255,0.18); }
+
+      .goal-ring {
+        position: absolute;
+        width: 86px;
+        height: 86px;
+        left: -17px;
+        top: -16px;
+        border: 4px solid rgba(255,255,255,0.72);
+        border-radius: 50%;
+        animation: pulse 1.2s infinite ease-in-out;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(0.96); opacity: 0.8; }
+        50% { transform: scale(1.08); opacity: 1; }
+      }
+
+      #player {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #adf0ff, #54b9ff);
+        border: 2px solid rgba(255,255,255,0.6);
+        box-shadow: 0 10px 20px rgba(94, 179, 255, 0.45), inset 0 2px 0 rgba(255,255,255,0.45);
+        z-index: 10;
+      }
+
+      #player::before {
+        content: "";
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        left: 9px;
+        top: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.8);
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 40;
+        background: rgba(4, 8, 18, 0.28);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .overlay-card {
+        width: min(420px, calc(100% - 30px));
+        padding: 22px 26px 18px;
+        border-radius: 22px;
+        background: rgba(9, 13, 25, 0.84);
+        border: 1px solid rgba(255,255,255,0.14);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        text-align: center;
+      }
+
+      .overlay-card h2 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        font-weight: 900;
+      }
+
+      .overlay-card p {
+        margin: 0 0 16px;
+        color: rgba(235, 246, 255, 0.8);
+      }
+
+      .touch-controls {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 18px;
+        z-index: 25;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .touch-group {
+        display: flex;
+        gap: 12px;
+      }
+
+      .touch-btn {
+        width: 74px;
+        height: 74px;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 18px;
+        background: rgba(10, 15, 28, 0.55);
+        color: white;
+        font-weight: 800;
+        font-size: 1.9rem;
+        touch-action: manipulation;
+        user-select: none;
+      }
+
+      .touch-btn.jump {
+        width: 94px;
+        height: 94px;
+      }
+
+      @media (max-width: 760px) {
+        body {
+          padding: 8px;
+        }
+
+        .game-shell {
+          width: 100%;
+          height: calc(100vh - 12px);
+          border-radius: 18px;
+        }
+
+        .hud {
+          left: 10px;
+          right: 10px;
+          top: 10px;
+          gap: 8px;
+          flex-wrap: wrap;
+          align-items: stretch;
+        }
+
+        .hud-card {
+          padding: 8px 10px;
+          flex: 1 1 28%;
+          justify-content: center;
+        }
+
+        .leaderboard-panel {
+          display: none;
+        }
+
+        .touch-controls {
+          display: flex;
+          left: 10px;
+          right: 10px;
+          bottom: 10px;
+        }
+
+        .touch-btn {
+          width: 68px;
+          height: 68px;
+          font-size: 1.5rem;
+        }
+
+        .touch-btn.jump {
+          width: 82px;
+          height: 82px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-shell">
+      <div class="sky-glow"></div>
+      <div class="stars"></div>
+
+      <div class="hud">
+        <div class="hud-card">
+          <strong>Time</strong>
+          <span id="timer">0.00s</span>
+        </div>
+        <div class="hud-card">
+          <strong>Best</strong>
+          <span id="bestTime">--</span>
+        </div>
+        <div class="hud-card">
+          <strong>Stars</strong>
+          <span id="starCount">0/0</span>
+        </div>
+        <button id="resetBtn" class="btn btn-primary btn-sm px-3">Restart</button>
+      </div>
+
+      <aside class="leaderboard-panel">
+        <div class="leaderboard-header">
+          <span>Top Runs</span>
+          <strong id="leaderboardLevel">Skyline Sprint</strong>
+        </div>
+        <ol id="leaderboardList"></ol>
+      </aside>
+
+      <div class="game-area">
+        <div id="world" class="world" aria-label="Obby game area">
+          <div id="player" aria-label="Player character"></div>
+        </div>
+      </div>
+
+      <div id="startOverlay" class="overlay show" aria-live="polite">
+        <div class="overlay-card">
+          <h2>Skyline Obby</h2>
+          <p id="startText">Complete the parkour route and hit the golden portal.</p>
+          <button id="startBtn" class="btn btn-primary btn-lg px-4">Start</button>
+        </div>
+      </div>
+
+      <div id="messageOverlay" class="overlay" aria-live="polite">
+        <div class="overlay-card">
+          <h2 id="messageTitle">Level clear!</h2>
+          <p id="messageText">You did it.</p>
+          <button id="actionBtn" class="btn btn-success btn-lg px-4">Next level</button>
+        </div>
+      </div>
+
+      <div class="touch-controls">
+        <div class="touch-group">
+          <button class="touch-btn" data-key="ArrowLeft">◀</button>
+          <button class="touch-btn" data-key="ArrowRight">▶</button>
+        </div>
+        <button class="touch-btn jump" data-key="Space">▲</button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const world = document.getElementById('world');
+      const playerEl = document.getElementById('player');
+      const timerEl = document.getElementById('timer');
+      const bestTimeEl = document.getElementById('bestTime');
+      const resetBtn = document.getElementById('resetBtn');
+      const startOverlay = document.getElementById('startOverlay');
+      const startBtn = document.getElementById('startBtn');
+      const messageOverlay = document.getElementById('messageOverlay');
+      const messageTitle = document.getElementById('messageTitle');
+      const messageText = document.getElementById('messageText');
+      const actionBtn = document.getElementById('actionBtn');
+      const audio = { ctx: null };
+
+      const gameState = {
+        levelIndex: 0,
+        finished: false,
+        running: false,
+        startTime: 0,
+        elapsed: 0,
+        checkpoint: null,
+        stars: [],
+        bestTimes: JSON.parse(localStorage.getItem('skyline-obby-best-times') || '{}'),
+      };
+
+      const keys = {};
+      const gravity = 0.58;
+      const moveSpeed = 4.1;
+      const jumpStrength = 12.8;
+      const friction = 0.82;
+
+      const player = {
+        x: 60,
+        y: 430,
+        w: 30,
+        h: 30,
+        vx: 0,
+        vy: 0,
+        onGround: false,
+      };
+
+      const levels = [
+        {
+          name: 'Skyline Sprint',
+          spawn: { x: 60, y: 420 },
+          platforms: [
+            { x: 0, y: 540, w: 200, h: 80 },
+            { x: 240, y: 500, w: 150, h: 25 },
+            { x: 430, y: 450, w: 150, h: 22 },
+            { x: 620, y: 390, w: 120, h: 20 },
+            { x: 770, y: 340, w: 150, h: 18, alt: true },
+            { x: 960, y: 300, w: 160, h: 18 },
+            { x: 1110, y: 250, w: 130, h: 18, alt: true },
+            { x: 1290, y: 210, w: 220, h: 18 },
+            { x: 1560, y: 170, w: 150, h: 18 },
+            { x: 1700, y: 140, w: 120, h: 18 },
+            { x: 500, y: 300, w: 90, h: 16, bounce: true },
+            { x: 1030, y: 200, w: 90, h: 16, bounce: true },
+            { x: 1400, y: 120, w: 95, h: 16, bounce: true }
+          ],
+          hazards: [
+            { x: 200, y: 540, w: 30, h: 80 },
+            { x: 390, y: 540, w: 18, h: 80 },
+            { x: 580, y: 540, w: 24, h: 80 },
+            { x: 740, y: 540, w: 30, h: 80 },
+            { x: 1220, y: 540, w: 40, h: 80 },
+            { x: 1520, y: 540, w: 28, h: 80 }
+          ],
+          checkpoints: [
+            { x: 880, y: 300 },
+            { x: 1540, y: 170 }
+          ],
+          goal: { x: 1745, y: 54, w: 52, h: 82 },
+          stars: [
+            { x: 260, y: 460, size: 18 },
+            { x: 640, y: 350, size: 18 },
+            { x: 1000, y: 260, size: 18 },
+            { x: 1360, y: 165, size: 18 },
+            { x: 1725, y: 95, size: 18 }
+          ]
+        },
+        {
+          name: 'Neon Lift',
+          spawn: { x: 60, y: 430 },
+          platforms: [
+            { x: 0, y: 540, w: 170, h: 80 },
+            { x: 220, y: 490, w: 120, h: 20 },
+            { x: 400, y: 430, w: 120, h: 20, alt: true },
+            { x: 560, y: 365, w: 100, h: 18 },
+            { x: 700, y: 305, w: 120, h: 18, alt: true },
+            { x: 870, y: 250, w: 90, h: 18 },
+            { x: 990, y: 210, w: 120, h: 18, alt: true },
+            { x: 1170, y: 310, w: 120, h: 18 },
+            { x: 1345, y: 250, w: 100, h: 18, alt: true },
+            { x: 1500, y: 190, w: 120, h: 18 },
+            { x: 1660, y: 150, w: 130, h: 18 },
+            { x: 330, y: 350, w: 80, h: 15, bounce: true },
+            { x: 820, y: 180, w: 80, h: 15, bounce: true },
+            { x: 1410, y: 170, w: 80, h: 15, bounce: true },
+            { x: 1550, y: 330, w: 150, h: 18 }
+          ],
+          hazards: [
+            { x: 170, y: 540, w: 30, h: 80 },
+            { x: 340, y: 540, w: 28, h: 80 },
+            { x: 520, y: 540, w: 24, h: 80 },
+            { x: 660, y: 540, w: 20, h: 80 },
+            { x: 1080, y: 540, w: 26, h: 80 },
+            { x: 1460, y: 540, w: 20, h: 80 }
+          ],
+          checkpoints: [
+            { x: 760, y: 305 },
+            { x: 1460, y: 190 }
+          ],
+          goal: { x: 1765, y: 66, w: 52, h: 82 },
+          stars: [
+            { x: 270, y: 450, size: 18 },
+            { x: 610, y: 320, size: 18 },
+            { x: 940, y: 205, size: 18 },
+            { x: 1505, y: 150, size: 18 },
+            { x: 1720, y: 110, size: 18 }
+          ]
+        },
+        {
+          name: 'Final Vault',
+          spawn: { x: 60, y: 430 },
+          platforms: [
+            { x: 0, y: 540, w: 180, h: 80 },
+            { x: 230, y: 500, w: 120, h: 20 },
+            { x: 420, y: 455, w: 110, h: 18, alt: true },
+            { x: 580, y: 405, w: 110, h: 18 },
+            { x: 750, y: 350, w: 130, h: 18, alt: true },
+            { x: 930, y: 300, w: 100, h: 18 },
+            { x: 1090, y: 250, w: 110, h: 18, alt: true },
+            { x: 1265, y: 190, w: 130, h: 18 },
+            { x: 1455, y: 140, w: 120, h: 18, alt: true },
+            { x: 1620, y: 95, w: 110, h: 18 },
+            { x: 510, y: 310, w: 70, h: 15, bounce: true },
+            { x: 1010, y: 210, w: 70, h: 15, bounce: true },
+            { x: 1480, y: 220, w: 80, h: 15, bounce: true },
+            { x: 1680, y: 250, w: 120, h: 18 }
+          ],
+          hazards: [
+            { x: 180, y: 540, w: 28, h: 80 },
+            { x: 350, y: 540, w: 26, h: 80 },
+            { x: 540, y: 540, w: 24, h: 80 },
+            { x: 690, y: 540, w: 26, h: 80 },
+            { x: 880, y: 540, w: 28, h: 80 },
+            { x: 1420, y: 540, w: 24, h: 80 }
+          ],
+          checkpoints: [
+            { x: 980, y: 300 },
+            { x: 1560, y: 150 }
+          ],
+          goal: { x: 1770, y: 12, w: 52, h: 82 },
+          stars: [
+            { x: 330, y: 460, size: 18 },
+            { x: 620, y: 360, size: 18 },
+            { x: 1015, y: 170, size: 18 },
+            { x: 1475, y: 100, size: 18 },
+            { x: 1710, y: 215, size: 18 }
+          ]
+        }
+      ];
+
+      function rectIntersect(a, b) {
+        return (
+          a.x < b.x + b.w &&
+          a.x + a.w > b.x &&
+          a.y < b.y + b.h &&
+          a.y + a.h > b.y
+        );
+      }
+
+      function getCurrentLevel() {
+        return levels[gameState.levelIndex];
+      }
+
+      function setOverlay(overlayEl, visible) {
+        overlayEl.classList.toggle('show', visible);
+      }
+
+      function updateBestTime() {
+        const best = gameState.bestTimes[getCurrentLevel().name];
+        bestTimeEl.textContent = best ? best.toFixed(2) + 's' : '--';
+      }
+
+      function updateStarHud() {
+        const total = (getCurrentLevel().stars || []).length;
+        const collected = gameState.stars.filter(Boolean).length;
+        document.getElementById('starCount').textContent = collected + '/' + total;
+      }
+
+      function getLeaderboard() {
+        try { return JSON.parse(localStorage.getItem('skyline-obby-leaderboard') || '{}'); }
+        catch { return {}; }
+      }
+
+      function saveLeaderboard(data) {
+        localStorage.setItem('skyline-obby-leaderboard', JSON.stringify(data));
+      }
+
+      function addLeaderboardEntry(levelName, time) {
+        const board = getLeaderboard();
+        const records = board[levelName] || [];
+        records.push(Number(time));
+        records.sort((a, b) => a - b);
+        board[levelName] = records.slice(0, 5);
+        saveLeaderboard(board);
+        renderLeaderboard();
+      }
+
+      function renderLeaderboard() {
+        const list = document.getElementById('leaderboardList');
+        const levelName = getCurrentLevel().name;
+        const board = getLeaderboard();
+        const records = board[levelName] || [];
+        document.getElementById('leaderboardLevel').textContent = levelName;
+
+        if (!records.length) {
+          list.innerHTML = '<li class="empty">No runs yet</li>';
+          return;
+        }
+
+        list.innerHTML = records
+          .map((time, index) => '<li><span>#' + (index + 1) + '</span><strong>' + Number(time).toFixed(2) + 's</strong></li>')
+          .join('');
+      }
+
+      function renderLevel() {
+        world.innerHTML = '';
+        world.appendChild(playerEl);
+
+        const level = getCurrentLevel();
+        for (const platform of level.platforms) {
+          const el = document.createElement('div');
+          el.className = 'platform' + (platform.alt ? ' alt' : '') + (platform.bounce ? ' bounce' : '');
+          el.style.left = platform.x + 'px';
+          el.style.top = platform.y + 'px';
+          el.style.width = platform.w + 'px';
+          el.style.height = platform.h + 'px';
+          world.appendChild(el);
+        }
+
+        for (const hazard of level.hazards) {
+          const el = document.createElement('div');
+          el.className = 'hazard';
+          el.style.left = hazard.x + 'px';
+          el.style.top = hazard.y + 'px';
+          el.style.width = hazard.w + 'px';
+          el.style.height = hazard.h + 'px';
+          world.appendChild(el);
+        }
+
+        for (const cp of level.checkpoints) {
+          const el = document.createElement('div');
+          el.className = 'checkpoint';
+          el.style.left = cp.x + 'px';
+          el.style.top = cp.y - 62 + 'px';
+          world.appendChild(el);
+        }
+
+        for (const star of level.stars || []) {
+          const starEl = document.createElement('div');
+          starEl.className = 'star';
+          starEl.style.left = star.x + 'px';
+          starEl.style.top = star.y + 'px';
+          starEl.style.width = (star.size || 18) + 'px';
+          starEl.style.height = (star.size || 18) + 'px';
+          starEl.dataset.index = String((level.stars || []).indexOf(star));
+          world.appendChild(starEl);
+        }
+
+        const goalWrap = document.createElement('div');
+        goalWrap.className = 'goal';
+        goalWrap.style.left = level.goal.x + 'px';
+        goalWrap.style.top = level.goal.y + 'px';
+        goalWrap.style.width = level.goal.w + 'px';
+        goalWrap.style.height = level.goal.h + 'px';
+        const ring = document.createElement('div');
+        ring.className = 'goal-ring';
+        goalWrap.appendChild(ring);
+        world.appendChild(goalWrap);
+
+        world.style.width = (Math.max(1700, level.goal.x + 180)) + 'px';
+      }
+
+      function startLevel() {
+        const level = getCurrentLevel();
+        gameState.running = true;
+        gameState.finished = false;
+        gameState.startTime = performance.now();
+        gameState.elapsed = 0;
+        gameState.checkpoint = { ...level.spawn };
+        gameState.stars = (level.stars || []).map(() => false);
+        player.x = level.spawn.x;
+        player.y = level.spawn.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.onGround = false;
+
+        setOverlay(startOverlay, false);
+        setOverlay(messageOverlay, false);
+        timerEl.textContent = '0.00s';
+        updateStarHud();
+      }
+
+      function finishLevel() {
+        if (gameState.finished) return;
+        gameState.finished = true;
+        gameState.running = false;
+
+        const time = gameState.elapsed;
+        const name = getCurrentLevel().name;
+        const currentBest = gameState.bestTimes[name];
+        if (!currentBest || time < currentBest) {
+          gameState.bestTimes[name] = time;
+          localStorage.setItem('skyline-obby-best-times', JSON.stringify(gameState.bestTimes));
+        }
+
+        addLeaderboardEntry(name, time);
+        updateBestTime();
+        playEffect('win');
+
+        if (gameState.levelIndex < levels.length - 1) {
+          messageTitle.textContent = 'Level clear!';
+          messageText.textContent = 'Time: ' + time.toFixed(2) + 's';
+          actionBtn.textContent = 'Next level';
+          actionBtn.dataset.action = 'next';
+          setOverlay(messageOverlay, true);
+        } else {
+          messageTitle.textContent = 'You won!';
+          messageText.textContent = 'All levels cleared in ' + time.toFixed(2) + 's';
+          actionBtn.textContent = 'Play again';
+          actionBtn.dataset.action = 'restart';
+          setOverlay(messageOverlay, true);
+        }
+      }
+
+      function handleCheckpoint() {
+        const level = getCurrentLevel();
+        for (const cp of level.checkpoints) {
+          if (player.x + player.w >= cp.x && player.x <= cp.x + 24 && player.y + player.h >= cp.y - 50 && player.y <= cp.y + 12) {
+            if (gameState.checkpoint.x !== cp.x || gameState.checkpoint.y !== cp.y - 8) {
+              gameState.checkpoint = { x: cp.x, y: cp.y - 8 };
+              playEffect('checkpoint');
+            }
+          }
+        }
+      }
+
+      function updateTimer() {
+        if (gameState.running && !gameState.finished) {
+          gameState.elapsed = (performance.now() - gameState.startTime) / 1000;
+        }
+        timerEl.textContent = gameState.elapsed.toFixed(2) + 's';
+      }
+
+      function processInput() {
+        let dir = 0;
+        if (keys.ArrowLeft || keys.KeyA) dir -= 1;
+        if (keys.ArrowRight || keys.KeyD) dir += 1;
+
+        if (dir !== 0) {
+          player.vx += dir * 0.9;
+          player.vx = Math.max(-moveSpeed, Math.min(moveSpeed, player.vx));
+        } else {
+          player.vx *= friction;
+          if (Math.abs(player.vx) < 0.08) player.vx = 0;
+        }
+
+        if ((keys.ArrowUp || keys.KeyW || keys.Space) && player.onGround) {
+          player.vy = -jumpStrength;
+          player.onGround = false;
+          playEffect('jump');
+        }
+      }
+
+      function updatePlayer() {
+        if (!gameState.running || gameState.finished) {
+          playerEl.style.left = player.x + 'px';
+          playerEl.style.top = player.y + 'px';
+          return;
+        }
+
+        processInput();
+        player.vy += gravity;
+
+        const level = getCurrentLevel();
+        const prevY = player.y;
+
+        player.x += player.vx;
+        for (const platform of level.platforms) {
+          const rectA = { x: player.x, y: player.y, w: player.w, h: player.h };
+          const rectB = { x: platform.x, y: platform.y, w: platform.w, h: platform.h };
+          if (rectIntersect(rectA, rectB)) {
+            if (player.vx > 0) player.x = platform.x - player.w;
+            if (player.vx < 0) player.x = platform.x + platform.w;
+            player.vx = 0;
+          }
+        }
+
+        player.y += player.vy;
+        player.onGround = false;
+
+        for (const platform of level.platforms) {
+          const rectA = { x: player.x, y: player.y, w: player.w, h: player.h };
+          const rectB = { x: platform.x, y: platform.y, w: platform.w, h: platform.h };
+          if (rectIntersect(rectA, rectB)) {
+            if (prevY + player.h <= platform.y + 8 && player.vy >= 0) {
+              player.y = platform.y - player.h;
+              player.vy = 0;
+              player.onGround = true;
+              if (platform.bounce) {
+                player.vy = -16;
+                player.onGround = false;
+              }
+            } else if (player.vy < 0) {
+              player.y = platform.y + platform.h;
+              player.vy = 0;
+            }
+          }
+        }
+
+        if (player.y > 620) {
+          player.x = gameState.checkpoint.x;
+          player.y = gameState.checkpoint.y;
+          player.vx = 0;
+          player.vy = 0;
+          player.onGround = false;
+          playEffect('hurt');
+        }
+
+        for (const hazard of level.hazards) {
+          const rectA = { x: player.x, y: player.y, w: player.w, h: player.h };
+          const rectB = hazard;
+          if (rectIntersect(rectA, rectB)) {
+            player.x = gameState.checkpoint.x;
+            player.y = gameState.checkpoint.y;
+            player.vx = 0;
+            player.vy = 0;
+            player.onGround = false;
+            playEffect('hurt');
+          }
+        }
+
+        const starElements = document.querySelectorAll('.star');
+        starElements.forEach((starEl) => {
+          const index = Number(starEl.dataset.index);
+          if (gameState.stars[index]) {
+            starEl.style.opacity = '0';
+            starEl.style.transform = 'scale(0.3)';
+            return;
+          }
+
+          const star = level.stars[index];
+          if (!star) return;
+          const rectA = { x: player.x, y: player.y, w: player.w, h: player.h };
+          const rectB = { x: star.x, y: star.y, w: star.size || 18, h: star.size || 18 };
+          if (rectIntersect(rectA, rectB)) {
+            gameState.stars[index] = true;
+            starEl.style.opacity = '0';
+            starEl.style.transform = 'scale(0.5)';
+            playEffect('star');
+            updateStarHud();
+          }
+        });
+
+        handleCheckpoint();
+
+        const goal = level.goal;
+        const goalRect = { x: goal.x, y: goal.y, w: goal.w, h: goal.h };
+        const playerRect = { x: player.x, y: player.y, w: player.w, h: player.h };
+        if (rectIntersect(playerRect, goalRect)) {
+          finishLevel();
+        }
+
+        if (player.x < 0) player.x = 0;
+        if (player.x > world.offsetWidth - 40) player.x = world.offsetWidth - 40;
+
+        const cameraX = Math.min(Math.max(player.x - 260, 0), Math.max(0, world.offsetWidth - 850));
+        world.style.transform = 'translateX(-' + cameraX + 'px)';
+
+        playerEl.style.left = player.x + 'px';
+        playerEl.style.top = player.y + 'px';
+      }
+
+      function tick() {
+        updateTimer();
+        updatePlayer();
+        requestAnimationFrame(tick);
+      }
+
+      function goToNextLevel() {
+        gameState.levelIndex += 1;
+        renderLevel();
+        renderLeaderboard();
+        startLevel();
+      }
+
+      function resetCurrentLevel() {
+        renderLevel();
+        const level = getCurrentLevel();
+        gameState.checkpoint = { ...level.spawn };
+        gameState.stars = (level.stars || []).map(() => false);
+        player.x = level.spawn.x;
+        player.y = level.spawn.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.onGround = false;
+        playerEl.style.left = player.x + 'px';
+        playerEl.style.top = player.y + 'px';
+        world.style.transform = 'translateX(0px)';
+        setOverlay(messageOverlay, false);
+        setOverlay(startOverlay, true);
+        updateStarHud();
+      }
+
+      function ensureAudio() {
+        try {
+          if (!window.AudioContext && !window.webkitAudioContext) return;
+          if (!audio.ctx) audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audio.ctx.state === 'suspended') audio.ctx.resume();
+        } catch (error) { console.warn('Audio unavailable:', error); }
+      }
+
+      function playEffect(type) {
+        try {
+          if (!audio.ctx) return;
+          const now = audio.ctx.currentTime;
+
+          if (type === 'jump') {
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(420, now);
+            osc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+            gain.gain.setValueAtTime(0.024, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(audio.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.16);
+          }
+
+          if (type === 'checkpoint') {
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(660, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+            gain.gain.setValueAtTime(0.022, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+            osc.connect(gain);
+            gain.connect(audio.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
+          }
+
+          if (type === 'star') {
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(770, now);
+            osc.frequency.exponentialRampToValueAtTime(1100, now + 0.14);
+            gain.gain.setValueAtTime(0.028, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(audio.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          }
+
+          if (type === 'hurt') {
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(190, now);
+            osc.frequency.exponentialRampToValueAtTime(90, now + 0.18);
+            gain.gain.setValueAtTime(0.02, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+            osc.connect(gain);
+            gain.connect(audio.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
+          }
+
+          if (type === 'win') {
+            const notes = [523.25, 659.25, 783.99, 1046.5];
+            notes.forEach((note, index) => {
+              const osc = audio.ctx.createOscillator();
+              const gain = audio.ctx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(note, now + index * 0.12);
+              gain.gain.setValueAtTime(0.026, now + index * 0.12);
+              gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.12 + 0.18);
+              osc.connect(gain);
+              gain.connect(audio.ctx.destination);
+              osc.start(now + index * 0.12);
+              osc.stop(now + index * 0.12 + 0.18);
+            });
+          }
+        } catch (error) { console.warn('Effect playback failed:', error); }
+      }
+
+      document.addEventListener('keydown', (event) => {
+        ensureAudio();
+        keys[event.code] = true;
+        if (event.code === 'KeyR') resetCurrentLevel();
+      });
+
+      document.addEventListener('keyup', (event) => {
+        keys[event.code] = false;
+      });
+
+      resetBtn.addEventListener('click', () => {
+        ensureAudio();
+        if (gameState.finished || !gameState.running) {
+          resetCurrentLevel();
+        } else {
+          startLevel();
+        }
+      });
+
+      startBtn.addEventListener('click', () => {
+        ensureAudio();
+        startLevel();
+      });
+
+      actionBtn.addEventListener('click', () => {
+        ensureAudio();
+        if (actionBtn.dataset.action === 'next') {
+          goToNextLevel();
+        } else {
+          gameState.levelIndex = 0;
+          renderLevel();
+          renderLeaderboard();
+          startLevel();
+        }
+      });
+
+      document.querySelectorAll('.touch-btn').forEach((button) => {
+        const key = button.dataset.key;
+        const setPressed = (pressed) => {
+          ensureAudio();
+          keys[key] = pressed;
+          if (key === 'Space') keys['Space'] = pressed;
+          if (key === 'ArrowLeft') keys['ArrowLeft'] = pressed;
+          if (key === 'ArrowRight') keys['ArrowRight'] = pressed;
+        };
+        button.addEventListener('pointerdown', (event) => {
+          event.preventDefault();
+          setPressed(true);
+        });
+        button.addEventListener('pointerup', () => setPressed(false));
+        button.addEventListener('pointerleave', () => setPressed(false));
+        button.addEventListener('pointercancel', () => setPressed(false));
+      });
+
+      renderLevel();
+      renderLeaderboard();
+      updateBestTime();
+      updateStarHud();
+      playerEl.style.left = player.x + 'px';
+      playerEl.style.top = player.y + 'px';
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>

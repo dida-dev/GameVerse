@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#070912">
+    <meta name="description" content="GAMEVAULT — play fast, fun mini-games, compete on global leaderboards, unlock achievements, and chase high scores.">
+    <title>GAMEVAULT — GAME-HUB</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Extra custom styling for the navbar settings button if needed */
+        .settings-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 50rem;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .settings-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffc107;
+            border-color: rgba(255, 193, 7, 0.4);
+        }
+        .settings-nav-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         BACKGROUND & OVERLAYS
+    ========================== -->
+    <div class="background">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+        <div class="grid"></div>
+    </div>
+
+    <!-- =========================
+         BOOTSTRAP TOP BAR / NAVBAR
+    ========================== -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top px-3">
+            <div class="container-fluid">
+                <!-- LOGO -->
+                <a href="index.html" class="navbar-brand d-flex align-items-center gap-2 text-decoration-none">
+                    <span class="logoIcon">🎮</span>
+                    <span class="fw-bold">GAME<span class="text-warning">VERSE</span></span>
+                </a>
+
+                <!-- MOBILE TOGGLER BUTTON -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarContent" aria-controls="mainNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- COLLAPSIBLE NAVIGATION & ACTIONS -->
+                <div class="collapse navbar-collapse justify-content-between" id="mainNavbarContent">
+                    <!-- NAVIGATION LINKS -->
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a href="#games" class="nav-link active"><span>🎮</span> Games</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../settings.html" class="nav-link"><span>⚙️</span> Settings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#categories" class="nav-link"><span>⚡</span> Categories</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#featured" class="nav-link"><span>🔥</span> Featured</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#leaderboard" class="nav-link"><span>🏆</span> Leaderboards</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#achievements" class="nav-link"><span>⭐</span> Badges</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#about" class="nav-link"><span>✨</span> About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#faq" class="nav-link"><span>❓</span> FAQ</a>
+                        </li>
+                    </ul>
+
+                    <!-- RIGHT SIDE ACTIONS -->
+                    <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                        <div class="onlineStatus d-flex align-items-center gap-2 text-success small fw-bold">
+                            <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+                            <span>ONLINE</span>
+                        </div>
+
+                        <button class="btn btn-outline-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" type="button" aria-label="Search games" style="width: 38px; height: 38px;">
+                            🔎
+                        </button>
+
+                        <!-- SETTINGS BUTTON ADDED TO NAVBAR -->
+                        <button class="settings-nav-btn" type="button" data-bs-toggle="modal" data-bs-target="#settingsModal" aria-label="Settings">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.3L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                            </svg>
+                            <span class="d-none d-xl-inline">Settings</span>
+                        </button>
+
+                        <div class="dropdown">
+                            <button class="btn btn-dark border border-secondary dropdown-toggle d-flex align-items-center gap-2 py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span>👤</span>
+                                <span>Guest</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#">Sign In</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- =========================
+         MAIN CONTENT AREA
+    ========================== -->
+    <main style="padding-top: 80px;">
+
+        <!-- =========================
+             HERO SECTION
+        ========================== -->
+        <section class="hero">
+            <div class="heroGlow"></div>
+
+            <div class="badge">
+                <span class="pulse"></span>
+                🔥 06 GAMES <span>•</span> 1 HUB <span>•</span> INSTANT PLAY
+            </div>
+
+            <h1>
+                PLAY. <span>COMPETE.</span> REPEAT.
+            </h1>
+
+            <p>
+                Dive into six high-speed arcade, brain, and survival mini-games.
+                Zero installs, zero load times, endless high scores.
+            </p>
+
+            <div class="heroButtons">
+                <a href="#games" class="playButton">
+                    PLAY NOW <span>→</span>
+                </a>
+                <a href="#leaderboard" class="secondaryButton">
+                    🏆 VIEW SCORES
+                </a>
+            </div>
+
+            <!-- HERO STATS -->
+            <div class="heroStats">
+                <div class="heroStat">
+                    <strong>06</strong>
+                    <span>MINI GAMES</span>
+                </div>
+                <div class="statDivider"></div>
+                <div class="heroStat">
+                    <strong>50K+</strong>
+                    <span>PLAYERS</span>
+                </div>
+                <div class="statDivider"></div>
+                <div class="heroStat">
+                    <strong>∞</strong>
+                    <span>CHALLENGES</span>
+                </div>
+                <div class="statDivider"></div>
+                <div class="heroStat">
+                    <strong>🏆</strong>
+                    <span>HIGH SCORES</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================
+             FEATURED SPOTLIGHT
+        ========================== -->
+        <section id="featured" class="gamesSection">
+            <div class="sectionHeader">
+                <div>
+                    <span class="eyebrow">SPOTLIGHT GAME</span>
+                    <h2>Featured Title</h2>
+                    <p class="sectionSubtitle">Handpicked game of the week with bonus xp rewards.</p>
+                </div>
+            </div>
+
+            <!-- FEATURED NARUTO GAME -->
+            <a href="games/naruto.html" class="featuredGame narutoFeatured">
+                <div class="featuredGlow"></div>
+                <div class="featuredContent">
+                    <div class="featuredBadge">
+                        🍥 NEW SEASON RELEASE
+                    </div>
+                    <h2>Naruto Shinobi Rush</h2>
+                    <p>
+                        Master your ninja skills, execute rapid jutsu combos, dodge enemy attacks,
+                        collect legendary chakra scrolls, and become the ultimate hidden leaf shinobi.
+                    </p>
+                    <span class="featuredPlay">
+                        PLAY NOW <b>→</b>
+                    </span>
+                </div>
+                <div class="featuredIcon">🍥</div>
+                <div class="featuredStars">
+                    ✦ <span>✦</span> ✧ <span>✦</span>
+                </div>
+            </a>
+        </section>
+
+        <!-- =========================
+             GAME CATEGORIES FILTER
+        ========================== -->
+        <section id="categories" class="about">
+            <div class="aboutContent">
+                <span class="eyebrow">BROWSE BY GENRE</span>
+                <h2>Find Your Playstyle</h2>
+                <div class="aboutFeatures">
+                    <span>⚡ Action & Speed</span>
+                    <span>🧠 Puzzle & Logic</span>
+                    <span>🎯 Skill & Precision</span>
+                    <span>🚀 Survival & Endless</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================
+             GAME LIBRARY (GRID - 6 GAMES)
+        ========================== -->
+        <section id="games" class="gamesSection">
+            <div class="sectionHeader">
+                <div>
+                    <span class="eyebrow">FULL CATALOG</span>
+                    <h2>Choose your game</h2>
+                    <p class="sectionSubtitle">Pick a challenge and jump straight into the action.</p>
+                </div>
+                <div class="gameCount">
+                    <span class="liveDot"></span>
+                    06 GAMES ONLINE
+                </div>
+            </div>
+
+            <div class="gamesGrid">
+
+                <!-- GAME 1 -->
+                <a href="games/heist.html" class="gameCard heist">
+                    <div class="cardTop">
+                        <span class="gameIcon">🏦</span>
+                        <span class="playIcon">→</span>
+                    </div>
+                    <div class="cardInfo">
+                        <span class="category">ACTION</span>
+                        <h3>Heist Run</h3>
+                        <p>Steal the high-value loot, crack the vault safes, and escape laser grids.</p>
+                    </div>
+                    <div class="cardBottom">
+                        <span>⚡ FAST</span>
+                        <span>🏆 SCORE</span>
+                    </div>
+                </a>
+
+                <!-- GAME 2 -->
+                <a href="games/quickmind.html" class="gameCard mind">
+                    <div class="cardTop">
+                        <span class="gameIcon">🧠</span>
+                        <span class="playIcon">→</span>
+                    </div>
+                    <div class="cardInfo">
+                        <span class="category">SKILL</span>
+                        <h3>Quick Mind</h3>
+                        <p>Test your visual processing speed and reflexes under extreme pressure.</p>
+                    </div>
+                    <div class="cardBottom">
+                        <span>🧠 BRAIN</span>
+                        <span>⏱️ TIMED</span>
+                    </div>
+                </a>
+
+                <!-- GAME 3 -->
+                <a href="games/neondodge.html" class="gameCard neon">
+                    <div class="cardTop">
+                        <span class="gameIcon">⚡</span>
+                        <span class="playIcon">→</span>
+                    </div>
+                    <div class="cardInfo">
+                        <span class="category">ARCADE</span>
+                        <h3>Neon Dodge</h3>
+                        <p>Dodge endless falling neon obstacles and chain multipliers to max out scores.</p>
+                    </div>
+                    <div class="cardBottom">
+                        <span>⚡ ENDLESS</span>
+                        <span>🔥 COMBO</span>
+                    </div>
+                </a>
+
+                <!-- GAME 4 -->
+                <a href="games/target.html" class="gameCard target">
+                    <div class="cardTop">
+                        <span class="gameIcon">🎯</span>
+                        <span class="playIcon">→</span>
+                    </div>
+                    <div class="cardInfo">
+                        <span class="category">SKILL</span>
+                        <h3>Target Rush</h3>
+                        <p>Hit fast-moving bullseyes as quickly as possible and build your combo streak.</p>
+                    </div>
+                    <div class="cardBottom">
+                        <span>🎯 ACCURACY</span>
+                        <span>⚡ SPEED</span>
+                    </div>
+                </a>
+
+                <!-- GAME 5 -->
+                <a href="games/rocket.html" class="gameCard rocket">
+                    <div class="cardTop">
+                        <span class="gameIcon">🚀</span>
+                        <span class="playIcon">→</span>
+                    </div>
+                    <div class="cardInfo">
+                        <span class="category">SURVIVAL</span>
+                        <h3>Rocket Escape</h3>
+                        <p>Navigate dense asteroid fields, collect fuel, and survive deep space hazards.</p>
+                    </div>
+                    <div class="cardBottom">
+                        <span>🚀 SPACE</span>
+                        <span>💥 DODGE</span>
+                    </div>
+                </a>
+
+                <!-- GAME 6 -->
+                <a href="games/naruto.html" class="gameCard naruto">
+                    <div class="cardTop">
+                        <span class="gameIcon">🍥</span>
+                        <span class="playIcon">→</span>
+                    </div>
+                    <div class="cardInfo">
+                        <span class="category">NINJA</span>
+                        <h3>Naruto Shinobi Rush</h3>
+                        <p>Dodge rival ninja attacks, gather chakra, and unleash devastating jutsu.</p>
+                    </div>
+                    <div class="cardBottom">
+                        <span>🍥 CHAKRA</span>
+                        <span>⚡ ACTION</span>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- =========================
+             LEADERBOARD
+        ========================== -->
+        <section id="leaderboard" class="leaderboard">
+            <div class="leaderboardHeader">
+                <div>
+                    <span class="eyebrow">🏆 GLOBAL RANKINGS</span>
+                    <h2>Top Players This Week</h2>
+                </div>
+                <span class="comingSoon">LIVE FEED</span>
+            </div>
+
+            <div class="leaderboardRows">
+
+                <!-- RANK 1 -->
+                <div class="leaderRow">
+                    <span class="rank gold">01</span>
+                    <span class="playerAvatar">👑</span>
+                    <div class="playerInfo">
+                        <strong>KageMaster99</strong>
+                        <span>Naruto Shinobi Rush</span>
+                    </div>
+                    <strong class="playerScore">98,450 pts</strong>
+                </div>
+
+                <!-- RANK 2 -->
+                <div class="leaderRow">
+                    <span class="rank silver">02</span>
+                    <span class="playerAvatar">🥷</span>
+                    <div class="playerInfo">
+                        <strong>ShadowStriker</strong>
+                        <span>Heist Run</span>
+                    </div>
+                    <strong class="playerScore">87,120 pts</strong>
+                </div>
+
+                <!-- RANK 3 -->
+                <div class="leaderRow">
+                    <span class="rank bronze">03</span>
+                    <span class="playerAvatar">🦊</span>
+                    <div class="playerInfo">
+                        <strong>CyberNinja</strong>
+                        <span>Target Rush</span>
+                    </div>
+                    <strong class="playerScore">81,900 pts</strong>
+                </div>
+
+                <!-- RANK 4 -->
+                <div class="leaderRow">
+                    <span class="rank">04</span>
+                    <span class="playerAvatar">⚡</span>
+                    <div class="playerInfo">
+                        <strong>NeonRider</strong>
+                        <span>Neon Dodge</span>
+                    </div>
+                    <strong class="playerScore">79,400 pts</strong>
+                </div>
+
+                <!-- RANK 5 -->
+                <div class="leaderRow">
+                    <span class="rank">05</span>
+                    <span class="playerAvatar">🚀</span>
+                    <div class="playerInfo">
+                        <strong>AstroVoyager</strong>
+                        <span>Rocket Escape</span>
+                    </div>
+                    <strong class="playerScore">74,230 pts</strong>
+                </div>
+
+                <!-- RANK 6 -->
+                <div class="leaderRow">
+                    <span class="rank">06</span>
+                    <span class="playerAvatar">🧠</span>
+                    <div class="playerInfo">
+                        <strong>BrainiacPro</strong>
+                        <span>Quick Mind</span>
+                    </div>
+                    <strong class="playerScore">69,800 pts</strong>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================
+             ACHIEVEMENTS / SYSTEM
+        ========================== -->
+        <section id="achievements" class="about">
+            <div class="aboutIcon">⭐</div>
+            <div class="aboutContent">
+                <span class="eyebrow">PLAYER MILESTONES</span>
+                <h2>Unlock Badges & Rewards</h2>
+                <p>Earn XP by playing games daily, placing on high score boards, and clearing achievements.</p>
+                <div class="aboutFeatures">
+                    <span>🥇 First Win Badge</span>
+                    <span>🔥 7-Day Streak</span>
+                    <span>⚡ Reflex God Badge</span>
+                    <span>👑 Hall of Fame</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================
+             ABOUT GAMEVERSE
+        ========================== -->
+        <section id="about" class="about">
+            <div class="aboutIcon">🎮</div>
+            <div class="aboutContent">
+                <span class="eyebrow">WELCOME TO GAMEVERSE</span>
+                <h2>Six Games. <span>One Place.</span> Zero Friction.</h2>
+                <p>
+                    Gameverse is built for instant fun. Lightweight arcade titles optimized to play natively on browser across mobile devices, tablets, and desktop setups. Jump in, set a personal record, and challenge your friends.
+                </p>
+                <div class="aboutFeatures">
+                    <span>⚡ Instant Browser Play</span>
+                    <span>🏆 Global Leaderboards</span>
+                    <span>📱 100% Mobile Friendly</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================
+             FAQ SECTION
+        ========================== -->
+        <section id="faq" class="leaderboard">
+            <div class="leaderboardHeader">
+                <div>
+                    <span class="eyebrow">HELP & SUPPORT</span>
+                    <h2>Frequently Asked Questions</h2>
+                </div>
+            </div>
+
+            <div class="leaderboardRows">
+                <div class="leaderRow">
+                    <div class="playerInfo">
+                        <strong>Do I need to download anything?</strong>
+                        <span>No. All titles play instantly inside standard web browsers.</span>
+                    </div>
+                </div>
+
+                <div class="leaderRow">
+                    <div class="playerInfo">
+                        <strong>Are the high scores real-time?</strong>
+                        <span>Leaderboard updates sync dynamically every time a session completes.</span>
+                    </div>
+                </div>
+
+                <div class="leaderRow">
+                    <div class="playerInfo">
+                        <strong>Can I play on my mobile device?</strong>
+                        <span>Yes! All layout structures and input controls support touch devices.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================
+         SETTINGS MODAL
+    ========================== -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border border-secondary">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title" id="settingsModalLabel">⚙️ Gameverse Settings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="soundToggle" checked>
+                        <label class="form-check-label" for="soundToggle">Enable Sound Effects / Audio</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="particlesToggle" checked>
+                        <label class="form-check-label" for="particlesToggle">Background Orbs & Animations</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gfxQuality" class="form-label">Graphics Quality</label>
+                        <select class="form-select bg-secondary text-light border-0" id="gfxQuality">
+                            <option value="high">High (Default)</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low (Performance Mode)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning btn-sm fw-bold" data-bs-dismiss="modal">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer>
+        <div class="footerBrand">
+            <span>🎮</span> GAMEVERSE
+        </div>
+
+        <div class="footerLinks">
+            <a href="#games">Games</a>
+            <a href="#categories">Categories</a>
+            <a href="#featured">Featured</a>
+            <a href="#leaderboard">Leaderboard</a>
+            <a href="#achievements">Badges</a>
+            <a href="#about">About</a>
+            <a href="#faq">FAQ</a>
+        </div>
+
+        <div class="copyright">
+            © 2026 Farsaoui. All rights reserved. Built for fast-paced web gaming.
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle CDN (Includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Neon Drift</title>
+
+<style>
+    :root {
+        --bg: #070912;
+        --panel: #0c1020;
+        --panel2: #10162a;
+        --cyan: #32e6ff;
+        --pink: #ff3d81;
+        --white: #f5f7ff;
+        --muted: #788198;
+        --border: #202a43;
+    }
+
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--white);
+        font-family:
+            Inter,
+            ui-sans-serif,
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    canvas {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        touch-action: none;
+    }
+
+    /* ---------- HUD ---------- */
+
+    #hud {
+        position: fixed;
+        top: 22px;
+        left: 22px;
+        right: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .hud-box {
+        min-width: 150px;
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(8, 12, 24, .92);
+    }
+
+    .hud-label {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .hud-value {
+        color: var(--white);
+        font-size: 23px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    #scoreValue {
+        color: var(--cyan);
+    }
+
+    /* ---------- LIVES DISPLAY ---------- */
+
+    #livesDisplay {
+        position: fixed;
+        top: 92px;
+        left: 22px;
+        z-index: 6;
+        color: #ff3d81;
+        font-size: 16px;
+        font-weight: 900;
+        letter-spacing: 4px;
+        pointer-events: none;
+    }
+
+    /* ---------- MOBILE TOUCH CONTROLS ---------- */
+
+    #mobileControls {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        display: none;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 8;
+        pointer-events: none;
+    }
+
+    .touch-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(50, 230, 255, 0.12);
+        border: 2px solid rgba(50, 230, 255, 0.4);
+        color: var(--cyan);
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        user-select: none;
+        touch-action: manipulation;
+        backdrop-filter: blur(4px);
+        transition: background 0.1s ease, transform 0.1s ease;
+    }
+
+    .touch-btn:active {
+        background: rgba(50, 230, 255, 0.35);
+        transform: scale(0.92);
+    }
+
+    /* ---------- OVERLAY ---------- */
+
+    #overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(3, 5, 12, .72);
+        z-index: 10;
+    }
+
+    .menu {
+        width: min(430px, 100%);
+        padding: 38px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--panel);
+        box-shadow: 0 25px 70px rgba(0,0,0,.45);
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: 8px;
+        color: var(--white);
+        font-size: clamp(42px, 10vw, 66px);
+        line-height: .9;
+        font-weight: 950;
+        letter-spacing: -4px;
+    }
+
+    .logo span {
+        color: var(--cyan);
+    }
+
+    .tagline {
+        margin: 16px auto 30px;
+        max-width: 300px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .start-button {
+        width: 100%;
+        border: 0;
+        border-radius: 9px;
+        padding: 15px;
+        background: var(--cyan);
+        color: #031017;
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition:
+            transform .15s ease,
+            background .15s ease;
+    }
+
+    .start-button:hover {
+        background: #74efff;
+        transform: translateY(-2px);
+    }
+
+    .start-button:active {
+        transform: translateY(0);
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 18px;
+    }
+
+    .control {
+        padding: 11px 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel2);
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .key {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--white);
+        font-weight: 800;
+    }
+
+    .result {
+        margin: 25px 0;
+        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--panel2);
+    }
+
+    .result-label {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+    .result-score {
+        margin-top: 5px;
+        color: var(--cyan);
+        font-size: 42px;
+        font-weight: 900;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* ---------- MEDIA QUERIES ---------- */
+
+    @media (max-width: 600px) {
+        #hud {
+            top: 12px;
+            left: 12px;
+            right: 12px;
+        }
+
+        #livesDisplay {
+            top: 72px;
+            left: 12px;
+            font-size: 14px;
+        }
+
+        .hud-box {
+            min-width: 100px;
+            padding: 8px 12px;
+        }
+
+        .hud-value {
+            font-size: 18px;
+        }
+
+        .menu {
+            padding: 26px 18px;
+        }
+
+        #mobileControls {
+            display: flex;
+        }
+    }
+
+    @media (pointer: coarse) {
+        #mobileControls {
+            display: flex;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+    <div class="hud-box">
+        <div class="hud-label">Score</div>
+        <div class="hud-value" id="scoreValue">0</div>
+    </div>
+
+    <div class="hud-box" style="text-align:right">
+        <div class="hud-label">Best</div>
+        <div class="hud-value" id="bestValue">0</div>
+    </div>
+</div>
+
+<div id="livesDisplay"></div>
+
+<!-- Touch Controls for Mobile -->
+<div id="mobileControls">
+    <div class="touch-btn" id="btnLeft">◄</div>
+    <div class="touch-btn" id="btnRight">►</div>
+</div>
+
+<div id="overlay">
+
+    <!-- START -->
+    <div class="menu" id="startMenu">
+        <div class="logo">NEON<span>.</span><br>DRIFT</div>
+
+        <div class="tagline">
+            Dodge the barriers. Collect energy.
+            Survive for as long as possible.
+        </div>
+
+        <button class="start-button" id="startButton">
+            START GAME
+        </button>
+
+        <div class="controls">
+            <div class="control">
+                <span class="key">A / D or ← / →</span>
+                Keyboard
+            </div>
+
+            <div class="control">
+                <span class="key">Touch / Drag</span>
+                Mobile
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="menu hidden" id="gameOverMenu">
+        <div class="logo">GAME<br><span>OVER</span></div>
+
+        <div class="result">
+            <div class="result-label">FINAL SCORE</div>
+            <div class="result-score" id="finalScore">0</div>
+        </div>
+
+        <button class="start-button" id="restartButton">
+            PLAY AGAIN
+        </button>
+    </div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d", { alpha: false });
+
+let width = 0;
+let height = 0;
+let dpr = 1;
+
+function resizeCanvas() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (player) {
+        player.y = height - 90;
+        player.x = Math.max(
+            player.width / 2 + 5,
+            Math.min(width - player.width / 2 - 5, player.x)
+        );
+    }
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+
+/* =========================================================
+   UI
+========================================================= */
+
+const overlay = document.getElementById("overlay");
+const startMenu = document.getElementById("startMenu");
+const gameOverMenu = document.getElementById("gameOverMenu");
+
+const scoreValue = document.getElementById("scoreValue");
+const bestValue = document.getElementById("bestValue");
+const finalScore = document.getElementById("finalScore");
+
+const startButton = document.getElementById("startButton");
+const restartButton = document.getElementById("restartButton");
+
+bestValue.textContent =
+    localStorage.getItem("neonDriftBest") || "0";
+
+
+/* =========================================================
+   LIVES HUD
+========================================================= */
+
+const livesDisplay = document.getElementById("livesDisplay");
+
+function updateLivesUI() {
+    livesDisplay.textContent =
+        "♥ ".repeat(Math.max(0, lives));
+}
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let running = false;
+let lastTime = 0;
+
+let score = 0;
+let lives = 3;
+
+let best =
+    Number(localStorage.getItem("neonDriftBest")) || 0;
+
+let difficulty = 1;
+
+let wallTimer = 0;
+let orbTimer = 0;
+
+let invulnerable = 0;
+
+const keys = {};
+
+let walls = [];
+let orbs = [];
+let particles = [];
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+const player = {
+    x: 0,
+    y: 0,
+    width: 28,
+    height: 34,
+    speed: 440
+};
+
+function resetPlayer() {
+    player.x = width / 2;
+    player.y = height - 90;
+}
+
+
+/* =========================================================
+   INPUT & MOBILE CONTROLS
+========================================================= */
+
+window.addEventListener("keydown", event => {
+
+    const key = event.key.toLowerCase();
+
+    if (
+        key === "arrowleft" ||
+        key === "arrowright" ||
+        key === "a" ||
+        key === "d"
+    ) {
+        event.preventDefault();
+    }
+
+    keys[key] = true;
+});
+
+window.addEventListener("keyup", event => {
+    keys[event.key.toLowerCase()] = false;
+});
+
+/* Touch Control Buttons */
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+
+btnLeft.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    keys["arrowleft"] = true;
+});
+
+btnLeft.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    keys["arrowleft"] = false;
+});
+
+btnRight.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    keys["arrowright"] = true;
+});
+
+btnRight.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    keys["arrowright"] = false;
+});
+
+/* Canvas Direct Drag/Touch Steering */
+let touchX = null;
+
+canvas.addEventListener("touchstart", (e) => {
+    if (e.touches.length > 0) {
+        touchX = e.touches[0].clientX;
+    }
+}, { passive: true });
+
+canvas.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 0) {
+        touchX = e.touches[0].clientX;
+    }
+}, { passive: true });
+
+canvas.addEventListener("touchend", () => {
+    touchX = null;
+});
+
+
+/* =========================================================
+   START
+========================================================= */
+
+function startGame() {
+
+    running = true;
+
+    score = 0;
+    lives = 3;
+
+    difficulty = 1;
+
+    wallTimer = 1.0;
+    orbTimer = 1.5;
+
+    invulnerable = 0;
+
+    walls = [];
+    orbs = [];
+    particles = [];
+
+    resetPlayer();
+    updateLivesUI();
+
+    scoreValue.textContent = "0";
+
+    overlay.classList.add("hidden");
+    startMenu.classList.add("hidden");
+    gameOverMenu.classList.add("hidden");
+
+    lastTime = performance.now();
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function endGame() {
+
+    if (!running) return;
+
+    running = false;
+
+    createExplosion(
+        player.x,
+        player.y,
+        "#ff3d81",
+        40
+    );
+
+    if (score > best) {
+
+        best = score;
+
+        localStorage.setItem(
+            "neonDriftBest",
+            best
+        );
+
+        bestValue.textContent = best;
+    }
+
+    finalScore.textContent = score;
+
+    overlay.classList.remove("hidden");
+    gameOverMenu.classList.remove("hidden");
+
+    draw();
+}
+
+
+/* =========================================================
+   PLAYER HIT
+========================================================= */
+
+function playerHit() {
+
+    if (invulnerable > 0) return;
+
+    lives--;
+
+    updateLivesUI();
+
+    createExplosion(
+        player.x,
+        player.y,
+        "#ff3d81",
+        25
+    );
+
+    invulnerable = 1.5;
+
+    player.x = width / 2;
+
+    if (lives <= 0) {
+        endGame();
+    }
+}
+
+
+/* =========================================================
+   WALL GENERATION
+========================================================= */
+
+function spawnWall() {
+
+    const gapWidth = Math.max(
+        180,
+        Math.min(
+            280,
+            280 - difficulty * 5
+        )
+    );
+
+    const margin = 40;
+
+    const usableWidth =
+        width - gapWidth - margin * 2;
+
+    const safeWidth =
+        Math.max(0, usableWidth);
+
+    const gapX =
+        margin +
+        Math.random() * safeWidth;
+
+    walls.push({
+        y: -30,
+        height: 25,
+
+        gapX,
+        gapWidth,
+
+        speed: Math.min(
+            290,
+            155 + difficulty * 14
+        )
+    });
+}
+
+
+/* =========================================================
+   ORBS
+========================================================= */
+
+function spawnOrb() {
+
+    orbs.push({
+        x: 35 + Math.random() * (width - 70),
+        y: -15,
+        radius: 7,
+        speed: Math.min(
+            230,
+            140 + difficulty * 8
+        )
+    });
+}
+
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+function createExplosion(
+    x,
+    y,
+    color,
+    count
+) {
+
+    for (let i = 0; i < count; i++) {
+
+        const angle =
+            Math.random() * Math.PI * 2;
+
+        const speed =
+            60 + Math.random() * 220;
+
+        particles.push({
+            x,
+            y,
+
+            vx:
+                Math.cos(angle) * speed,
+
+            vy:
+                Math.sin(angle) * speed,
+
+            life:
+                .35 + Math.random() * .55,
+
+            size:
+                2 + Math.random() * 3,
+
+            color
+        });
+    }
+}
+
+
+/* =========================================================
+   COLLISION
+========================================================= */
+
+function playerHitsRect(rect) {
+
+    return (
+        player.x - player.width / 2 <
+            rect.x + rect.width &&
+
+        player.x + player.width / 2 >
+            rect.x &&
+
+        player.y - player.height / 2 <
+            rect.y + rect.height &&
+
+        player.y + player.height / 2 >
+            rect.y
+    );
+}
+
+
+/* =========================================================
+   UPDATE
+========================================================= */
+
+function update(dt) {
+
+    difficulty = Math.min(
+        10,
+        difficulty + dt * 0.035
+    );
+
+
+    /* Player Movement */
+
+    if (keys["a"] || keys["arrowleft"]) {
+        player.x -= player.speed * dt;
+    }
+
+    if (keys["d"] || keys["arrowright"]) {
+        player.x += player.speed * dt;
+    }
+
+    /* Direct Touch Drag Movement */
+    if (touchX !== null) {
+        const dx = touchX - player.x;
+        player.x += dx * Math.min(1, dt * 18);
+    }
+
+    player.x = Math.max(
+        player.width / 2 + 5,
+        Math.min(
+            width - player.width / 2 - 5,
+            player.x
+        )
+    );
+
+
+    /* Invulnerability */
+
+    if (invulnerable > 0) {
+        invulnerable -= dt;
+    }
+
+
+    /* Wall spawning */
+
+    wallTimer -= dt;
+
+    if (wallTimer <= 0) {
+
+        spawnWall();
+
+        wallTimer = Math.max(
+            0.72,
+            1.15 - difficulty * 0.025
+        );
+    }
+
+
+    /* Orb spawning */
+
+    orbTimer -= dt;
+
+    if (orbTimer <= 0) {
+
+        spawnOrb();
+
+        orbTimer =
+            1.1 + Math.random() * 1.2;
+    }
+
+
+    /* =====================================================
+       WALLS
+    ===================================================== */
+
+    for (
+        let i = walls.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const wall = walls[i];
+
+        wall.y += wall.speed * dt;
+
+
+        const leftWall = {
+            x: 0,
+            y: wall.y,
+            width: wall.gapX,
+            height: wall.height
+        };
+
+        const rightWall = {
+            x: wall.gapX + wall.gapWidth,
+            y: wall.y,
+
+            width:
+                width -
+                wall.gapX -
+                wall.gapWidth,
+
+            height: wall.height
+        };
+
+
+        if (
+            invulnerable <= 0 &&
+            (
+                playerHitsRect(leftWall) ||
+                playerHitsRect(rightWall)
+            )
+        ) {
+
+            playerHit();
+
+            walls.splice(i, 1);
+
+            continue;
+        }
+
+
+        if (wall.y > height + 40) {
+
+            walls.splice(i, 1);
+
+            score++;
+        }
+    }
+
+
+    /* =====================================================
+       ORBS
+    ===================================================== */
+
+    for (
+        let i = orbs.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const orb = orbs[i];
+
+        orb.y += orb.speed * dt;
+
+        const dx =
+            player.x - orb.x;
+
+        const dy =
+            player.y - orb.y;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            distance <
+            orb.radius +
+            player.width / 2
+        ) {
+
+            score += 10;
+
+            createExplosion(
+                orb.x,
+                orb.y,
+                "#32e6ff",
+                14
+            );
+
+            orbs.splice(i, 1);
+
+            continue;
+        }
+
+
+        if (orb.y > height + 30) {
+            orbs.splice(i, 1);
+        }
+    }
+
+
+    /* =====================================================
+       PARTICLES
+    ===================================================== */
+
+    for (
+        let i = particles.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const p = particles[i];
+
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        p.vy += 100 * dt;
+
+        p.life -= dt;
+
+        if (p.life <= 0) {
+            particles.splice(i, 1);
+        }
+    }
+
+
+    scoreValue.textContent = score;
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+function drawBackground() {
+
+    ctx.fillStyle = "#070912";
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            height
+        );
+
+    gradient.addColorStop(
+        0,
+        "#090d19"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#05070d"
+    );
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    /* Grid */
+
+    const grid = 50;
+
+    ctx.strokeStyle =
+        "rgba(60, 85, 125, .11)";
+
+    ctx.lineWidth = 1;
+
+    for (
+        let x = 0;
+        x <= width;
+        x += grid
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            Math.round(x) + .5,
+            0
+        );
+
+        ctx.lineTo(
+            Math.round(x) + .5,
+            height
+        );
+
+        ctx.stroke();
+    }
+
+
+    for (
+        let y = 0;
+        y <= height;
+        y += grid
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            Math.round(y) + .5
+        );
+
+        ctx.lineTo(
+            width,
+            Math.round(y) + .5
+        );
+
+        ctx.stroke();
+    }
+}
+
+
+/* =========================================================
+   WALL DRAWING
+========================================================= */
+
+function drawWalls() {
+
+    for (const wall of walls) {
+
+        ctx.fillStyle = "#ff3d81";
+
+
+        ctx.fillRect(
+            0,
+            wall.y,
+            wall.gapX,
+            wall.height
+        );
+
+
+        ctx.fillRect(
+            wall.gapX + wall.gapWidth,
+            wall.y,
+
+            width -
+                wall.gapX -
+                wall.gapWidth,
+
+            wall.height
+        );
+
+
+        ctx.fillStyle =
+            "rgba(255,255,255,.25)";
+
+
+        ctx.fillRect(
+            0,
+            wall.y,
+            wall.gapX,
+            2
+        );
+
+
+        ctx.fillRect(
+            wall.gapX + wall.gapWidth,
+            wall.y,
+
+            width -
+                wall.gapX -
+                wall.gapWidth,
+
+            2
+        );
+    }
+}
+
+
+/* =========================================================
+   ORB DRAWING
+========================================================= */
+
+function drawOrbs() {
+
+    for (const orb of orbs) {
+
+        ctx.fillStyle = "#32e6ff";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            orb.x,
+            orb.y,
+            orb.radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        ctx.fillStyle = "#ffffff";
+
+        ctx.fillRect(
+            Math.round(orb.x - 2),
+            Math.round(orb.y - 2),
+            3,
+            3
+        );
+    }
+}
+
+
+/* =========================================================
+   PLAYER DRAWING
+========================================================= */
+
+function drawPlayer() {
+
+    if (
+        invulnerable > 0 &&
+        Math.floor(invulnerable * 10) % 2 === 0
+    ) {
+        return;
+    }
+
+
+    ctx.save();
+
+    ctx.translate(
+        Math.round(player.x),
+        Math.round(player.y)
+    );
+
+
+    /* Ship */
+
+    ctx.fillStyle = "#32e6ff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(0, -18);
+    ctx.lineTo(13, 13);
+    ctx.lineTo(0, 8);
+    ctx.lineTo(-13, 13);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    /* Inner ship */
+
+    ctx.fillStyle = "#0b1d27";
+
+    ctx.beginPath();
+
+    ctx.moveTo(0, -10);
+    ctx.lineTo(6, 8);
+    ctx.lineTo(0, 5);
+    ctx.lineTo(-6, 8);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    /* Core */
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.fillRect(
+        -2,
+        -2,
+        4,
+        4
+    );
+
+
+    ctx.restore();
+}
+
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+function drawParticles() {
+
+    for (const p of particles) {
+
+        ctx.globalAlpha =
+            Math.max(0, p.life);
+
+        ctx.fillStyle = p.color;
+
+        ctx.fillRect(
+            Math.round(p.x),
+            Math.round(p.y),
+            p.size,
+            p.size
+        );
+    }
+
+    ctx.globalAlpha = 1;
+}
+
+
+/* =========================================================
+   DRAW
+========================================================= */
+
+function draw() {
+
+    drawBackground();
+    drawWalls();
+    drawOrbs();
+    drawParticles();
+    drawPlayer();
+}
+
+
+/* =========================================================
+   LOOP
+========================================================= */
+
+function gameLoop(time) {
+
+    if (!running) {
+        draw();
+        return;
+    }
+
+    let dt =
+        (time - lastTime) / 1000;
+
+    dt = Math.min(dt, .033);
+
+    lastTime = time;
+
+    update(dt);
+    draw();
+
+    if (running) {
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+restartButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+resizeCanvas();
+resetPlayer();
+updateLivesUI();
+draw();
+
+</script>
+
+</body>
+</html>
