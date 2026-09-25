@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reaction — GameVault</title>
+
+    <link rel="stylesheet" href="reaction.css">
+</head>
+
+<body>
+
+<div class="background">
+    <div class="grid"></div>
+    <div class="glow glow1"></div>
+    <div class="glow glow2"></div>
+</div>
+
+<header class="topbar">
+
+    <a href="../index.html" class="logo">
+        🎮 Game<span>Vault</span>
+    </a>
+
+    <div class="gameTitle">
+        ⚡ REACTION
+    </div>
+
+    <a href="../index.html" class="backButton">
+        ← Hub
+    </a>
+
+</header>
+
+<main>
+
+    <section class="gameWrapper">
+
+        <div class="gameHeader">
+
+            <div class="titleArea">
+
+                <span class="eyebrow">
+                    REFLEX TEST
+                </span>
+
+                <h1>Reaction</h1>
+
+                <p>
+                    Wait for green. Move fast. Beat your best time.
+                </p>
+
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <span>TIME</span>
+                    <strong id="time">---</strong>
+                </div>
+
+                <div class="stat">
+                    <span>ROUNDS</span>
+                    <strong id="rounds">0</strong>
+                </div>
+
+                <div class="stat">
+                    <span>BEST</span>
+                    <strong id="best">---</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="gameContainer">
+
+            <div
+                class="reactionArea waiting"
+                id="reactionArea">
+
+                <div class="reactionContent">
+
+                    <div
+                        class="reactionIcon"
+                        id="reactionIcon">
+                        ⚡
+                    </div>
+
+                    <span
+                        class="eyebrow"
+                        id="reactionEyebrow">
+                        REACTION TEST
+                    </span>
+
+                    <h2 id="reactionTitle">
+                        READY?
+                    </h2>
+
+                    <p id="reactionText">
+                        Press START and wait for the screen
+                        to turn green.
+                    </p>
+
+                    <div
+                        class="reactionTime"
+                        id="reactionTime">
+                        ---
+                    </div>
+
+                </div>
+
+                <!-- MOBILE JOYSTICK -->
+
+                <div
+                    class="joystick"
+                    id="joystick">
+
+                    <div class="joystickBase">
+
+                        <div
+                            class="joystickKnob"
+                            id="joystickKnob">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <button id="startButton">
+                START TEST
+            </button>
+
+            <div class="controlText">
+
+                <strong>
+                    TEST YOUR REFLEXES
+                </strong>
+
+                <span>
+                    Wait for green, then move the joystick.
+                </span>
+
+            </div>
+
+            <button id="resetButton">
+                RESET
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="reaction.js"></script>
+
+</body>
+</html>

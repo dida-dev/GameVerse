@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Cyber Runner — GameVault</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: #080b16;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 600px;
+      width: 100%;
+      z-index: 30;
+    }
+
+    .hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(124, 92, 255, 0.15);
+      border: 1px solid rgba(124, 92, 255, 0.4);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .hub-btn:hover {
+      background: rgba(124, 92, 255, 0.35);
+      border-color: rgba(124, 92, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    /* Game Container */
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 380px;
+      background: #050515;
+      border: 2px solid rgba(0, 243, 255, 0.3);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 243, 255, 0.15);
+      margin-top: 25px;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Score HUD */
+    .hud {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 700;
+      z-index: 10;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .score-box {
+      color: #00f3ff;
+      text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    }
+
+    .mult-box {
+      color: #ff007f;
+      text-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+    }
+
+    /* Mobile Control Bar */
+    .mobile-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      width: 100%;
+      max-width: 600px;
+      padding: 12px 25px;
+    }
+
+    .action-btn-touch {
+      flex: 1;
+      height: 56px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 243, 255, 0.4);
+      background: rgba(0, 243, 255, 0.12);
+      color: #00f3ff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .action-btn-touch:active {
+      background: rgba(0, 243, 255, 0.3);
+      transform: scale(0.96);
+    }
+
+    .slide-btn {
+      border-color: rgba(255, 0, 127, 0.4);
+      background: rgba(255, 0, 127, 0.12);
+      color: #ff007f;
+    }
+
+    .slide-btn:active {
+      background: rgba(255, 0, 127, 0.3);
+    }
+
+    /* Overlay Screen */
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 11, 22, 0.94);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 20;
+    }
+
+    #overlay h1 {
+      font-size: 2.2rem;
+      color: #00f3ff;
+      text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+      letter-spacing: 2px;
+    }
+
+    #overlay p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 200px;
+      margin-top: 10px;
+    }
+
+    button, .action-btn {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #00f3ff, #ff007f);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 0, 127, 0.4);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <div class="top-nav">
+    <a href="../index.html" class="hub-btn">
+      ◀ Return to Hub
+    </a>
+  </div>
+
+  <div id="game-container">
+    <div class="hud">
+      <div class="score-box">Score: <span id="score-val">0</span></div>
+      <div class="mult-box"><span id="speed-val">1.0x</span> SPEED</div>
+    </div>
+
+    <canvas id="canvas" width="600" height="380"></canvas>
+
+    <!-- Overlay Screen -->
+    <div id="overlay">
+      <h1 id="title">Cyber Runner</h1>
+      <p id="subtitle">Up / Space = Jump | Down = Slide</p>
+
+      <div class="btn-group">
+        <button id="start-btn" class="primary-btn" onclick="startGame()">Start Run</button>
+        <a href="../index.html" class="action-btn secondary-btn">Main Menu</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Touch Action Buttons -->
+  <div class="mobile-controls">
+    <div class="action-btn-touch" id="btn-jump">▲ JUMP</div>
+    <div class="action-btn-touch slide-btn" id="btn-slide">▼ SLIDE</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+    scoreEl = document.getElementById('score-val');
+    speedEl = document.getElementById('speed-val');
+
+    let isPlaying = false;
+    let animationId;
+    let score = 0;
+    let gameSpeed = 6;
+    let frameCount = 0;
+
+    const groundY = 310;
+
+    const runner = {
+      x: 60,
+      y: groundY - 40,
+      width: 24,
+      height: 40,
+      normalHeight: 40,
+      slideHeight: 20,
+      vy: 0,
+      gravity: 0.8,
+      jumpPower: -13,
+      isGrounded: true,
+      isSliding: false
+    };
+
+    let obstacles = [];
+    let particles = [];
+
+    function spawnObstacle() {
+      const isHigh = Math.random() < 0.4;
+      obstacles.push({
+        x: canvas.width + 20,
+        y: isHigh ? groundY - 55 : groundY - 30,
+        width: 22,
+        height: isHigh ? 25 : 30,
+        color: isHigh ? '#ff007f' : '#00f3ff',
+        isHigh: isHigh
+      });
+    }
+
+    function jump() {
+      if (!isPlaying) return;
+      if (runner.isGrounded) {
+        runner.vy = runner.jumpPower;
+        runner.isGrounded = false;
+        runner.isSliding = false;
+        runner.height = runner.normalHeight;
+      }
+    }
+
+    function slide(active) {
+      if (!isPlaying) return;
+      if (runner.isGrounded) {
+        runner.isSliding = active;
+        if (active) {
+          runner.height = runner.slideHeight;
+          runner.y = groundY - runner.slideHeight;
+        } else {
+          runner.height = runner.normalHeight;
+          runner.y = groundY - runner.normalHeight;
+        }
+      }
+    }
+
+    function update() {
+      if (!isPlaying) return;
+
+      frameCount++;
+      score += Math.floor(gameSpeed / 4);
+      scoreEl.textContent = score;
+
+      // Increase speed over time
+      if (frameCount % 300 === 0 && gameSpeed < 14) {
+        gameSpeed += 0.5;
+        speedEl.textContent = (gameSpeed / 6).toFixed(1) + 'x';
+      }
+
+      // Physics
+      runner.vy += runner.gravity;
+      runner.y += runner.vy;
+
+      if (runner.y >= groundY - runner.height) {
+        runner.y = groundY - runner.height;
+        runner.vy = 0;
+        runner.isGrounded = true;
+      }
+
+      // Spawning
+      if (frameCount % Math.max(40, Math.floor(900 / gameSpeed)) === 0) {
+        if (Math.random() < 0.7) spawnObstacle();
+      }
+
+      // Clear Canvas
+      ctx.fillStyle = '#050515';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Grid Ground
+      ctx.strokeStyle = '#1e1b4b';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, groundY);
+      ctx.lineTo(canvas.width, groundY);
+      ctx.stroke();
+
+      // Grid Lines
+      const gridOffset = (frameCount * gameSpeed) % 20;
+      for (let x = -gridOffset; x < canvas.width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, groundY);
+        ctx.lineTo(x - 40, canvas.height);
+        ctx.stroke();
+      }
+
+      // Draw Runner
+      ctx.fillStyle = '#00f3ff';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#00f3ff';
+      ctx.fillRect(runner.x, runner.y, runner.width, runner.height);
+      ctx.shadowBlur = 0;
+
+      // Obstacles logic & draw
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        obs.x -= gameSpeed;
+
+        ctx.fillStyle = obs.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = obs.color;
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        ctx.shadowBlur = 0;
+
+        // Collision Check
+        if (
+          runner.x < obs.x + obs.width &&
+          runner.x + runner.width > obs.x &&
+          runner.y < obs.y + obs.height &&
+          runner.y + runner.height > obs.y
+        ) {
+          endGame();
+          return;
+        }
+
+        if (obs.x < -30) obstacles.splice(i, 1);
+      }
+
+      animationId = requestAnimationFrame(update);
+    }
+
+    // Controls
+    window.addEventListener('keydown', (e) => {
+      if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
+        e.preventDefault();
+        jump();
+      }
+      if (['ArrowDown', 'KeyS'].includes(e.code)) {
+        e.preventDefault();
+        slide(true);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (['ArrowDown', 'KeyS'].includes(e.code)) slide(false);
+    });
+
+    // Touch listeners
+    const btnJump = document.getElementById('btn-jump');
+    const btnSlide = document.getElementById('btn-slide');
+
+    btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+    btnSlide.addEventListener('touchstart', (e) => { e.preventDefault(); slide(true); });
+    btnSlide.addEventListener('touchend', (e) => { e.preventDefault(); slide(false); });
+
+    function startGame() {
+      score = 0;
+      gameSpeed = 6;
+      frameCount = 0;
+      obstacles = [];
+
+      runner.y = groundY - runner.normalHeight;
+      runner.height = runner.normalHeight;
+      runner.vy = 0;
+
+      scoreEl.textContent = '0';
+      speedEl.textContent = '1.0x';
+      overlay.style.display = 'none';
+      isPlaying = true;
+
+      update();
+    }
+
+    function endGame() {
+      isPlaying = false;
+      cancelAnimationFrame(animationId);
+
+      titleEl.textContent = "CRASH DETECTED";
+      subtitleEl.textContent = `Distance: ${score} Meters`;
+      document.getElementById('start-btn').textContent = 'Reboot System';
+      overlay.style.display = 'flex';
+    }
+  </script>
+</body>
+</html>

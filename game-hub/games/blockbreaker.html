@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Block Breaker — GameVault</title>
+
+    <link
+        rel="stylesheet"
+        href="blockbreaker.css"
+    >
+</head>
+
+<body>
+
+    <div class="background">
+        <div class="grid"></div>
+        <div class="glow glow1"></div>
+        <div class="glow glow2"></div>
+    </div>
+
+
+    <header class="topbar">
+
+        <a
+            href="../index.html"
+            class="logo"
+        >
+            🎮 Game<span>Vault</span>
+        </a>
+
+        <div class="gameTitle">
+            🧱 BLOCK BREAKER
+        </div>
+
+        <a
+            href="../index.html"
+            class="backButton"
+        >
+            ← Hub
+        </a>
+
+    </header>
+
+
+    <main>
+
+        <section class="gameWrapper">
+
+            <div class="gameHeader">
+
+                <div class="titleArea">
+
+                    <span class="eyebrow">
+                        ARCADE
+                    </span>
+
+                    <h1>
+                        Block Breaker
+                    </h1>
+
+                    <p>
+                        Break every block. Catch power-ups.
+                        Beat your high score.
+                    </p>
+
+                </div>
+
+
+                <div class="stats">
+
+                    <div class="stat">
+                        <span>SCORE</span>
+                        <strong id="score">0</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>LEVEL</span>
+                        <strong id="level">1</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>LIVES</span>
+                        <strong id="lives">❤️❤️❤️</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>BEST</span>
+                        <strong id="best">0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="gameContainer">
+
+                <canvas id="gameCanvas"></canvas>
+
+
+                <div
+                    class="startScreen"
+                    id="startScreen"
+                >
+
+                    <div class="gameLogo">
+                        🧱
+                    </div>
+
+                    <h2>
+                        READY?
+                    </h2>
+
+                    <p>
+                        Move the paddle and destroy
+                        every block without losing
+                        all your lives.
+                    </p>
+
+
+                    <div class="instructions">
+
+                        <div>
+                            <span>← →</span>
+                            Move
+                        </div>
+
+                        <div>
+                            <span>A D</span>
+                            Move
+                        </div>
+
+                        <div>
+                            <span>⚡</span>
+                            Power-ups
+                        </div>
+
+                    </div>
+
+
+                    <button id="startButton">
+                        START GAME
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="gameOver"
+                    id="gameOver"
+                >
+
+                    <div class="resultIcon">
+                        🏆
+                    </div>
+
+                    <span class="eyebrow">
+                        RUN COMPLETE
+                    </span>
+
+                    <h2 id="gameOverTitle">
+                        GAME OVER
+                    </h2>
+
+
+                    <div class="finalScore">
+
+                        <span>
+                            FINAL SCORE
+                        </span>
+
+                        <strong id="finalScore">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="resultStats">
+
+                        <div>
+                            <span>LEVEL</span>
+                            <strong id="finalLevel">
+                                1
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>BLOCKS</span>
+                            <strong id="finalBlocks">
+                                0
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <button id="restartButton">
+                        PLAY AGAIN
+                    </button>
+
+
+                    <a
+                        href="../index.html"
+                        class="hubButton"
+                    >
+                        RETURN TO HUB
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="controls">
+
+                <button id="leftButton">
+                    ←
+                </button>
+
+                <div class="controlText">
+
+                    <strong>
+                        MOVE YOUR PADDLE
+                    </strong>
+
+                    <span>
+                        Destroy the blocks before
+                        the ball gets past you!
+                    </span>
+
+                </div>
+
+                <button id="rightButton">
+                    →
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="blockbreaker.js"></script>
+
+</body>
+</html>
