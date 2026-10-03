@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Moonlit Bakery: Midnight Treats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            height: 100%;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+            background: radial-gradient(circle at center, #3b0764 0%, #1e1b4b 100%);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <header class="flex justify-between items-center px-5 py-4 bg-black/40 border-b border-purple-500/20 z-10 backdrop-blur-md">
+        <div class="text-center">
+            <div class="text-[10px] tracking-widest text-pink-300 uppercase mb-0.5">Treats Baked</div>
+            <div id="score-val" class="text-lg font-extrabold text-white">0</div>
+        </div>
+        <div class="text-center">
+            <div class="text-[10px] tracking-widest text-pink-300 uppercase mb-0.5">Oven Temp (Lives)</div>
+            <div id="lives-val" class="text-base font-extrabold text-pink-400">🔥🔥🔥</div>
+        </div>
+        <div class="text-center">
+            <div class="text-[10px] tracking-widest text-pink-300 uppercase mb-0.5">Record</div>
+            <div id="high-score-val" class="text-lg font-extrabold text-white">0</div>
+        </div>
+    </header>
+
+    <div class="relative flex-grow flex items-center justify-center overflow-hidden">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Virtual Joystick Overlay for Mobile / Touch -->
+        <div id="joystick-base" class="absolute bottom-6 left-6 w-28 h-28 rounded-full bg-white/10 border-2 border-white/20 hidden touch-none z-20 flex items-center justify-center backdrop-blur-sm">
+            <div id="joystick-thumb" class="absolute w-12 h-12 rounded-full bg-pink-400/90 shadow-lg pointer-events-none transition-transform duration-75"></div>
+        </div>
+    </div>
+
+    <footer class="px-5 py-3 flex justify-around bg-black/50 border-t border-purple-500/20 z-10 backdrop-blur-md">
+        <button id="sound-btn" class="bg-gradient-to-r from-purple-600 to-pink-600 border-none text-white px-4 py-2 text-xs font-bold rounded-full cursor-pointer shadow-lg active:scale-95 transition-transform">Audio: ON</button>
+        <button id="control-mode-btn" class="bg-gradient-to-r from-pink-600 to-rose-600 border-none text-white px-4 py-2 text-xs font-bold rounded-full cursor-pointer shadow-lg active:scale-95 transition-transform">Mode: Follow</button>
+        <button id="restart-btn" class="bg-gradient-to-r from-purple-600 to-pink-600 border-none text-white px-4 py-2 text-xs font-bold rounded-full cursor-pointer shadow-lg active:scale-95 transition-transform">Restart</button>
+    </footer>
+
+    <div id="overlay" class="absolute inset-0 bg-[#0f172a]/90 backdrop-blur-xl flex flex-col items-center justify-center z-100 transition-opacity duration-300 px-6 text-center">
+        <div class="text-5xl mb-3 animate-bounce">🥐✨</div>
+        <h1 class="text-3xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-purple-300">MOONLIT BAKERY</h1>
+        <p class="text-purple-200 text-xs mb-6 leading-relaxed max-w-xs">
+            Help little Baker bear gather glowing star-flour, whipped cream & berries to bake celestial pastries! Avoid burnt toast obstacles. Use <b>WASD / Arrows</b>, <b>On-Screen Joystick</b>, or <b>Mouse Follow</b>.
+        </p>
+        <button id="start-btn" class="bg-gradient-to-r from-pink-500 to-purple-600 border-none text-white px-8 py-3.5 text-base font-extrabold rounded-full cursor-pointer shadow-2xl active:scale-95 transition-transform">START BAKING</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+        const wrapper = canvas.parentElement;
+        canvas.width = wrapper.clientWidth;
+        canvas.height = wrapper.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let gameActive = false;
+    let score = 0;
+    let highScore = localStorage.getItem('moonlit_bakery_high_v1') || 0;
+    let lives = 3;
+    let soundEnabled = true;
+    let controlMode = 'follow'; // 'follow' or 'keys'
+
+    document.getElementById('high-score-val').innerText = highScore;
+
+    // Baker Bear Entity
+    let baker = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: 0,
+        vy: 0,
+        speed: 4.2,
+        radius: 18,
+        targetX: canvas.width / 2,
+        targetY: canvas.height / 2,
+        angle: 0
+    };
+
+    let ingredients = [];
+    let obstacles = [];
+    let particles = [];
+    let floaters = []; // ambient background sparkles
+
+    // Keyboard controls state
+    let keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false };
+
+    // Joystick state
+    let joystickActive = false;
+    let joystickCenter = { x: 0, y: 0 };
+    let joystickVector = { x: 0, y: 0 };
+    const joystickBase = document.getElementById('joystick-base');
+    const joystickThumb = document.getElementById('joystick-thumb');
+
+    // Web Audio synthesizer
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playTone(freq, type, duration, vol = 0.1) {
+        if (!soundEnabled || !audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function sfxCollect() { playTone(587.33, 'sine', 0.12, 0.15); setTimeout(() => playTone(880, 'sine', 0.15, 0.12), 60); }
+    function sfxBurn() { playTone(140, 'sawtooth', 0.25, 0.18); }
+
+    function updatePointer(clientX, clientY) {
+        if (controlMode !== 'follow') return;
+        const rect = canvas.getBoundingClientRect();
+        baker.targetX = clientX - rect.left;
+        baker.targetY = clientY - rect.top;
+    }
+
+    canvas.addEventListener('mousemove', (e) => { updatePointer(e.clientX, e.clientY); });
+    canvas.addEventListener('touchmove', (e) => {
+        if (controlMode === 'follow' && e.touches.length > 0) {
+            updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: true });
+    canvas.addEventListener('touchstart', (e) => {
+        initAudio();
+        if (controlMode === 'follow' && e.touches.length > 0) {
+            updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: true });
+
+    window.addEventListener('keydown', (e) => {
+        initAudio();
+        if (keys.hasOwnProperty(e.key) || ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+            keys[e.key] = true;
+            if (controlMode === 'follow') setControlMode('keys');
+        }
+    });
+    window.addEventListener('keyup', (e) => {
+        if (keys.hasOwnProperty(e.key) || ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+            keys[e.key] = false;
+        }
+    });
+
+    joystickBase.addEventListener('touchstart', (e) => {
+        initAudio();
+        joystickActive = true;
+        const rect = joystickBase.getBoundingClientRect();
+        joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        updateJoystick(e.touches[0].clientX, e.touches[0].clientY);
+        e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+        if (!joystickActive) return;
+        for (let i = 0; i < e.touches.length; i++) {
+            updateJoystick(e.touches[i].clientX, e.touches[i].clientY);
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        if (joystickActive) {
+            joystickActive = false;
+            joystickVector = { x: 0, y: 0 };
+            joystickThumb.style.transform = `translate(0px, 0px)`;
+        }
+    });
+
+    function updateJoystick(clientX, clientY) {
+        const dx = clientX - joystickCenter.x;
+        const dy = clientY - joystickCenter.y;
+        const dist = Math.hypot(dx, dy);
+        const maxDist = 38;
+        const angle = Math.atan2(dy, dx);
+        const clampedDist = Math.min(dist, maxDist);
+
+        joystickVector.x = (Math.cos(angle) * clampedDist) / maxDist;
+        joystickVector.y = (Math.sin(angle) * clampedDist) / maxDist;
+        joystickThumb.style.transform = `translate(${Math.cos(angle) * clampedDist}px, ${Math.sin(angle) * clampedDist}px)`;
+    }
+
+    function setControlMode(mode) {
+        controlMode = mode;
+        const btn = document.getElementById('control-mode-btn');
+        if (controlMode === 'follow') {
+            btn.innerText = "Mode: Follow";
+            joystickBase.classList.add('hidden');
+            canvas.style.cursor = 'none';
+        } else {
+            btn.innerText = "Mode: Joystick/WASD";
+            joystickBase.classList.remove('hidden');
+            canvas.style.cursor = 'default';
+        }
+    }
+
+    document.getElementById('control-mode-btn').addEventListener('click', () => {
+        setControlMode(controlMode === 'follow' ? 'keys' : 'follow');
+    });
+
+    const ingredientTypes = [
+        { name: 'Star Flour', emoji: '✨', color: '#fde047', points: 15 },
+        { name: 'Moon Berry', emoji: '🫐', color: '#38bdf8', points: 25 },
+        { name: 'Cream Puff', emoji: '🧁', color: '#f472b6', points: 40 }
+    ];
+
+    function spawnIngredient() {
+        const type = ingredientTypes[Math.floor(Math.random() * ingredientTypes.length)];
+        ingredients.push({
+            x: 40 + Math.random() * (canvas.width - 80),
+            y: 50 + Math.random() * (canvas.height - 100),
+            type: type,
+            radius: 14,
+            pulse: Math.random() * Math.PI
+        });
+    }
+
+    function spawnObstacle() {
+        obstacles.push({
+            x: Math.random() < 0.5 ? -30 : canvas.width + 30,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() < 0.5 ? 1 : -1) * (1.5 + Math.random() * 1.8),
+            vy: (Math.random() - 0.5) * 1.5,
+            radius: 16
+        });
+    }
+
+    function initSpawns() {
+        ingredients = [];
+        obstacles = [];
+        for (let i = 0; i < 6; i++) spawnIngredient();
+        for (let i = 0; i < 3; i++) spawnObstacle();
+
+        floaters = [];
+        for (let i = 0; i < 20; i++) {
+            floaters.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: 1 + Math.random() * 2,
+                vy: -0.2 - Math.random() * 0.5,
+                alpha: 0.2 + Math.random() * 0.5
+            });
+        }
+    }
+
+    function spawnParticles(x, y, color) {
+        for (let i = 0; i < 8; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 1.5 + Math.random() * 3;
+            particles.push({
+                x: x, y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1.0,
+                color: color,
+                size: 3 + Math.random() * 3
+            });
+        }
+    }
+
+    function update() {
+        if (!gameActive) return;
+
+        if (controlMode === 'follow') {
+            const dx = baker.targetX - baker.x;
+            const dy = baker.targetY - baker.y;
+            baker.x += dx * 0.15;
+            baker.y += dy * 0.15;
+        } else {
+            let dx = 0;
+            let dy = 0;
+
+            if (keys.w || keys.ArrowUp) dy -= 1;
+            if (keys.s || keys.ArrowDown) dy += 1;
+            if (keys.a || keys.ArrowLeft) dx -= 1;
+            if (keys.d || keys.ArrowRight) dx += 1;
+
+            if (joystickActive && (Math.abs(joystickVector.x) > 0.05 || Math.abs(joystickVector.y) > 0.05)) {
+                dx = joystickVector.x;
+                dy = joystickVector.y;
+            }
+
+            if (dx !== 0 && dy !== 0) {
+                dx *= 0.7071;
+                dy *= 0.7071;
+            }
+
+            baker.x += dx * baker.speed;
+            baker.y += dy * baker.speed;
+        }
+
+        // Keep baker within screen bounds
+        baker.x = Math.max(baker.radius, Math.min(canvas.width - baker.radius, baker.x));
+        baker.y = Math.max(baker.radius, Math.min(canvas.height - baker.radius, baker.y));
+
+        // Update background floaters
+        floaters.forEach(f => {
+            f.y += f.vy;
+            if (f.y < 0) f.y = canvas.height;
+        });
+
+        // Check ingredients collection
+        for (let i = ingredients.length - 1; i >= 0; i--) {
+            const ing = ingredients[i];
+            ing.pulse += 0.08;
+            const dist = Math.hypot(baker.x - ing.x, baker.y - ing.y);
+            if (dist < baker.radius + ing.radius) {
+                sfxCollect();
+                score += ing.type.points;
+                document.getElementById('score-val').innerText = score;
+                spawnParticles(ing.x, ing.y, ing.type.color);
+                ingredients.splice(i, 1);
+                spawnIngredient();
+
+                // Periodic obstacle addition as score increases
+                if (score % 100 === 0 && obstacles.length < 6) {
+                    spawnObstacle();
+                }
+            }
+        }
+
+        // Update and check obstacles (burnt pastry collisions)
+        obstacles.forEach(obs => {
+            obs.x += obs.vx;
+            obs.y += obs.vy;
+
+            if (obs.x < -40) obs.x = canvas.width + 40;
+            if (obs.x > canvas.width + 40) obs.x = -40;
+            if (obs.y < -40 || obs.y > canvas.height + 40) obs.vy *= -1;
+
+            const dist = Math.hypot(baker.x - obs.x, baker.y - obs.y);
+            if (dist < baker.radius + obs.radius) {
+                sfxBurn();
+                lives--;
+                updateLivesUI();
+                spawnParticles(baker.x, baker.y, '#ef4444');
+
+                // Bounce away
+                obs.vx *= -1;
+                baker.x += (Math.random() - 0.5) * 50;
+                baker.y += (Math.random() - 0.5) * 50;
+
+                if (lives <= 0) {
+                    endGame();
+                }
+            }
+        });
+
+        // Update particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.035;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    function updateLivesUI() {
+        let h = '';
+        for (let i = 0; i < lives; i++) h += '🔥';
+        document.getElementById('lives-val').innerText = h;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw ambient floating star-dust
+        floaters.forEach(f => {
+            ctx.fillStyle = `rgba(255, 255, 255, ${f.alpha})`;
+            ctx.beginPath();
+            ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Draw Ingredients
+        ingredients.forEach(ing => {
+            const floatOffset = Math.sin(ing.pulse) * 4;
+            ctx.save();
+            ctx.translate(ing.x, ing.y + floatOffset);
+
+            // Glow
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = ing.type.color;
+
+            ctx.font = '22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(ing.type.emoji, 0, 0);
+            ctx.restore();
+        });
+
+        // Draw Obstacles (Burnt pastry / smoke)
+        obstacles.forEach(obs => {
+            ctx.save();
+            ctx.translate(obs.x, obs.y);
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.arc(0, 0, obs.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🍞', 0, 0);
+            ctx.restore();
+        });
+
+        // Draw Baker Bear
+        ctx.save();
+        ctx.translate(baker.x, baker.y);
+
+        // Baker body glow
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = '#f472b6';
+
+        ctx.fillStyle = '#fbbf24'; // Warm bear fur
+        ctx.beginPath();
+        ctx.arc(0, 0, baker.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Ears
+        ctx.beginPath();
+        ctx.arc(-10, -14, 6, 0, Math.PI * 2);
+        ctx.arc(10, -14, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#d97706';
+        ctx.fill();
+
+        // Chef Hat
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.roundRect(-8, -26, 16, 12, 4);
+        ctx.fill();
+        ctx.fillStyle = '#f472b6'; // hat ribbon
+        ctx.fillRect(-8, -17, 16, 3);
+
+        // Face features
+        ctx.fillStyle = '#1e1b4b';
+        ctx.beginPath();
+        ctx.arc(-5, -3, 2, 0, Math.PI * 2);
+        ctx.arc(5, -3, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cute snout
+        ctx.fillStyle = '#fde68a';
+        ctx.beginPath();
+        ctx.ellipse(0, 2, 5, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1e1b4b';
+        ctx.beginPath();
+        ctx.arc(0, 1, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        // Draw Particles
+        particles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+        initAudio();
+        score = 0;
+        lives = 3;
+        gameActive = true;
+        document.getElementById('score-val').innerText = score;
+        updateLivesUI();
+        initSpawns();
+
+        baker.x = canvas.width / 2;
+        baker.y = canvas.height / 2;
+        baker.targetX = baker.x;
+        baker.targetY = baker.y;
+
+        const overlay = document.getElementById('overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 300);
+    }
+
+    function endGame() {
+        gameActive = false;
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('moonlit_bakery_high_v1', highScore);
+            document.getElementById('high-score-val').innerText = highScore;
+        }
+
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.style.opacity = '1', 10);
+
+        overlay.querySelector('div').innerText = "🌙✨";
+        overlay.querySelector('h1').innerText = "OVEN COOLED!";
+        overlay.querySelector('p').innerText = `Treats Baked: ${score}\nBest High Score: ${highScore}`;
+        document.getElementById('start-btn').innerText = "BAKE AGAIN";
+    }
+
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        endGame();
+        startGame();
+    });
+
+    document.getElementById('sound-btn').addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        document.getElementById('sound-btn').innerText = soundEnabled ? "Audio: ON" : "Audio: OFF";
+    });
+
+    initSpawns();
+    loop();
+</script>
+
+</body>
+</html>

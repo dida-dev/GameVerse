@@ -1,0 +1,686 @@
+    <!DOCTYPE html>
+    <html lang="en" class="h-full">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+        <title>Neon Hop: Cyber Bounce</title>
+        <!-- Tailwind CSS for mobile-first UI components -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Google Fonts: Orbitron & Rajdhani for cyberpunk arcade typography -->
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+        <!-- FontAwesome for crisp UI icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            body {
+                font-family: 'Rajdhani', sans-serif;
+                touch-action: none;
+                user-select: none;
+                -webkit-user-select: none;
+                background-color: #05050f;
+                color: #ffffff;
+                overflow: hidden;
+            }
+            .arcade-font {
+                font-family: 'Orbitron', sans-serif;
+            }
+            .neon-glow-cyan {
+                text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.5);
+            }
+            .neon-glow-magenta {
+                text-shadow: 0 0 10px rgba(255, 0, 128, 0.8), 0 0 20px rgba(255, 0, 128, 0.5);
+            }
+            .neon-box-cyan {
+                box-shadow: 0 0 15px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.2);
+            }
+            .neon-box-magenta {
+                box-shadow: 0 0 15px rgba(255, 0, 128, 0.4), inset 0 0 15px rgba(255, 0, 128, 0.2);
+            }
+            @keyframes shake {
+                0% { transform: translate(0, 0) rotate(0deg); }
+                20% { transform: translate(-5px, 5px) rotate(-1deg); }
+                40% { transform: translate(5px, -3px) rotate(1deg); }
+                60% { transform: translate(-3px, -2px) rotate(0deg); }
+                80% { transform: translate(3px, 2px) rotate(0.5deg); }
+                100% { transform: translate(0, 0) rotate(0deg); }
+            }
+            .screen-shake {
+                animation: shake 0.25s cubic-bezier(.36,.07,.19,.97) both;
+            }
+        </style>
+    </head>
+    <body class="h-full w-full flex items-center justify-center p-0 m-0 overflow-hidden">
+
+        <div id="game-container" class="relative w-full h-full max-w-md max-h-[920px] flex flex-col justify-between overflow-hidden bg-slate-950 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,243,255,0.15)] sm:rounded-3xl">
+            
+            <!-- Game Canvas Layer -->
+            <canvas id="gameCanvas" class="absolute inset-0 w-full h-full block cursor-pointer z-0"></canvas>
+
+            <!-- HUD Header -->
+            <div id="hud" class="relative z-10 p-5 flex justify-between items-start pointer-events-none">
+                <div class="flex flex-col">
+                    <span class="text-xs text-cyan-400 font-semibold tracking-widest arcade-font">HEIGHT</span>
+                    <span id="score-display" class="text-3xl font-black text-cyan-300 neon-glow-cyan arcade-font">0m</span>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <span id="multiplier-display" class="text-xs font-bold text-yellow-400 arcade-font opacity-0 transition-opacity duration-200">SHARDS x1</span>
+                    <div id="active-powerup" class="text-[10px] text-pink-400 arcade-font mt-1 font-bold h-4"></div>
+                </div>
+
+                <div class="flex flex-col items-end">
+                    <span class="text-xs text-pink-400 font-semibold tracking-widest arcade-font">SHARDS</span>
+                    <span id="shards-display" class="text-xl font-bold text-pink-400 neon-glow-magenta arcade-font">0</span>
+                </div>
+            </div>
+
+            <!-- Floating Popups Container -->
+            <div id="floating-text-container" class="absolute inset-0 pointer-events-none overflow-hidden z-20"></div>
+
+            <!-- Main Menu Overlay -->
+            <div id="menu-overlay" class="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-between p-6 z-30 transition-opacity duration-300">
+                <div class="w-full flex justify-end pt-2">
+                    <button id="sound-toggle-menu" class="w-10 h-10 bg-slate-900/80 border border-cyan-500/30 rounded-full flex items-center justify-center text-cyan-400 hover:bg-slate-800 cursor-pointer shadow-lg active:scale-95 transition-transform">
+                        <i id="sound-icon-menu" class="fa-solid fa-volume-high text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="text-center my-auto">
+                    <div class="inline-block px-3 py-1 mb-3 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-widest uppercase arcade-font animate-pulse">
+                        Endless Vertical Arcade
+                    </div>
+                    <h1 class="text-5xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-400 neon-glow-cyan arcade-font mb-2">
+                        NEON HOP
+                    </h1>
+                    <p class="text-sm text-cyan-200/70 tracking-widest uppercase arcade-font font-bold">Cyber Bounce v1.0</p>
+                </div>
+
+                <div class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-5 w-full max-w-xs mb-6 neon-box-cyan text-center">
+                    <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-800">
+                        <span class="text-gray-400 text-xs arcade-font">MAX HEIGHT</span>
+                        <span id="menu-high-score" class="text-2xl font-bold text-cyan-400 neon-glow-cyan arcade-font">0m</span>
+                    </div>
+                    <div class="text-xs text-gray-300 space-y-2 text-left">
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-arrow-left-right text-cyan-400"></i> Tap left/right or tilt/drag to move orb</p>
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> Bounce off platforms to climb higher</p>
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-pink-500"></i> Avoid red glitch spikes & falling out</p>
+                    </div>
+                </div>
+
+                <button id="start-btn" class="w-full max-w-xs py-4 bg-gradient-to-r from-cyan-500 to-blue-600 font-black text-lg tracking-wider rounded-2xl text-black hover:text-white transition-all duration-300 shadow-[0_0_25px_rgba(0,243,255,0.6)] hover:scale-105 active:scale-95 cursor-pointer arcade-font flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-play"></i> LAUNCH ORB
+                </button>
+            </div>
+
+            <!-- Game Over Overlay -->
+            <div id="gameover-overlay" class="absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 z-30 opacity-0 pointer-events-none transition-opacity duration-300">
+                <div class="text-center mb-6">
+                    <h2 class="text-4xl font-black italic tracking-wider text-pink-500 neon-glow-magenta arcade-font mb-1">
+                        SIGNAL LOST
+                    </h2>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest arcade-font">Orb collapsed into void</p>
+                </div>
+
+                <div class="bg-slate-900/90 border border-pink-500/40 rounded-2xl p-6 w-full max-w-xs mb-8 neon-box-magenta text-center space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <span class="block text-[10px] text-gray-400 arcade-font">HEIGHT REACHED</span>
+                            <span id="final-score" class="text-2xl font-black text-cyan-400 arcade-font">0m</span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <span class="block text-[10px] text-gray-400 arcade-font">SHARDS COLLECTED</span>
+                            <span id="final-shards" class="text-2xl font-black text-pink-400 arcade-font">0</span>
+                        </div>
+                    </div>
+                    <div id="new-record-badge" class="hidden text-xs font-bold text-yellow-400 bg-yellow-400/10 py-2 rounded-xl border border-yellow-400/30 animate-pulse arcade-font">
+                        <i class="fa-solid fa-trophy mr-1"></i> NEW HEIGHT RECORD!
+                    </div>
+                </div>
+
+                <div class="flex gap-3 w-full max-w-xs">
+                    <button id="restart-btn" class="flex-1 py-4 bg-gradient-to-r from-pink-500 to-purple-600 font-black text-sm tracking-wider rounded-xl text-white transition-all duration-300 shadow-[0_0_20px_rgba(255,0,128,0.5)] hover:scale-105 active:scale-95 cursor-pointer arcade-font flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> RETRY
+                    </button>
+                    <button id="menu-btn" class="px-5 py-4 bg-slate-900 hover:bg-slate-800 font-bold text-sm tracking-wider rounded-xl text-cyan-300 border border-cyan-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer arcade-font">
+                        <i class="fa-solid fa-house"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            // --- WEB AUDIO API SYNTHESIZER ---
+            class SoundEngine {
+                constructor() {
+                    this.muted = false;
+                    this.ctx = null;
+                }
+                init() {
+                    if (!this.ctx) {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        this.ctx = new AudioContext();
+                    }
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+                }
+                playTone(freq, type, duration, vol = 0.1) {
+                    if (this.muted || !this.ctx) return;
+                    try {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + duration);
+                    } catch(e) {}
+                }
+                playBounce() {
+                    if (this.muted || !this.ctx) return;
+                    try {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(650, this.ctx.currentTime + 0.15);
+                        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.15);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.15);
+                    } catch(e) {}
+                }
+                playShard() {
+                    this.playTone(880, 'triangle', 0.12, 0.15);
+                    setTimeout(() => this.playTone(1320, 'triangle', 0.15, 0.15), 60);
+                }
+                playHazard() {
+                    this.playTone(120, 'sawtooth', 0.3, 0.3);
+                }
+                playSuperBounce() {
+                    this.playTone(400, 'square', 0.2, 0.2);
+                    setTimeout(() => this.playTone(800, 'square', 0.3, 0.25), 100);
+                }
+            }
+
+            const sound = new SoundEngine();
+
+            // --- CANVAS SETUP ---
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('game-container');
+
+            let width, height;
+            function resizeCanvas() {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                canvas.width = width * window.devicePixelRatio;
+                canvas.height = height * window.devicePixelRatio;
+                ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER
+            let score = 0; // height in meters
+            let maxScore = localStorage.getItem('neon_hop_highscore') || 0;
+            document.getElementById('menu-high-score').textContent = `${maxScore}m`;
+
+            let shards = 0;
+            let totalShards = localStorage.getItem('neon_hop_shards') || 0;
+
+            // Player (Orb) State
+            let player = {
+                x: width / 2,
+                y: height - 150,
+                vx: 0,
+                vy: 0,
+                radius: 14,
+                speed: 6.5,
+                jumpForce: -13.5,
+                superJumpForce: -19,
+                gravity: 0.52
+            };
+
+            let cameraY = 0;
+            let targetCameraY = 0;
+            let platforms = [];
+            let particles = [];
+            let floatingTexts = [];
+
+            // Input Tracking
+            let moveLeft = false;
+            let moveRight = false;
+            let touchX = null;
+
+            // Input Event Listeners
+            window.addEventListener('keydown', e => {
+                if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft = true;
+                if (e.key === 'ArrowRight' || e.key === 'd') moveRight = true;
+            });
+
+            window.addEventListener('keyup', e => {
+                if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft = false;
+                if (e.key === 'ArrowRight' || e.key === 'd') moveRight = false;
+            });
+
+            canvas.addEventListener('pointerdown', e => {
+                sound.init();
+                const rect = canvas.getBoundingClientRect();
+                touchX = e.clientX - rect.left;
+            });
+
+            canvas.addEventListener('pointermove', e => {
+                if (touchX !== null) {
+                    const rect = canvas.getBoundingClientRect();
+                    touchX = e.clientX - rect.left;
+                }
+            });
+
+            canvas.addEventListener('pointerup', () => {
+                touchX = null;
+            });
+            canvas.addEventListener('pointercancel', () => {
+                touchX = null;
+            });
+
+            function triggerShake() {
+                container.classList.add('screen-shake');
+                setTimeout(() => container.classList.remove('screen-shake'), 250);
+            }
+
+            function createFloatingText(text, x, y, color = '#00f3ff') {
+                floatingTexts.push({
+                    text, x, y, color,
+                    alpha: 1,
+                    vy: -1.5,
+                    life: 45
+                });
+            }
+
+            function spawnParticles(x, y, color, count = 10) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 1.5 + Math.random() * 4;
+                    particles.push({
+                        x, y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        radius: 2 + Math.random() * 2.5,
+                        color,
+                        alpha: 1,
+                        decay: 0.025 + Math.random() * 0.03
+                    });
+                }
+            }
+
+            function initGame() {
+                score = 0;
+                shards = 0;
+                player.x = width / 2;
+                player.y = height - 160;
+                player.vx = 0;
+                player.vy = -12;
+                cameraY = 0;
+                targetCameraY = 0;
+                platforms = [];
+                particles = [];
+                floatingTexts = [];
+
+                // Generate initial platforms
+                let genY = height - 80;
+                // Starting safe platform
+                platforms.push({
+                    x: width / 2 - 50,
+                    y: genY,
+                    width: 100,
+                    height: 14,
+                    type: 'normal',
+                    color: '#00f3ff',
+                    hasShard: false
+                });
+
+                while (genY > -2000) {
+                    genY -= 65 + Math.random() * 35;
+                    spawnPlatform(genY);
+                }
+                updateHUD();
+            }
+
+            function spawnPlatform(y) {
+                const pWidth = 70 + Math.random() * 45;
+                const pX = Math.random() * (width - pWidth);
+                
+                // Platform type logic based on height
+                const rand = Math.random();
+                let type = 'normal';
+                let color = '#00f3ff';
+
+                if (score > 300 && rand < 0.18) {
+                    type = 'hazard'; // Red glitch spike
+                    color = '#ff0055';
+                } else if (score > 150 && rand < 0.32) {
+                    type = 'moving'; // Horizontal moving platform
+                    color = '#a855f7';
+                } else if (rand < 0.45) {
+                    type = 'spring'; // Super bounce pad
+                    color = '#eab308';
+                } else {
+                    const colors = ['#00f3ff', '#3b82f6', '#10b981'];
+                    color = colors[Math.floor(Math.random() * colors.length)];
+                }
+
+                const hasShard = type !== 'hazard' && Math.random() < 0.4;
+
+                platforms.push({
+                    x: pX,
+                    y: y,
+                    width: pWidth,
+                    height: 14,
+                    type: type,
+                    color: color,
+                    vx: type === 'moving' ? (Math.random() < 0.5 ? 1.5 : -1.5) : 0,
+                    hasShard: hasShard,
+                    shardCollected: false
+                });
+            }
+
+            function update() {
+                if (gameState !== 'PLAYING') return;
+
+                // Horizontal Movement Input
+                let dir = 0;
+                if (moveLeft) dir = -1;
+                if (moveRight) dir = 1;
+                if (touchX !== null) {
+                    if (touchX < player.x - 10) dir = -1;
+                    else if (touchX > player.x + 10) dir = 1;
+                }
+
+                player.vx = dir * player.speed;
+                player.x += player.vx;
+
+                // Screen wrapping horizontally
+                if (player.x < -player.radius) player.x = width + player.radius;
+                if (player.x > width + player.radius) player.x = -player.radius;
+
+                // Apply gravity & vertical velocity
+                player.vy += player.gravity;
+                player.y += player.vy;
+
+                // Collision check with platforms (only when falling downwards)
+                if (player.vy > 0) {
+                    platforms.forEach(p => {
+                        if (
+                            player.x + player.radius > p.x &&
+                            player.x - player.radius < p.x + p.width &&
+                            player.y + player.radius >= p.y &&
+                            player.y + player.radius <= p.y + p.height + 8
+                        ) {
+                            if (p.type === 'hazard') {
+                                sound.playHazard();
+                                triggerShake();
+                                gameOver();
+                            } else if (p.type === 'spring') {
+                                sound.playSuperBounce();
+                                player.vy = player.superJumpForce;
+                                spawnParticles(player.x, player.y + player.radius, '#eab308', 16);
+                                createFloatingText("SUPER BOUNCE!", player.x, player.y - 20, '#eab308');
+                            } else {
+                                sound.playBounce();
+                                player.vy = player.jumpForce;
+                                spawnParticles(player.x, player.y + player.radius, p.color, 10);
+                            }
+
+                            // Collect Data Shard if present
+                            if (p.hasShard && !p.shardCollected) {
+                                p.shardCollected = true;
+                                shards++;
+                                sound.playShard();
+                                spawnParticles(p.x + p.width / 2, p.y - 10, '#ec4899', 12);
+                                createFloatingText("+1 SHARD", p.x + p.width / 2, p.y - 25, '#ec4899');
+                            }
+                        }
+                    });
+                }
+
+                // Update Moving Platforms
+                platforms.forEach(p => {
+                    if (p.type === 'moving') {
+                        p.x += p.vx;
+                        if (p.x <= 0 || p.x + p.width >= width) p.vx *= -1;
+                    }
+                });
+
+                // Camera Tracking (Follows player upwards)
+                targetCameraY = player.y - height * 0.45;
+                cameraY += (targetCameraY - cameraY) * 0.1;
+
+                // Calculate height score relative to start
+                const currentHeight = Math.max(0, Math.floor((height - 150 - player.y) / 10));
+                if (currentHeight > score) {
+                    score = currentHeight;
+                }
+
+                // Spawn new platforms ahead and clean old ones below
+                const highestPlatformY = platforms.length > 0 ? platforms[platforms.length - 1].y : 0;
+                if (highestPlatformY > cameraY - height) {
+                    spawnPlatform(highestPlatformY - (65 + Math.random() * 35));
+                }
+
+                platforms = platforms.filter(p => p.y < cameraY + height + 100);
+
+                // Update Particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const pt = particles[i];
+                    pt.x += pt.vx;
+                    pt.y += pt.vy;
+                    pt.alpha -= pt.decay;
+                    if (pt.alpha <= 0) particles.splice(i, 1);
+                }
+
+                // Update Floating Texts
+                for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                    const ft = floatingTexts[i];
+                    ft.y += ft.vy;
+                    ft.alpha -= 1 / ft.life;
+                    if (ft.alpha <= 0) floatingTexts.splice(i, 1);
+                }
+
+                // Game Over if player falls below bottom of screen
+                if (player.y > cameraY + height + 60) {
+                    sound.playHazard();
+                    gameOver();
+                }
+
+                updateHUD();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+
+                ctx.save();
+                ctx.translate(0, -cameraY);
+
+                // Cyber Background Grid Lines
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.04)';
+                ctx.lineWidth = 1;
+                const startY = Math.floor(cameraY / 50) * 50;
+                for (let y = startY; y < startY + height + 100; y += 50) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+                }
+
+                // Draw Platforms
+                platforms.forEach(p => {
+                    ctx.save();
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 12;
+
+                    if (p.type === 'hazard') {
+                        // Glitch Spike Platform
+                        ctx.fillStyle = '#ff0055';
+                        ctx.fillRect(p.x, p.y, p.width, p.height);
+                        // Draw warning spikes
+                        ctx.fillStyle = '#ffffff';
+                        for (let sx = p.x + 6; sx < p.x + p.width - 6; sx += 12) {
+                            ctx.beginPath();
+                            ctx.moveTo(sx, p.y);
+                            ctx.lineTo(sx + 6, p.y - 10);
+                            ctx.lineTo(sx + 12, p.y);
+                            ctx.fill();
+                        }
+                    } else if (p.type === 'spring') {
+                        // Super Bounce Pad
+                        ctx.fillStyle = '#eab308';
+                        ctx.fillRect(p.x, p.y, p.width, p.height);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(p.x + p.width / 2 - 10, p.y - 6, 20, 6);
+                    } else {
+                        // Standard / Moving Platform
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x, p.y, p.width, p.height);
+                        // Inner neon accent line
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(p.x + 4, p.y + 3, p.width - 8, 3);
+                    }
+
+                    // Draw Data Shard if present & uncollected
+                    if (p.hasShard && !p.shardCollected) {
+                        ctx.fillStyle = '#ec4899';
+                        ctx.shadowColor = '#ec4899';
+                        ctx.shadowBlur = 15;
+                        ctx.beginPath();
+                        ctx.arc(p.x + p.width / 2, p.y - 14, 7, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                    }
+
+                    ctx.restore();
+                });
+
+                // Draw Particles
+                particles.forEach(pt => {
+                    ctx.save();
+                    ctx.globalAlpha = pt.alpha;
+                    ctx.fillStyle = pt.color;
+                    ctx.shadowColor = pt.color;
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+
+                // Draw Player Orb
+                ctx.save();
+                ctx.shadowColor = '#00f3ff';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#00f3ff';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+                // Inner core glow
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius * 0.4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                // Draw Floating Texts
+                floatingTexts.forEach(ft => {
+                    ctx.save();
+                    ctx.globalAlpha = ft.alpha;
+                    ctx.fillStyle = ft.color;
+                    ctx.shadowColor = ft.color;
+                    ctx.shadowBlur = 10;
+                    ctx.font = '900 15px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(ft.text, ft.x, ft.y);
+                    ctx.restore();
+                });
+
+                ctx.restore();
+            }
+
+            function gameLoop() {
+                update();
+                draw();
+                requestAnimationFrame(gameLoop);
+            }
+
+            function updateHUD() {
+                document.getElementById('score-display').textContent = `${score}m`;
+                document.getElementById('shards-display').textContent = shards;
+            }
+
+            function startGame() {
+                sound.init();
+                document.getElementById('menu-overlay').style.opacity = '0';
+                setTimeout(() => document.getElementById('menu-overlay').style.pointerEvents = 'none', 300);
+                document.getElementById('gameover-overlay').style.opacity = '0';
+                document.getElementById('gameover-overlay').style.pointerEvents = 'none';
+
+                initGame();
+                gameState = 'PLAYING';
+            }
+
+            function gameOver() {
+                gameState = 'GAMEOVER';
+                triggerShake();
+
+                const isNewRecord = score > maxScore;
+                if (isNewRecord) {
+                    maxScore = score;
+                    localStorage.setItem('neon_hop_highscore', maxScore);
+                    document.getElementById('new-record-badge').classList.remove('hidden');
+                } else {
+                    document.getElementById('new-record-badge').classList.add('hidden');
+                }
+
+                totalShards = parseInt(totalShards) + shards;
+                localStorage.setItem('neon_hop_shards', totalShards);
+
+                document.getElementById('final-score').textContent = `${score}m`;
+                document.getElementById('final-shards').textContent = shards;
+                document.getElementById('menu-high-score').textContent = `${maxScore}m`;
+
+                const goOverlay = document.getElementById('gameover-overlay');
+                goOverlay.style.pointerEvents = 'auto';
+                goOverlay.style.opacity = '1';
+            }
+
+            document.getElementById('start-btn').addEventListener('click', startGame);
+            document.getElementById('restart-btn').addEventListener('click', startGame);
+            document.getElementById('menu-btn').addEventListener('click', () => {
+                document.getElementById('gameover-overlay').style.opacity = '0';
+                document.getElementById('gameover-overlay').style.pointerEvents = 'none';
+                const menuOverlay = document.getElementById('menu-overlay');
+                menuOverlay.style.pointerEvents = 'auto';
+                menuOverlay.style.opacity = '1';
+                gameState = 'MENU';
+            });
+
+            const soundToggleMenu = document.getElementById('sound-toggle-menu');
+            const soundIconMenu = document.getElementById('sound-icon-menu');
+            soundToggleMenu.addEventListener('click', () => {
+                sound.muted = !sound.muted;
+                if (sound.muted) {
+                    soundIconMenu.className = 'fa-solid fa-volume-xmark text-sm text-red-400';
+                } else {
+                    soundIconMenu.className = 'fa-solid fa-volume-high text-sm';
+                    sound.init();
+                    sound.playShard();
+                }
+            });
+
+            requestAnimationFrame(gameLoop);
+        </script>
+    </body>
+    </html>
