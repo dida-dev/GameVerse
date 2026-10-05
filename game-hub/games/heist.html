@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heist Run — GAMEVERSE</title>
+    <link rel="stylesheet" href="heist.css">
+</head>
+<body>
+
+    <div id="game">
+
+        <header class="hud">
+            <a href="../index.html" class="back">← HUB</a>
+
+            <div class="stats">
+                <div>
+                    <small>LOOT</small>
+                    <strong id="cash">$0</strong>
+                </div>
+                <div>
+                    <small>COMBO</small>
+                    <strong id="combo">x1</strong>
+                </div>
+                <div>
+                    <small>TIME</small>
+                    <strong id="timer">60</strong>
+                </div>
+                <div>
+                    <small>ALARM</small>
+                    <strong id="alarm">0%</strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="objective">
+            <span>OBJECTIVE</span>
+            <strong id="objectiveText">Find the 🔑 key</strong>
+        </div>
+
+        <main id="gameArea">
+            <div class="grid"></div>
+
+            <!-- WALLS -->
+            <div class="wall wall1"></div>
+            <div class="wall wall2"></div>
+            <div class="wall wall3"></div>
+            <div class="wall wall4"></div>
+
+            <!-- VAULT -->
+            <div id="vault" class="vault">
+                🔐
+                <span>VAULT</span>
+            </div>
+
+            <!-- ESCAPE -->
+            <div id="escape" class="escape">
+                🚪
+                <span>EXIT</span>
+            </div>
+
+            <!-- OBJECTS -->
+            <div id="objects"></div>
+
+            <!-- GUARDS -->
+            <div id="guards"></div>
+
+            <!-- PLAYER -->
+            <div id="player">🥷</div>
+
+            <div id="message"></div>
+        </main>
+
+        <!-- MOBILE CONTROLS -->
+        <div class="mobileControls">
+            <div id="joystick" class="joystick">
+                <div id="joystickKnob" class="joystickKnob"></div>
+            </div>
+
+            <button id="sneakButton" class="sneakButton">
+                🤫
+                <span>SNEAK</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="hidden">
+        <div class="resultBox">
+            <div class="resultEmoji">🏦</div>
+            <h1 id="resultTitle">HEIST COMPLETE</h1>
+
+            <div class="finalCash">
+                <span>LOOT</span>
+                <strong id="resultCash">$0</strong>
+            </div>
+
+            <div class="resultStats">
+                <div>
+                    <span>COMBO</span>
+                    <strong id="resultCombo">x1</strong>
+                </div>
+                <div>
+                    <span>TIME</span>
+                    <strong id="resultTime">0s</strong>
+                </div>
+            </div>
+
+            <button id="againBtn">PLAY AGAIN</button>
+            <a href="../index.html">← BACK TO HUB</a>
+        </div>
+    </div>
+
+    <script src="heist.js"></script>
+</body>
+</html>

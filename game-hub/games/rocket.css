@@ -1,0 +1,779 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #050816;
+    --cyan: #22d3ee;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --red: #ef4444;
+    --yellow: #facc15;
+
+    --text: #f8fafc;
+    --muted: #8993ad;
+
+    --border: rgba(255,255,255,.1);
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 50% 80%,
+            rgba(59,130,246,.12),
+            transparent 45%
+        ),
+        var(--bg);
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    touch-action: none;
+}
+
+
+/* =========================
+   STARS
+========================= */
+
+.stars {
+    position: fixed;
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: .6;
+
+    background-image:
+        radial-gradient(
+            white 1px,
+            transparent 1px
+        );
+
+    background-size:
+        70px 70px;
+
+    animation:
+        starsMove 12s linear infinite;
+}
+
+@keyframes starsMove {
+
+    from {
+        transform:
+            translateY(0);
+    }
+
+    to {
+        transform:
+            translateY(70px);
+    }
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    width:
+        min(1100px, calc(100% - 30px));
+
+    height: 65px;
+
+    margin: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+.backButton {
+    color: var(--muted);
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+.title {
+    font-size: 15px;
+
+    font-weight: 950;
+
+    letter-spacing: 1px;
+}
+
+.best {
+    color: var(--muted);
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+.best strong {
+    color: white;
+
+    margin-left: 5px;
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+.hud {
+    width:
+        min(550px, calc(100% - 30px));
+
+    margin:
+        5px auto 12px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+}
+
+.hud div {
+    padding: 9px;
+
+    text-align: center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+.hud span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+.hud strong {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 18px;
+}
+
+
+/* =========================
+   GAME
+========================= */
+
+main {
+    width:
+        min(1100px, calc(100% - 30px));
+
+    margin: auto;
+}
+
+#gameArea {
+    position: relative;
+
+    height:
+        calc(100vh - 130px);
+
+    min-height: 450px;
+
+    overflow: hidden;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(10,20,50,.45),
+            rgba(2,6,23,.75)
+        );
+
+    box-shadow:
+        inset 0 0 100px
+        rgba(0,0,0,.45);
+}
+
+
+/* =========================
+   ROCKET
+========================= */
+
+#rocket {
+    position: absolute;
+
+    width: 52px;
+    height: 70px;
+
+    display: grid;
+
+    place-items: center;
+
+    font-size: 43px;
+
+    z-index: 10;
+
+    filter:
+        drop-shadow(
+            0 0 14px
+            rgba(34,211,238,.7)
+        );
+
+    transform:
+        translate(-50%, -50%);
+}
+
+#rocket::after {
+    content: "🔥";
+
+    position: absolute;
+
+    bottom: -24px;
+
+    font-size: 22px;
+
+    animation:
+        flame .1s infinite alternate;
+}
+
+@keyframes flame {
+
+    from {
+        transform:
+            scale(.8);
+    }
+
+    to {
+        transform:
+            scale(1.15);
+    }
+}
+
+
+/* =========================
+   METEORS
+========================= */
+
+.meteor {
+    position: absolute;
+
+    width: 44px;
+    height: 44px;
+
+    display: grid;
+
+    place-items: center;
+
+    font-size: 37px;
+
+    z-index: 5;
+
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(239,68,68,.5)
+        );
+}
+
+.meteor.big {
+    font-size: 55px;
+}
+
+.energy {
+    position: absolute;
+
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+
+    place-items: center;
+
+    font-size: 29px;
+
+    z-index: 5;
+
+    filter:
+        drop-shadow(
+            0 0 14px
+            rgba(34,211,238,.8)
+        );
+
+    animation:
+        energyPulse .5s infinite alternate;
+}
+
+@keyframes energyPulse {
+
+    from {
+        transform:
+            scale(.85);
+    }
+
+    to {
+        transform:
+            scale(1.15);
+    }
+}
+
+
+/* =========================
+   HIT EFFECT
+========================= */
+
+.explosion {
+    position: absolute;
+
+    width: 80px;
+    height: 80px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff,
+            #f97316 25%,
+            #ef4444 45%,
+            transparent 70%
+        );
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+
+    animation:
+        explode .45s ease-out forwards;
+
+    z-index: 20;
+}
+
+@keyframes explode {
+
+    from {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scale(.3);
+    }
+
+    to {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            scale(2);
+    }
+}
+
+
+/* =========================
+   OVERLAY
+========================= */
+
+.overlay {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 50;
+
+    display: grid;
+
+    place-items: center;
+
+    padding: 20px;
+
+    background:
+        rgba(3,6,18,.7);
+
+    backdrop-filter:
+        blur(9px);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.panel {
+    width:
+        min(430px, 100%);
+
+    padding: 32px;
+
+    text-align: center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 24px;
+
+    background:
+        rgba(11,16,35,.92);
+
+    box-shadow:
+        0 30px 100px
+        rgba(0,0,0,.6);
+}
+
+.bigIcon {
+    font-size: 55px;
+
+    margin-bottom: 12px;
+}
+
+.panel h1 {
+    font-size: 27px;
+
+    font-weight: 950;
+}
+
+.panel p {
+    margin-top: 12px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================
+   CONTROLS
+========================= */
+
+.controls {
+    margin-top: 18px;
+
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+}
+
+.controls span {
+    padding: 7px 9px;
+
+    border-radius: 8px;
+
+    background:
+        rgba(255,255,255,.05);
+
+    color: var(--muted);
+
+    font-size: 8px;
+
+    font-weight: 900;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+button {
+    font: inherit;
+}
+
+#startBtn,
+#againBtn {
+    width: 100%;
+
+    margin-top: 23px;
+
+    padding: 15px;
+
+    border: 0;
+
+    border-radius: 13px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--cyan),
+            var(--blue)
+        );
+
+    font-size: 12px;
+
+    font-weight: 950;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 12px 35px
+        rgba(34,211,238,.25);
+
+    transition: .2s;
+}
+
+#startBtn:hover,
+#againBtn:hover {
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 18px 45px
+        rgba(34,211,238,.4);
+}
+
+.hubButton {
+    display: block;
+
+    margin-top: 15px;
+
+    color: var(--muted);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+/* =========================
+   RESULTS
+========================= */
+
+.finalScore {
+    margin-top: 22px;
+
+    padding: 18px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(255,255,255,.04);
+}
+
+.finalScore span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+.finalScore strong {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--cyan);
+
+    font-size: 43px;
+}
+
+.results {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 7px;
+
+    margin-top: 8px;
+}
+
+.results div {
+    padding: 10px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(255,255,255,.035);
+}
+
+.results span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 7px;
+
+    font-weight: 900;
+}
+
+.results strong {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+#message {
+    position: absolute;
+
+    top: 30px;
+    left: 50%;
+
+    z-index: 30;
+
+    transform:
+        translateX(-50%);
+
+    opacity: 0;
+
+    padding: 9px 15px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(34,211,238,.12);
+
+    border:
+        1px solid
+        rgba(34,211,238,.3);
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    transition: .2s;
+
+    pointer-events: none;
+}
+
+#message.show {
+    opacity: 1;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+.mobileHint {
+    display: none;
+
+    text-align: center;
+
+    margin-top: 7px;
+
+    color: #65708a;
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+
+    header {
+        width:
+            calc(100% - 20px);
+
+        height: 58px;
+    }
+
+    .title {
+        font-size: 12px;
+    }
+
+    main {
+        width:
+            calc(100% - 20px);
+    }
+
+    .hud {
+        width:
+            calc(100% - 20px);
+    }
+
+    #gameArea {
+        height:
+            calc(100vh - 125px);
+
+        min-height: 420px;
+
+        border-radius: 18px;
+    }
+
+    .mobileHint {
+        display: block;
+    }
+
+    #rocket {
+        font-size: 38px;
+    }
+
+    .panel {
+        padding: 25px 19px;
+    }
+
+    .panel h1 {
+        font-size: 23px;
+    }
+
+    .bigIcon {
+        font-size: 45px;
+    }
+}
