@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Void Survivor</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  overflow:hidden;
+  background:#03020a;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+canvas{
+  display:block;
+  width:100vw;
+  height:100vh;
+  background:
+    radial-gradient(circle,#160b2e 0%,#070313 50%,#020107 100%);
+}
+
+#hud{
+  position:fixed;
+  top:15px;
+  left:15px;
+  right:15px;
+  display:flex;
+  justify-content:space-between;
+  pointer-events:none;
+  z-index:2;
+}
+
+.box{
+  background:#090615dd;
+  border:1px solid #7040b8;
+  padding:10px 15px;
+  border-radius:10px;
+  box-shadow:0 0 15px #6d28d955;
+}
+
+#xpBar{
+  position:fixed;
+  bottom:15px;
+  left:15px;
+  right:15px;
+  height:12px;
+  background:#10091d;
+  border:1px solid #633ca0;
+  border-radius:20px;
+  overflow:hidden;
+  z-index:2;
+}
+
+#xp{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#7c3cff,#22d3ee);
+  box-shadow:0 0 15px #7c3cff;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  background:#020107dd;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+
+.card{
+  width:min(700px,92%);
+  text-align:center;
+  padding:40px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#120923,#07040e);
+  border:1px solid #7445bd;
+  box-shadow:0 0 80px #702cff44;
+}
+
+h1{
+  font-size:clamp(45px,9vw,90px);
+  margin:0;
+  letter-spacing:8px;
+  text-shadow:
+    0 0 10px #8b5cf6,
+    0 0 40px #7c3cff;
+}
+
+h2{
+  color:#cbb7ff;
+}
+
+p{
+  color:#bcb2d0;
+  line-height:1.6;
+}
+
+button{
+  border:0;
+  border-radius:12px;
+  padding:15px 30px;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+  background:linear-gradient(90deg,#7c3cff,#22d3ee);
+  box-shadow:0 0 25px #7c3cff66;
+}
+
+button:hover{
+  transform:scale(1.04);
+}
+
+#upgrade{
+  display:none;
+}
+
+.choices{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+  margin-top:25px;
+}
+
+.choice{
+  cursor:pointer;
+  padding:20px;
+  background:#100a20;
+  border:1px solid #50357d;
+  border-radius:15px;
+  text-align:left;
+}
+
+.choice:hover{
+  border-color:#b18cff;
+  background:#18102d;
+}
+
+.choice strong{
+  display:block;
+  color:#d2c2ff;
+  font-size:18px;
+  margin-bottom:8px;
+}
+
+.choice span{
+  color:#aaa0bb;
+  font-size:14px;
+}
+
+@media(max-width:650px){
+  .choices{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:25px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="box">
+    VOID SURVIVOR · WAVE <span id="wave">1</span>
+  </div>
+
+  <div class="box">
+    ❤️ <span id="hp">100</span>
+    · ☠ <span id="kills">0</span>
+  </div>
+</div>
+
+<div id="xpBar">
+  <div id="xp"></div>
+</div>
+
+<div id="menu" class="screen">
+  <div class="card">
+    <h1>VOID<br>SURVIVOR</h1>
+
+    <p>
+      The void is alive.<br>
+      Survive the endless swarm, collect Void Shards,
+      level up and evolve your survivor.
+    </p>
+
+    <p>
+      <b>WASD / Arrow Keys</b> to move<br>
+      Your weapon fires automatically.
+    </p>
+
+    <button onclick="startGame()">ENTER THE VOID</button>
+  </div>
+</div>
+
+<div id="upgrade" class="screen">
+  <div class="card">
+    <h2>⚡ LEVEL UP</h2>
+    <p>Choose your evolution.</p>
+
+    <div class="choices" id="choices"></div>
+  </div>
+</div>
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let W,H;
+
+function resize(){
+  W=canvas.width=innerWidth;
+  H=canvas.height=innerHeight;
+}
+
+window.addEventListener("resize",resize);
+resize();
+
+const keys={};
+
+window.addEventListener("keydown",e=>{
+  keys[e.key.toLowerCase()]=true;
+});
+
+window.addEventListener("keyup",e=>{
+  keys[e.key.toLowerCase()]=false;
+});
+
+let player;
+let enemies=[];
+let bullets=[];
+let shards=[];
+let particles=[];
+
+let score=0;
+let wave=1;
+let level=1;
+let xp=0;
+let xpNeeded=10;
+
+let gameRunning=false;
+let lastTime=0;
+let spawnTimer=0;
+let shootTimer=0;
+
+let stats;
+
+
+function startGame(){
+
+  document.getElementById("menu").style.display="none";
+  document.getElementById("upgrade").style.display="none";
+
+  score=0;
+  wave=1;
+  level=1;
+  xp=0;
+  xpNeeded=10;
+
+  enemies=[];
+  bullets=[];
+  shards=[];
+  particles=[];
+
+  stats={
+    maxHp:100,
+    speed:250,
+    damage:25,
+    fireRate:400,
+    bulletSpeed:650,
+    bulletSize:4,
+    magnet:90,
+    multi:1
+  };
+
+  player={
+    x:W/2,
+    y:H/2,
+    radius:13,
+    hp:100
+  };
+
+  gameRunning=true;
+  lastTime=performance.now();
+
+  requestAnimationFrame(loop);
+}
+
+
+function spawnEnemy(){
+
+  let side=Math.floor(Math.random()*4);
+
+  let x,y;
+
+  if(side===0){
+    x=-30;
+    y=Math.random()*H;
+  }
+
+  if(side===1){
+    x=W+30;
+    y=Math.random()*H;
+  }
+
+  if(side===2){
+    x=Math.random()*W;
+    y=-30;
+  }
+
+  if(side===3){
+    x=Math.random()*W;
+    y=H+30;
+  }
+
+  let strength=1+wave*0.15;
+
+  enemies.push({
+    x:x,
+    y:y,
+    radius:10+Math.random()*8,
+    hp:35*strength,
+    maxHp:35*strength,
+    speed:45+wave*3+Math.random()*25,
+    hitCooldown:0
+  });
+}
+
+
+function shoot(){
+
+  if(enemies.length===0) return;
+
+  let target=enemies[0];
+  let best=Infinity;
+
+  for(const enemy of enemies){
+
+    let d=
+      (enemy.x-player.x)**2+
+      (enemy.y-player.y)**2;
+
+    if(d<best){
+      best=d;
+      target=enemy;
+    }
+  }
+
+  let angle=Math.atan2(
+    target.y-player.y,
+    target.x-player.x
+  );
+
+  for(let i=0;i<stats.multi;i++){
+
+    let spread=
+      (i-(stats.multi-1)/2)*0.15;
+
+    let a=angle+spread;
+
+    bullets.push({
+      x:player.x,
+      y:player.y,
+      vx:Math.cos(a)*stats.bulletSpeed,
+      vy:Math.sin(a)*stats.bulletSpeed,
+      radius:stats.bulletSize,
+      damage:stats.damage
+    });
+  }
+
+  burst(
+    player.x,
+    player.y,
+    "#9b5cff",
+    3
+  );
+}
+
+
+function burst(x,y,color,count){
+
+  for(let i=0;i<count;i++){
+
+    let angle=Math.random()*Math.PI*2;
+    let speed=30+Math.random()*120;
+
+    particles.push({
+      x:x,
+      y:y,
+      vx:Math.cos(angle)*speed,
+      vy:Math.sin(angle)*speed,
+      life:.5+Math.random()*.5,
+      color:color
+    });
+  }
+}
+
+
+function collectXP(){
+
+  for(const shard of shards){
+
+    let dx=player.x-shard.x;
+    let dy=player.y-shard.y;
+
+    let distance=Math.hypot(dx,dy);
+
+    if(distance<stats.magnet){
+
+      let angle=Math.atan2(dy,dx);
+      let speed=150+(stats.magnet-distance)*3;
+
+      shard.x+=Math.cos(angle)*speed*0.016;
+      shard.y+=Math.sin(angle)*speed*0.016;
+    }
+
+    if(distance<player.radius+shard.radius){
+
+      shard.collected=true;
+
+      xp++;
+
+      if(xp>=xpNeeded){
+
+        xp-=xpNeeded;
+
+        xpNeeded=Math.floor(xpNeeded*1.35);
+
+        level++;
+
+        showUpgrade();
+      }
+    }
+  }
+
+  shards=shards.filter(s=>!s.collected);
+}
+
+
+function showUpgrade(){
+
+  gameRunning=false;
+
+  const screen=document.getElementById("upgrade");
+  const choices=document.getElementById("choices");
+
+  screen.style.display="flex";
+  choices.innerHTML="";
+
+  const upgrades=[
+
+    {
+      name:"VOID CORE",
+      text:"+20 Max HP and heal 20",
+      action(){
+        stats.maxHp+=20;
+        player.hp=Math.min(
+          stats.maxHp,
+          player.hp+20
+        );
+      }
+    },
+
+    {
+      name:"OVERCHARGE",
+      text:"Attack speed +25%",
+      action(){
+        stats.fireRate*=.75;
+      }
+    },
+
+    {
+      name:"SINGULARITY",
+      text:"Damage +40%",
+      action(){
+        stats.damage*=1.4;
+      }
+    },
+
+    {
+      name:"PHASE DRIVE",
+      text:"Movement speed +20%",
+      action(){
+        stats.speed*=1.2;
+      }
+    },
+
+    {
+      name:"VOID MAGNET",
+      text:"Pickup range +50%",
+      action(){
+        stats.magnet*=1.5;
+      }
+    },
+
+    {
+      name:"TWIN MOONS",
+      text:"Fire one additional projectile",
+      action(){
+        stats.multi++;
+      }
+    },
+
+    {
+      name:"VOID LANCE",
+      text:"Projectile size +40% and speed +15%",
+      action(){
+        stats.bulletSize*=1.4;
+        stats.bulletSpeed*=1.15;
+      }
+    }
+  ];
+
+  upgrades
+    .sort(()=>Math.random()-.5)
+    .slice(0,3)
+    .forEach(upgrade=>{
+
+      const div=document.createElement("div");
+
+      div.className="choice";
+
+      div.innerHTML=`
+        <strong>${upgrade.name}</strong>
+        <span>${upgrade.text}</span>
+      `;
+
+      div.onclick=()=>{
+
+        upgrade.action();
+
+        screen.style.display="none";
+
+        gameRunning=true;
+
+        lastTime=performance.now();
+
+        requestAnimationFrame(loop);
+      };
+
+      choices.appendChild(div);
+    });
+}
+
+
+function gameOver(){
+
+  gameRunning=false;
+
+  const menu=document.getElementById("menu");
+
+  menu.style.display="flex";
+
+  menu.querySelector("h1").innerHTML=
+    "THE VOID<br>CLAIMED YOU";
+
+  menu.querySelector("p").innerHTML=
+    `You reached Wave <b>${wave}</b><br>
+     ☠ Kills: <b>${score}</b><br><br>
+     The void remembers.`;
+
+  menu.querySelector("button").textContent=
+    "RE-ENTER THE VOID";
+}
+
+
+function update(dt){
+
+  let dx=0;
+  let dy=0;
+
+  if(keys["w"]||keys["arrowup"]) dy--;
+  if(keys["s"]||keys["arrowdown"]) dy++;
+  if(keys["a"]||keys["arrowleft"]) dx--;
+  if(keys["d"]||keys["arrowright"]) dx++;
+
+  if(dx!==0||dy!==0){
+
+    let length=Math.hypot(dx,dy);
+
+    dx/=length;
+    dy/=length;
+
+    player.x+=dx*stats.speed*dt;
+    player.y+=dy*stats.speed*dt;
+  }
+
+  player.x=Math.max(15,Math.min(W-15,player.x));
+  player.y=Math.max(15,Math.min(H-15,player.y));
+
+
+  spawnTimer-=dt*1000;
+
+  if(spawnTimer<=0){
+
+    spawnEnemy();
+
+    spawnTimer=Math.max(
+      120,
+      650-wave*28
+    );
+  }
+
+
+  shootTimer-=dt*1000;
+
+  if(shootTimer<=0){
+
+    shoot();
+
+    shootTimer=stats.fireRate;
+  }
+
+
+  for(const bullet of bullets){
+
+    bullet.x+=bullet.vx*dt;
+    bullet.y+=bullet.vy*dt;
+  }
+
+  bullets=bullets.filter(b=>
+    b.x>-50 &&
+    b.x<W+50 &&
+    b.y>-50 &&
+    b.y<H+50
+  );
+
+
+  for(const enemy of enemies){
+
+    let angle=Math.atan2(
+      player.y-enemy.y,
+      player.x-enemy.x
+    );
+
+    enemy.x+=Math.cos(angle)*enemy.speed*dt;
+    enemy.y+=Math.sin(angle)*enemy.speed*dt;
+
+    enemy.hitCooldown-=dt;
+
+    let distance=Math.hypot(
+      player.x-enemy.x,
+      player.y-enemy.y
+    );
+
+    if(
+      distance<
+      player.radius+enemy.radius &&
+      enemy.hitCooldown<=0
+    ){
+
+      player.hp-=10;
+
+      enemy.hitCooldown=.6;
+
+      burst(
+        player.x,
+        player.y,
+        "#ff2bd6",
+        5
+      );
+
+      if(player.hp<=0){
+
+        gameOver();
+        return;
+      }
+    }
+  }
+
+
+  for(const bullet of bullets){
+
+    for(const enemy of enemies){
+
+      let distance=Math.hypot(
+        bullet.x-enemy.x,
+        bullet.y-enemy.y
+      );
+
+      if(
+        distance<
+        bullet.radius+enemy.radius &&
+        enemy.hp>0
+      ){
+
+        enemy.hp-=bullet.damage;
+
+        bullet.x=-9999;
+
+        burst(
+          enemy.x,
+          enemy.y,
+          "#8b5cf6",
+          3
+        );
+
+        if(enemy.hp<=0){
+
+          score++;
+
+          shards.push({
+            x:enemy.x,
+            y:enemy.y,
+            radius:5
+          });
+
+          burst(
+            enemy.x,
+            enemy.y,
+            "#22d3ee",
+            8
+          );
+        }
+      }
+    }
+  }
+
+
+  enemies=enemies.filter(e=>e.hp>0);
+
+  collectXP();
+
+
+  for(const particle of particles){
+
+    particle.x+=particle.vx*dt;
+    particle.y+=particle.vy*dt;
+
+    particle.vx*=.97;
+    particle.vy*=.97;
+
+    particle.life-=dt;
+  }
+
+  particles=particles.filter(
+    p=>p.life>0
+  );
+
+
+  wave=1+Math.floor(score/15);
+
+  document.getElementById("wave").textContent=wave;
+  document.getElementById("kills").textContent=score;
+
+  document.getElementById("hp").textContent=
+    Math.max(0,Math.ceil(player.hp));
+
+  document.getElementById("xp").style.width=
+    (xp/xpNeeded*100)+"%";
+}
+
+
+function draw(){
+
+  ctx.clearRect(0,0,W,H);
+
+  const time=performance.now()/1000;
+
+
+  /*
+    VOID BACKGROUND
+  */
+
+  for(let i=0;i<120;i++){
+
+    let x=(i*97)%W;
+    let y=(i*53)%H;
+
+    let alpha=
+      .15+
+      Math.sin(time+i)*.08;
+
+    ctx.fillStyle=
+      `rgba(180,150,255,${alpha})`;
+
+    ctx.fillRect(x,y,1.5,1.5);
+  }
+
+
+  /*
+    VOID GRID
+  */
+
+  ctx.strokeStyle="#7c3cff10";
+  ctx.lineWidth=1;
+
+  for(let x=0;x<W;x+=60){
+
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,H);
+    ctx.stroke();
+  }
+
+  for(let y=0;y<H;y+=60){
+
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(W,y);
+    ctx.stroke();
+  }
+
+
+  /*
+    XP SHARDS
+  */
+
+  for(const shard of shards){
+
+    ctx.save();
+
+    ctx.translate(
+      shard.x,
+      shard.y
+    );
+
+    ctx.rotate(time*3);
+
+    ctx.fillStyle="#22d3ee";
+    ctx.shadowColor="#22d3ee";
+    ctx.shadowBlur=15;
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,-7);
+    ctx.lineTo(5,0);
+    ctx.lineTo(0,7);
+    ctx.lineTo(-5,0);
+
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+
+  /*
+    ENEMIES
+  */
+
+  for(const enemy of enemies){
+
+    ctx.fillStyle="#d12cff";
+    ctx.shadowColor="#9d22ff";
+    ctx.shadowBlur=20;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x,
+      enemy.y,
+      enemy.radius,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+
+    /*
+      eyes
+    */
+
+    ctx.fillStyle="#190021";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x-3,
+      enemy.y-2,
+      2,
+      0,
+      Math.PI*2
+    );
+
+    ctx.arc(
+      enemy.x+3,
+      enemy.y-2,
+      2,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    /*
+      health bar
+    */
+
+    ctx.fillStyle="#ffffff22";
+
+    ctx.fillRect(
+      enemy.x-enemy.radius,
+      enemy.y-enemy.radius-6,
+      enemy.radius*2,
+      2
+    );
+
+    ctx.fillStyle="#ff43e6";
+
+    ctx.fillRect(
+      enemy.x-enemy.radius,
+      enemy.y-enemy.radius-6,
+      enemy.radius*2*
+      (enemy.hp/enemy.maxHp),
+      2
+    );
+  }
+
+
+  /*
+    BULLETS
+  */
+
+  for(const bullet of bullets){
+
+    ctx.fillStyle="#d6c8ff";
+    ctx.shadowColor="#9b5cff";
+    ctx.shadowBlur=15;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      bullet.x,
+      bullet.y,
+      bullet.radius,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+  }
+
+
+  /*
+    PLAYER
+  */
+
+  ctx.fillStyle="#f5ffff";
+  ctx.shadowColor="#22d3ee";
+  ctx.shadowBlur=30;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x,
+    player.y,
+    player.radius,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.shadowBlur=0;
+
+  ctx.strokeStyle="#22d3ee";
+  ctx.lineWidth=2;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x,
+    player.y,
+    player.radius+7+
+    Math.sin(time*6)*2,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+
+  /*
+    PARTICLES
+  */
+
+  for(const particle of particles){
+
+    ctx.globalAlpha=
+      Math.max(0,particle.life);
+
+    ctx.fillStyle=particle.color;
+
+    ctx.fillRect(
+      particle.x,
+      particle.y,
+      3,
+      3
+    );
+  }
+
+  ctx.globalAlpha=1;
+}
+
+
+function loop(time){
+
+  if(!gameRunning) return;
+
+  let dt=
+    Math.min(
+      (time-lastTime)/1000,
+      .033
+    );
+
+  lastTime=time;
+
+  update(dt);
+  draw();
+
+  if(gameRunning){
+    requestAnimationFrame(loop);
+  }
+}
+
+</script>
+
+</body>
+</html>
