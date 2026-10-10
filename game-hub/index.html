@@ -14,7 +14,6 @@
     <title>GameVault — Game Hub</title>
 
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -100,9 +99,26 @@
             box-shadow: 0 8px 30px rgba(124, 92, 255, 0.22);
         }
 
-        .installAppButton i {
+        .installAppButton i,
+        .mainNav i,
+        .headerActions i,
+        .mobileNavItem i,
+        .playIcon i,
+        [data-lucide] {
             width: 17px;
             height: 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        [data-lucide] .icon-image {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 0 6px rgba(124, 92, 255, 0.35));
         }
 
         .appInstallCard {
@@ -368,7 +384,7 @@
             Play Now
         </a>
 
-        <a href="#games" class="secondaryButton">
+        <a href="games/index.html" class="secondaryButton">
             <i data-lucide="gamepad-2"></i>
             Browse Games
         </a>
@@ -1290,7 +1306,7 @@
         </a>
 
         <!-- Shinobi Clash (Combat) -->
-        <a href="../Naruto_Game/Naruto.html"
+        <a href="games/Naruto.html"
            class="gameCard naruto"
            data-game="naruto"
            data-category="combat action ninja">
@@ -1685,7 +1701,7 @@
         </a>
 
         <!-- Cyber Drift Run -->
-        <a href="games/cyberdriftrun.html"
+        <a href="games/cyberdriftrunner.html"
            class="gameCard cyberdriftrun"
            data-game="cyberdriftrun"
            data-category="racing drift arcade">
@@ -1705,7 +1721,7 @@
         </a>
 
         <!-- Garden Harvest -->
-        <a href="games/gardenharvest.html"
+        <a href="games/gardenharverst.html"
            class="gameCard gardenharvest"
            data-game="gardenharvest"
            data-category="casual management harvest">
@@ -1765,7 +1781,7 @@
         </a>
 
         <!-- Neon Circuit Drift -->
-        <a href="games/neoncircuitdrift.html"
+        <a href="games/neoncircuitdrafter.html"
            class="gameCard neoncircuitdrift"
            data-game="neoncircuitdrift"
            data-category="racing arcade cyber">
@@ -2131,14 +2147,48 @@ function updateCoinDisplay(amountGained = 0) {
 
         setTimeout(() => {
             floatMsg.remove();
-        }, 1000);
+        }, 1000);   
     }
+}
+
+const lucideImages = {
+    home: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V20h14V9.5"></path></svg>'),
+    "gamepad-2": 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z"></path><path d="M8 12h3"></path><path d="M9.5 10.5v3"></path><path d="M16 10.5h2"></path><path d="M17 9v3"></path></svg>'),
+    trophy: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v2a4 4 0 0 1-8 0V4Z"></path><path d="M6 6H4a2 2 0 0 0 2 2"></path><path d="M18 6h2a2 2 0 0 1-2 2"></path><path d="M12 12v4"></path><path d="M9 20h6"></path><path d="M8 16h8v4H8z"></path></svg>'),
+    info: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 10v6"></path><path d="M12 7h.01"></path></svg>'),
+    download: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"></path><path d="m7 19 5 5 5-5"></path><path d="M4 20h16"></path></svg>'),
+    search: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg>'),
+    "chevron-down": 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>'),
+    play: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 5 11 7-11 7V5Z"></path></svg>'),
+    "arrow-right": 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 5 7 7-7 7"></path></svg>'),
+    lock: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 1 1 8 0v3"></path></svg>')
+};
+
+function renderLucideFallbacks() {
+    document.querySelectorAll("[data-lucide]").forEach((icon) => {
+        if (icon.querySelector("img")) return;
+
+        const name = icon.dataset.lucide;
+        const src = lucideImages[name];
+
+        if (src) {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = name;
+            img.className = "icon-image";
+            img.draggable = false;
+            icon.innerHTML = "";
+            icon.appendChild(img);
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
 
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
+    } else {
+        renderLucideFallbacks();
     }
 
     updateCoinDisplay();
@@ -2177,7 +2227,7 @@ const gameRoutes = {
     mystery: "games/mystery.html",
     naruto: "games/Naruto.html",
     neon: "games/neondodge.html",
-    memory: "games/quickmind.html",
+    memory: "games/memory.html",
     reaction: "games/reaction.html",
     rocket: "games/rocket.html",
     snake: "games/snake.html",
@@ -2208,11 +2258,11 @@ const gameRoutes = {
     sudoku: "games/sudoku.html",
 
     crystalcrush: "games/crystalcrush.html",
-    cyberdriftrun: "games/cyberdriftrun.html",
-    gardenharvest: "games/gardenharvest.html",
+    cyberdriftrun: "games/cyberdriftrunner.html",
+    gardenharvest: "games/gardenharverst.html",
     moonbakery: "games/moonbakery.html",
     neonblaster: "games/neonblaster.html",
-    neoncircuitdrift: "games/neoncircuitdrift.html",
+    neoncircuitdrift: "games/neoncircuitdrafter.html",
     neondrift: "games/neondrift.html",
     printabrainrot: "games/printabrainrot.html",
     skylineobby: "games/skylineobby.html",
