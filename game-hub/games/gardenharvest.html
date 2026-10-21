@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Garden Harvest: Catch & Grow</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #2b1f14;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #4a7c59 0%, #2f4f36 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 10;
+        }
+        .stat-box {
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            color: #ffd166;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        #canvas-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+            background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 60%, #90ee90 60%, #3b7a57 100%);
+            cursor: none; /* Hides mouse cursor for a cleaner arcade feel */
+        }
+        footer {
+            padding: 12px 20px 20px 20px;
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 10;
+        }
+        .btn {
+            background: linear-gradient(135deg, #f4a261, #e76f51);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 111, 81, 0.4);
+            transition: transform 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(43, 31, 20, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+        #overlay h1 {
+            font-size: 30px;
+            margin: 0 0 10px 0;
+            color: #ffd166;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(255, 209, 102, 0.4);
+        }
+        #overlay p {
+            color: #e0e0e0;
+            font-size: 13px;
+            margin: 0 0 25px 0;
+            text-align: center;
+            padding: 0 25px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <header>
+        <div class="stat-box">
+            <div class="stat-label">Harvest</div>
+            <div id="score-val" class="stat-value">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Lives</div>
+            <div id="lives-val" class="stat-value">❤️❤️❤️</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Best</div>
+            <div id="high-score-val" class="stat-value">0</div>
+        </div>
+    </header>
+
+    <div id="canvas-wrapper">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <footer>
+        <button class="btn" id="sound-btn">Audio: ON</button>
+        <button class="btn" id="restart-btn">Restart</button>
+    </footer>
+
+    <div id="overlay">
+        <h1>GARDEN HARVEST</h1>
+        <p>Just move your mouse or slide your finger across the screen to guide your basket automatically! No clicking required.</p>
+        <button class="btn" id="start-btn" style="font-size: 16px; padding: 12px 35px;">START HARVEST</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+        const wrapper = document.getElementById('canvas-wrapper');
+        canvas.width = wrapper.clientWidth;
+        canvas.height = wrapper.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let gameActive = false;
+    let score = 0;
+    let highScore = localStorage.getItem('garden_high_score') || 0;
+    let lives = 3;
+    let soundEnabled = true;
+    let frameCount = 0;
+
+    document.getElementById('high-score-val').innerText = highScore;
+
+    let basket = {
+        x: canvas.width / 2,
+        y: canvas.height - 70,
+        w: 70,
+        h: 30,
+        targetX: canvas.width / 2
+    };
+
+    let items = [];
+    let particles = [];
+
+    // Audio synthesizer
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playTone(freq, type, duration, vol = 0.1) {
+        if (!soundEnabled || !audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function sfxCatch() { playTone(580, 'sine', 0.1, 0.12); }
+    function sfxBonus() { playTone(880, 'triangle', 0.15, 0.15); }
+    function sfxBad() { playTone(140, 'sawtooth', 0.2, 0.15); }
+
+    // Automatic Pointer/Mouse movement (No click required)
+    function updatePointer(clientX) {
+        const rect = canvas.getBoundingClientRect();
+        basket.targetX = clientX - rect.left;
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+        updatePointer(e.clientX);
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+            updatePointer(e.touches[0].clientX);
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchstart', (e) => {
+        initAudio();
+        if (e.touches.length > 0) {
+            updatePointer(e.touches[0].clientX);
+        }
+    }, { passive: true });
+
+    function spawnItem() {
+        const rand = Math.random();
+        let type = 'apple';
+        let color = '#e76f51';
+        let radius = 14;
+        let speed = 2.5 + Math.random() * 2;
+
+        if (rand > 0.8) {
+            type = 'sun';
+            color = '#ffd166';
+            radius = 12;
+            speed = 3 + Math.random() * 1.5;
+        } else if (rand > 0.6) {
+            type = 'pinecone';
+            color = '#8d5524';
+            radius = 15;
+            speed = 3.5 + Math.random() * 1.5;
+        }
+
+        items.push({
+            x: Math.random() * (canvas.width - 40) + 20,
+            y: -30,
+            vy: speed,
+            type: type,
+            color: color,
+            radius: radius
+        });
+    }
+
+    function spawnParticles(x, y, color) {
+        for (let i = 0; i < 8; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 1 + Math.random() * 3;
+            particles.push({
+                x: x, y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1.0,
+                color: color,
+                size: 3 + Math.random() * 2
+            });
+        }
+    }
+
+    function update() {
+        if (!gameActive) return;
+        frameCount++;
+
+        basket.x += (basket.targetX - basket.x) * 0.25;
+        basket.x = Math.max(basket.w / 2, Math.min(canvas.width - basket.w / 2, basket.x));
+
+        if (frameCount % 40 === 0) {
+            spawnItem();
+        }
+
+        // Update items
+        for (let i = items.length - 1; i >= 0; i--) {
+            let it = items[i];
+            it.y += it.vy;
+
+            // Basket collision check
+            if (
+                it.y + it.radius >= basket.y - basket.h / 2 &&
+                it.y - it.radius <= basket.y + basket.h / 2 &&
+                it.x >= basket.x - basket.w / 2 - 5 &&
+                it.x <= basket.x + basket.w / 2 + 5
+            ) {
+                if (it.type === 'apple') {
+                    sfxCatch();
+                    score += 10;
+                    spawnParticles(it.x, it.y, '#e76f51');
+                } else if (it.type === 'sun') {
+                    sfxBonus();
+                    score += 25;
+                    spawnParticles(it.x, it.y, '#ffd166');
+                } else if (it.type === 'pinecone') {
+                    sfxBad();
+                    lives--;
+                    updateLivesUI();
+                    spawnParticles(it.x, it.y, '#8d5524');
+                    if (lives <= 0) {
+                        endGame();
+                    }
+                }
+                document.getElementById('score-val').innerText = score;
+                items.splice(i, 1);
+                continue;
+            }
+
+            if (it.y > canvas.height + 20) {
+                items.splice(i, 1);
+            }
+        }
+
+        // Update particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.04;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    function updateLivesUI() {
+        let h = '';
+        for (let i = 0; i < lives; i++) h += '❤️';
+        document.getElementById('lives-val').innerText = h;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Sun in background
+        ctx.fillStyle = 'rgba(255, 255, 200, 0.4)';
+        ctx.beginPath();
+        ctx.arc(canvas.width - 50, 60, 30, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw Basket
+        ctx.save();
+        ctx.translate(basket.x, basket.y);
+        ctx.fillStyle = '#b08968';
+        ctx.strokeStyle = '#7f5539';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-basket.w / 2, -basket.h / 2, basket.w, basket.h, [0, 0, 12, 12]);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Draw items
+        items.forEach(it => {
+            ctx.save();
+            ctx.translate(it.x, it.y);
+            ctx.fillStyle = it.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, it.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Little stem/leaf for apple
+            if (it.type === 'apple') {
+                ctx.fillStyle = '#588157';
+                ctx.fillRect(-1, -it.radius - 4, 2, 4);
+            }
+            ctx.restore();
+        });
+
+        // Draw particles
+        particles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+        initAudio();
+        score = 0;
+        lives = 3;
+        gameActive = true;
+        items = [];
+        particles = [];
+        frameCount = 0;
+
+        document.getElementById('score-val').innerText = score;
+        updateLivesUI();
+
+        const overlay = document.getElementById('overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 300);
+    }
+
+    function endGame() {
+        gameActive = false;
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('garden_high_score', highScore);
+            document.getElementById('high-score-val').innerText = highScore;
+        }
+
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.style.opacity = '1', 10);
+
+        overlay.querySelector('h1').innerText = "HARVEST OVER";
+        overlay.querySelector('p').innerText = `Apples Collected: ${score}\nBest Score: ${highScore}`;
+        document.getElementById('start-btn').innerText = "PLAY AGAIN";
+    }
+
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        endGame();
+        startGame();
+    });
+
+    document.getElementById('sound-btn').addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        document.getElementById('sound-btn').innerText = soundEnabled ? "Audio: ON" : "Audio: OFF";
+    });
+
+    loop();
+</script>
+
+</body>
+</html>
