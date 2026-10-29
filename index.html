@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="GameVault">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237c5cff'><path d='M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H9v2H7v-2H5v-2h2V9h2v2h2v2zm4.5 1c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 8 18.5 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/></svg>">
+    <link rel="manifest" href="manifest.json">
     <title>GameVault — Game Hub</title>
 
     <link rel="stylesheet" href="style.css">
@@ -205,6 +206,94 @@
             z-index: 2;
         }
 
+        /* =================================================
+           ACHIEVEMENT TOAST & CHALLENGE BANNER STYLES
+        ================================================= */
+        .achievement-toast {
+            position: fixed;
+            bottom: -100px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(18, 18, 26, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 184, 0, 0.3);
+            padding: 14px 20px;
+            border-radius: 16px;
+            z-index: 10000;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .achievement-toast.show {
+            transform: translateY(-120px);
+            opacity: 1;
+        }
+
+        .achievement-icon {
+            font-size: 28px;
+            background: linear-gradient(135deg, #ffb800, #ff5500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .achievement-title {
+            font-weight: 800;
+            font-size: 14px;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .challenge-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 110, 0.9);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+
+        .challenge-banner.hidden {
+            display: none;
+        }
+
+        .challenge-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .challenge-content button {
+            background: #fff;
+            color: #111;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .challenge-content button:hover {
+            transform: scale(1.05);
+        }
+
         @media (max-width: 700px) {
             .appInstallCard {
                 flex-direction: column;
@@ -238,7 +327,23 @@
 
 <body>
 
-    
+    <!-- Achievement Notification Toast -->
+    <div id="achievement-toast" class="achievement-toast">
+      <div class="achievement-icon" id="ach-icon">🏆</div>
+      <div class="achievement-info">
+        <div class="achievement-title" id="ach-title">Achievement Unlocked!</div>
+        <div class="achievement-desc" id="ach-desc">Scored over 500 points</div>
+      </div>
+    </div>
+
+    <!-- Challenge Banner Overlay (Triggered via shared URL) -->
+    <div id="challenge-banner" class="challenge-banner hidden">
+      <div class="challenge-content">
+        <span>⚔️ <strong>CHALLENGE DETECTED:</strong> Beat <span id="challenge-score-display">0</span> in <span id="challenge-game-display">Game</span>!</span>
+        <button onclick="dismissChallenge()">Accept Challenge 🚀</button>
+      </div>
+    </div>
+
     <a href="admin/admin.html"
        title="Admin"
        style="
@@ -388,6 +493,8 @@
             <i data-lucide="gamepad-2"></i>
             Browse Games
         </a>
+
+
 
     </div>
 
@@ -618,7 +725,7 @@
            data-category="arcade action platformer"
            style="position: relative;">
 
-            <span class="trendyBadge">🏃‍♂️️ Obby</span>
+            <span class="trendyBadge">🏃 plots</span>
 
             <div class="cardTop">
                 <span class="gameIcon">🏃‍♂️</span>
@@ -776,7 +883,7 @@
             <span class="trendyBadge">☁️ Casual</span>
 
             <div class="cardTop">
-                <span class="gameIcon">☁️️</span>
+                <span class="gameIcon">☁</span>
                 <span class="playIcon">
                     <i data-lucide="play"></i>
                 </span>
@@ -1706,7 +1813,7 @@
            data-game="cyberdriftrun"
            data-category="racing drift arcade">
             <div class="cardTop">
-                <span class="gameIcon">🏎️️</span>
+                <span class="gameIcon">🏎</span>
                 <span class="playIcon"><i data-lucide="play"></i></span>
             </div>
             <div class="cardInfo">
@@ -1720,8 +1827,8 @@
             </div>
         </a>
 
-        <!-- Garden Harverst -->
-        <a href="games/gardenharverst.html"
+        <!-- Garden Harvest -->
+        <a href="games/gardenharvest.html"
            class="gameCard gardenharvest"
            data-game="gardenharvest"
            data-category="casual management harvest">
@@ -1922,6 +2029,10 @@
 
     </div>
 
+    <a id="secretVaultButton" href="secretvault/secretvault.html" class="secretVaultButton" aria-label="Open Secret Vault">
+        <i data-lucide="lock"></i>
+        Secret Vault
+    </a>
 
     <div class="appInstallCard" id="appInstallCard">
 
@@ -2203,6 +2314,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* =================================================
+   ACHIEVEMENTS + CHALLENGE LINK SYSTEM
+================================================= */
+const ACHIEVEMENTS = {
+  FIRST_PLAY: { id: 'first_play', title: 'Gamer Awakening', desc: 'Played your first game on GameVault!', icon: '🎮' },
+  HIGH_SCORE_100: { id: 'score_100', title: 'Centurion', desc: 'Reached a score of 100 points!', icon: '⚡' },
+  HIGH_SCORE_500: { id: 'score_500', title: 'Pro Gamer', desc: 'Reached a score of 500 points!', icon: '🔥' },
+  HIGH_SCORE_1000: { id: 'score_1000', title: 'GameVault Legend', desc: 'Reached 1,000 points!', icon: '👑' }
+};
+
+function unlockAchievement(achKey) {
+  const ach = ACHIEVEMENTS[achKey];
+  if (!ach) return;
+
+  const unlocked = JSON.parse(localStorage.getItem('gamevault_achievements') || '{}');
+  if (unlocked[ach.id]) return;
+
+  unlocked[ach.id] = true;
+  localStorage.setItem('gamevault_achievements', JSON.stringify(unlocked));
+
+  document.getElementById('ach-icon').textContent = ach.icon;
+  document.getElementById('ach-title').textContent = ach.title;
+  document.getElementById('ach-desc').textContent = ach.desc;
+
+  const toast = document.getElementById('achievement-toast');
+  toast.classList.add('show');
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 4000);
+}
+
+function checkScoreAchievements(score) {
+  unlockAchievement('FIRST_PLAY');
+  if (score >= 100) unlockAchievement('HIGH_SCORE_100');
+  if (score >= 500) unlockAchievement('HIGH_SCORE_500');
+  if (score >= 1000) unlockAchievement('HIGH_SCORE_1000');
+}
+
+function generateChallengeLink(gameId, score) {
+  const baseUrl = window.location.origin + window.location.pathname;
+  const challengeUrl = `${baseUrl}?game=${encodeURIComponent(gameId)}&challenge=${score}`;
+  
+  navigator.clipboard.writeText(challengeUrl).then(() => {
+    alert(`Challenge link copied to clipboard!\nShare it with a friend: ${challengeUrl}`);
+  });
+}
+
+function checkChallengeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const game = params.get('game');
+  const challengeScore = params.get('challenge');
+
+  if (game && challengeScore) {
+    document.getElementById('challenge-game-display').textContent = game.toUpperCase();
+    document.getElementById('challenge-score-display').textContent = challengeScore;
+    document.getElementById('challenge-banner').classList.remove('hidden');
+  }
+}
+
+function dismissChallenge() {
+  document.getElementById('challenge-banner').classList.add('hidden');
+}
+
+window.addEventListener('DOMContentLoaded', checkChallengeURL);
+
+
+/* =================================================
    GAME ROUTES
 ================================================= */
 
@@ -2379,6 +2557,19 @@ if (profileButton) {
 
 }
 
+const secretVaultButton = document.getElementById("secretVaultButton");
+
+if (secretVaultButton) {
+    secretVaultButton.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) {
+            return;
+        }
+
+        event.preventDefault();
+        window.location.href = "secretvault/secretvault.html";
+    });
+}
+
 
 /* =================================================
    ACTIVE NAVIGATION
@@ -2430,17 +2621,53 @@ document
 /* =================================================
    GAMEVAULT APP INSTALL SYSTEM
 ================================================= */
-
 let deferredInstallPrompt = null;
 
-const installAppButton =
-    document.getElementById("installAppButton");
+const installAppBtn = document.getElementById("installAppButton");
+const installMainBtn = document.getElementById("installMainButton");
+const appInstallCard = document.getElementById("appInstallCard");
 
-const installMainButton =
-    document.getElementById("installMainButton");
+// Detect if running on iOS Safari
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-const appInstallCard =
-    document.getElementById("appInstallCard");
+// Listen for the native install prompt (Chrome / Edge / Android)
+window.addEventListener("beforeinstallprompt", (e) => {
+    // Prevent default mini-infobar on mobile
+    e.preventDefault();
+    deferredInstallPrompt = e;
+
+    // Show the install buttons
+    if (installAppBtn) installAppBtn.style.display = "inline-flex";
+    if (appInstallCard) appInstallCard.style.display = "flex";
+});
+
+// Trigger installation when clicked
+function handleInstallClick() {
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === "accepted") {
+                console.log("User installed GameVault PWA");
+            }
+            deferredInstallPrompt = null;
+        });
+    } else if (isIOS) {
+        alert("📲 To install GameVault on iOS:\n\n1. Tap the Share button (square with arrow up) at the bottom of Safari.\n2. Scroll down and tap 'Add to Home Screen'.");
+    } else {
+        alert("🎮 GameVault is already installed or your browser doesn't support direct install prompts. Try adding it via your browser menu!");
+    }
+}
+
+if (installAppBtn) installAppBtn.addEventListener("click", handleInstallClick);
+if (installMainBtn) installMainBtn.addEventListener("click", handleInstallClick);
+
+// Hide install elements if already running as an installed PWA
+window.addEventListener("appinstalled", () => {
+    if (installAppBtn) installAppBtn.style.display = "none";
+    if (appInstallCard) appInstallCard.style.display = "none";
+    deferredInstallPrompt = null;
+    console.log("GameVault app successfully installed!");
+});
 
 </script>
 
